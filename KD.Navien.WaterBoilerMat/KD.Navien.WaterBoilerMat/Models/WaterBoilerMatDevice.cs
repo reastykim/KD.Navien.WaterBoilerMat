@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
@@ -16,6 +17,11 @@ namespace KD.Navien.WaterBoilerMat.Models
 		public static bool IsNavienDevice(string address)
 		{
 			return address.StartsWith(NavienDeviceMacPrefix, StringComparison.CurrentCultureIgnoreCase);
+		}
+
+		public virtual Task ConnectAsync()
+		{
+			return Task.CompletedTask;
 		}
 	}
 }

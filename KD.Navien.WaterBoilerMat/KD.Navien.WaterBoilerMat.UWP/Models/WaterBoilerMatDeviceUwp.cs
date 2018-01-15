@@ -23,6 +23,8 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		#endregion
 
+		#region Constructors & Initialize
+
 		public WaterBoilerMatDeviceUwp(ObservableBluetoothLEDevice device)
 		{
 			this.device = device;
@@ -33,6 +35,13 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		private void Initialize()
 		{
 			device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+		}
+
+		#endregion
+
+		public override Task ConnectAsync()
+		{
+			return device.ConnectAsync();
 		}
 	}
 }
