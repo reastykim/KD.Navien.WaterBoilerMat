@@ -27,10 +27,5 @@ namespace KD.Navien.WaterBoilerMat.Models
 		{
 			return Task.CompletedTask;
 		}
-
-		//public virtual Task<IEnumerable<IBluetoothGattService>> GetBluetoothGattServiceAsync()
-		//{
-		//	return Task.FromResult(Enumerable.Empty<IBluetoothGattService>());
-		//}
 	}
 }

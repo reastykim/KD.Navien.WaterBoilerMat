@@ -6,7 +6,7 @@
 
     <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
 		<Button Text="Scan" Command="{Binding ScanCommand}" />
-		<ListView ItemsSource="{Binding FoundDevices}" SelectedItem="{Binding SelectedFoundDevice, Mode=TwoWay}">
+		<ListView x:Name="deviceList" ItemsSource="{Binding FoundDevices}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>
@@ -24,7 +24,24 @@
 			</ListView.ItemTemplate>
 		</ListView>
 		<Button Text="Connect" Command="{Binding ConnectCommand}"/>
-		<ListView ItemsSource="{Binding SelectedFoundDevice.Services}">
+		<ListView x:Name="serviceList" ItemsSource="{Binding Source={x:Reference deviceList}, Services}">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<ViewCell>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition />
+								<ColumnDefinition />
+							</Grid.ColumnDefinitions>
+
+							<Label Grid.Column="0" Text="{Binding Name}"/>
+							<Label Grid.Column="1" Text="{Binding UUID}"/>
+						</Grid>
+					</ViewCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
+		<ListView ItemsSource="{Binding Source={x:Reference serviceList}, GattCharacteristics}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>

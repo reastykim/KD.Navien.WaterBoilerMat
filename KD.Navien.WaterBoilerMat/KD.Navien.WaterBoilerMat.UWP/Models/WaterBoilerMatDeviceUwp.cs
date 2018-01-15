@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Connectivity;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,13 +49,16 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		{
 			switch (e.Action)
 			{
-				case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+				case NotifyCollectionChangedAction.Reset:
+					Services.Clear();
+					break;
+				case NotifyCollectionChangedAction.Add:
 					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
 					{
 						Services.Add(item);
 					}
 					break;
-				case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+				case NotifyCollectionChangedAction.Remove:
 					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
 					{
 						Services.Remove(item);
@@ -69,10 +73,5 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		{
 			return device.ConnectAsync();
 		}
-
-		//public override Task<IEnumerable<IBluetoothGattService>> GetBluetoothGattServiceAsync()
-		//{
-		//	return Task.FromResult<IEnumerable<IBluetoothGattService>>(device.Services.Select(s => new BluetoothGattServiceUwp(s)));
-		//}
 	}
 }

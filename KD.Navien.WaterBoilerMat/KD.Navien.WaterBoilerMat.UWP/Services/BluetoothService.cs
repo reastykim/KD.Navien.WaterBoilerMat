@@ -55,13 +55,13 @@ namespace KD.Navien.WaterBoilerMat.UWP.Services
 			// check if BluetoothLE APIs are available
 			if (BluetoothLEHelper.IsBluetoothLESupported != true)
 			{
-				logger.Log($"BluetoothLE APIs are not available.)", Category.Warn, Priority.High);
+				logger.Log($"BluetoothLE APIs are not available.", Category.Warn, Priority.High);
 				return Task.FromResult(Enumerable.Empty<WaterBoilerMatDevice>());
 			}
 
 			// Start the Enumeration
 			bluetoothLEHelper.StartEnumeration();
-			logger.Log($"Start the BluetoothLE device Enumeration.)", Category.Info, Priority.High);
+			logger.Log($"Start the BluetoothLE device Enumeration.", Category.Info, Priority.High);
 
 			Timer timer = null;
 			timer = new Timer(delegate

@@ -5,11 +5,12 @@ using System.Text;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public interface IBluetoothGattService
+    public interface IBluetoothGattCharacteristic
     {
 		string UUID { get; }
+
 		string Name { get; }
 
-		ObservableCollection<IBluetoothGattCharacteristic> GattCharacteristics { get; }
+		//ObservableCollection<IBluetoothGattCharacteristic> GattCharacteristics { get; }
 	}
 }
