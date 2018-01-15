@@ -23,8 +23,8 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
-		<Button Text="Connect" Command="{Binding ConnectCommand}"/>
-		<ListView x:Name="serviceList" ItemsSource="{Binding Source={x:Reference deviceList}, Services}">
+		<Button Text="Connect" Command="{Binding ConnectCommand}" CommandParameter="{Binding Source={x:Reference deviceList}, SelectedItem}"/>
+		<ListView x:Name="serviceList" ItemsSource="{Binding Source={x:Reference deviceList}, SelectedItem.Services}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>
@@ -41,7 +41,7 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
-		<ListView ItemsSource="{Binding Source={x:Reference serviceList}, GattCharacteristics}">
+		<ListView ItemsSource="{Binding Source={x:Reference serviceList}, SelectedItem.GattCharacteristics}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>

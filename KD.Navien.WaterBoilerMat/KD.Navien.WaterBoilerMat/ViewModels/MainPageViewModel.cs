@@ -31,29 +31,6 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		}
 		private ObservableCollection<WaterBoilerMatDevice> foundDevices;
 
-		public WaterBoilerMatDevice SelectedFoundDevice
-		{
-			get => selectedFoundDevice;
-			set => SetProperty(ref selectedFoundDevice, value);
-		}
-		private WaterBoilerMatDevice selectedFoundDevice;
-
-
-		//public ObservableCollection<IBluetoothGattService> FoundGattDeviceServices
-		//{
-		//	get { return foundGattDeviceServices ?? (foundGattDeviceServices = new ObservableCollection<IBluetoothGattService>()); }
-		//}
-		//private ObservableCollection<IBluetoothGattService> foundGattDeviceServices;
-
-		//public IBluetoothGattService SelectedFoundGattDeviceService
-		//{
-		//	get => selectedFoundGattDeviceService;
-		//	set => SetProperty(ref selectedFoundGattDeviceService, value);
-		//}
-		//private IBluetoothGattService selectedFoundGattDeviceService;
-		
-
-
 		#endregion
 
 		#region Fields
@@ -89,8 +66,6 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		private async void ExecuteScan()
 		{
 			FoundDevices.Clear();
-			SelectedFoundDevice = null;
-			//FoundGattDeviceServices.Clear();
 
 
 			IsAvailableBluetoothLEScan = false;
@@ -108,36 +83,22 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 			return IsAvailableBluetoothLEScan;
 		}
 
-		public DelegateCommand ConnectCommand
+		public DelegateCommand<WaterBoilerMatDevice> ConnectCommand
 		{
-			get { return connectCommand ?? (connectCommand = new DelegateCommand(ExecuteConnect, CanExecuteConnect).ObservesProperty(() => SelectedFoundDevice)); }
+			get { return connectCommand ?? (connectCommand = new DelegateCommand<WaterBoilerMatDevice>(ExecuteConnect)); }
 		}
-		private DelegateCommand connectCommand;
-		private async void ExecuteConnect()
+		private DelegateCommand<WaterBoilerMatDevice> connectCommand;
+		private async void ExecuteConnect(WaterBoilerMatDevice waterBoilerMatDevice)
 		{
 			try
 			{
-				await SelectedFoundDevice.ConnectAsync();
-				Logger.Log($"BluetoothLE Device Name=[{SelectedFoundDevice.Name}, Address=[{SelectedFoundDevice.Address}] Connect success.", Category.Info, Priority.Medium);
-				
-				//Logger.Log($"Call GetBluetoothGattServiceAsync()", Category.Debug, Priority.Medium);
-				//var gattServices = await SelectedFoundDevice.GetBluetoothGattServiceAsync();
-				//Logger.Log($"Stop GetBluetoothGattServiceAsync(). Found {gattServices.Count()} devices.)", Category.Info, Priority.Medium);
-
-				//foreach (var gattService in gattServices)
-				//{
-				//	Logger.Log($"Found a BluetoothGattService. Name=[{gattService.Name}, UUID=[{gattService.UUID}]]", Category.Debug, Priority.Low);
-				//	FoundGattDeviceServices.Add(gattService);
-				//}
+				await waterBoilerMatDevice.ConnectAsync();
+				Logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice.Name}, Address=[{waterBoilerMatDevice.Address}] Connect success.", Category.Info, Priority.Medium);
 			}
 			catch (Exception e)
 			{
-				Logger.Log($"BluetoothLE Device Name=[{SelectedFoundDevice.Name}, Address=[{SelectedFoundDevice.Address}] Connect fail. Exception = [{e.Message}]", Category.Exception, Priority.High);
+				Logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice.Name}, Address=[{waterBoilerMatDevice.Address}] Connect fail. Exception = [{e.Message}]", Category.Exception, Priority.High);
 			}
-		}
-		private bool CanExecuteConnect()
-		{
-			return SelectedFoundDevice != null;
 		}
 
 		#endregion
