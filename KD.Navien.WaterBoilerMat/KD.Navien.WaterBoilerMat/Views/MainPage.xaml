@@ -9,19 +9,38 @@
 		<ListView ItemsSource="{Binding FoundDevices}" SelectedItem="{Binding SelectedFoundDevice, Mode=TwoWay}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
-					<Grid>
-						<Grid.ColumnDefinitions>
-							<ColumnDefinition />
-							<ColumnDefinition />
-						</Grid.ColumnDefinitions>
+					<ViewCell>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition />
+								<ColumnDefinition />
+							</Grid.ColumnDefinitions>
 
-						<Label Grid.Column="0" Text="{Binding Name}"/>
-						<Label Grid.Column="1" Text="{Binding Address}"/>
-					</Grid>
+							<Label Grid.Column="0" Text="{Binding Name}"/>
+							<Label Grid.Column="1" Text="{Binding Address}"/>
+						</Grid>
+					</ViewCell>
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
 		<Button Text="Connect" Command="{Binding ConnectCommand}"/>
+		<ListView ItemsSource="{Binding FoundGattDeviceServices}" SelectedItem="{Binding SelectedFoundGattDeviceService, Mode=TwoWay}">
+			<ListView.ItemTemplate>
+				<DataTemplate>
+					<ViewCell>
+						<Grid>
+							<Grid.ColumnDefinitions>
+								<ColumnDefinition />
+								<ColumnDefinition />
+							</Grid.ColumnDefinitions>
+
+							<Label Grid.Column="0" Text="{Binding Name}"/>
+							<Label Grid.Column="1" Text="{Binding UUID}"/>
+						</Grid>
+					</ViewCell>
+				</DataTemplate>
+			</ListView.ItemTemplate>
+		</ListView>
 	</StackLayout>
 
 </ContentPage>

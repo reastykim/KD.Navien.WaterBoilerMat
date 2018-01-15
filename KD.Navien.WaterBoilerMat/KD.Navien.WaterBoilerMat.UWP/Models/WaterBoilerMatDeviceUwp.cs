@@ -43,5 +43,10 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		{
 			return device.ConnectAsync();
 		}
+
+		public override Task<IEnumerable<IBluetoothGattService>> GetBluetoothGattServiceAsync()
+		{
+			return Task.FromResult<IEnumerable<IBluetoothGattService>>(device.Services.Select(s => new BluetoothGattServiceUwp(s)));
+		}
 	}
 }

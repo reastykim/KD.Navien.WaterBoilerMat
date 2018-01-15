@@ -38,6 +38,22 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		}
 		private WaterBoilerMatDevice selectedFoundDevice;
 
+
+		public ObservableCollection<IBluetoothGattService> FoundGattDeviceServices
+		{
+			get { return foundGattDeviceServices ?? (foundGattDeviceServices = new ObservableCollection<IBluetoothGattService>()); }
+		}
+		private ObservableCollection<IBluetoothGattService> foundGattDeviceServices;
+
+		public IBluetoothGattService SelectedFoundGattDeviceService
+		{
+			get => selectedFoundGattDeviceService;
+			set => SetProperty(ref selectedFoundGattDeviceService, value);
+		}
+		private IBluetoothGattService selectedFoundGattDeviceService;
+		
+
+
 		#endregion
 
 		#region Fields
@@ -74,6 +90,8 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		{
 			FoundDevices.Clear();
 			SelectedFoundDevice = null;
+			FoundGattDeviceServices.Clear();
+
 
 			IsAvailableBluetoothLEScan = false;
 			var devices = await bluetoothService.ScanAsync(5000);
@@ -101,6 +119,16 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 			{
 				await SelectedFoundDevice.ConnectAsync();
 				Logger.Log($"BluetoothLE Device Name=[{SelectedFoundDevice.Name}, Address=[{SelectedFoundDevice.Address}] Connect success.", Category.Info, Priority.Medium);
+				
+				Logger.Log($"Call GetBluetoothGattServiceAsync()", Category.Debug, Priority.Medium);
+				var gattServices = await SelectedFoundDevice.GetBluetoothGattServiceAsync();
+				Logger.Log($"Stop GetBluetoothGattServiceAsync(). Found {gattServices.Count()} devices.)", Category.Info, Priority.Medium);
+
+				foreach (var gattService in gattServices)
+				{
+					Logger.Log($"Found a BluetoothGattService. Name=[{gattService.Name}, UUID=[{gattService.UUID}]]", Category.Debug, Priority.Low);
+					FoundGattDeviceServices.Add(gattService);
+				}
 			}
 			catch (Exception e)
 			{

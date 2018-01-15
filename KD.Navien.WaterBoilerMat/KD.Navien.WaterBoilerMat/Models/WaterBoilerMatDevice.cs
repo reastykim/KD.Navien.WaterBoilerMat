@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -22,6 +23,11 @@ namespace KD.Navien.WaterBoilerMat.Models
 		public virtual Task ConnectAsync()
 		{
 			return Task.CompletedTask;
+		}
+
+		public virtual Task<IEnumerable<IBluetoothGattService>> GetBluetoothGattServiceAsync()
+		{
+			return Task.FromResult(Enumerable.Empty<IBluetoothGattService>());
 		}
 	}
 }
