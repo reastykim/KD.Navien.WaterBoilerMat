@@ -8,6 +8,8 @@ namespace KD.Navien.WaterBoilerMat.Services
 {
     public interface IBluetoothService
     {
-		Task<IEnumerable<IBluetoothDevice>> ScanAsync(int timeoutMilliseconds);
+		bool IsScanning { get; }
+
+		Task<IEnumerable<WaterBoilerMatDevice>> ScanAsync(int timeoutMilliseconds);
 	}
 }

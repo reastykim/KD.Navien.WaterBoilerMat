@@ -16,7 +16,12 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
     {
 		#region Properties
 
-
+		public bool IsAvailableBluetoothLEScan
+		{
+			get => isAvailableBluetoothLEScan;
+			set => SetProperty(ref isAvailableBluetoothLEScan, value);
+		}
+		private bool isAvailableBluetoothLEScan = true;
 
 		#endregion
 
@@ -36,7 +41,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 			Initialize();
         }
 
-		private async void Initialize()
+		private void Initialize()
 		{
 			Title = "Main Page";
 
@@ -47,20 +52,23 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 
 		public DelegateCommand ScanCommand
 		{
-			get { return scanCommand ?? (scanCommand = new DelegateCommand(ExecuteScan, CanExecuteScan)); }
+			get { return scanCommand ?? (scanCommand = new DelegateCommand(ExecuteScan, CanExecuteScan).ObservesProperty(() => IsAvailableBluetoothLEScan)); }
 		}
 		private DelegateCommand scanCommand;
 		private async void ExecuteScan()
 		{
+			IsAvailableBluetoothLEScan = false;
 			var devices = await bluetoothService.ScanAsync(5000);
+			IsAvailableBluetoothLEScan = true;
+
 			foreach (var device in devices)
 			{
-				Logger.Log($"Find BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.None);
+				Logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.None);
 			}
 		}
 		private bool CanExecuteScan()
 		{
-			return true;
+			return IsAvailableBluetoothLEScan;
 		}
 
 		#endregion

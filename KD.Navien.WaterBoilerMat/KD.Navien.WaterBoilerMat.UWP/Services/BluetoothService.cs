@@ -47,17 +47,17 @@ namespace KD.Navien.WaterBoilerMat.UWP.Services
 
 		#endregion
 
-		public Task<IEnumerable<KD.Navien.WaterBoilerMat.Models.IBluetoothDevice>> ScanAsync(int timeoutMilliseconds)
+		public Task<IEnumerable<WaterBoilerMatDevice>> ScanAsync(int timeoutMilliseconds)
 		{
 			logger.Log($"Call ScanAsync({timeoutMilliseconds})", Category.Debug, Priority.Medium);
-			var tcs = new TaskCompletionSource<IEnumerable<KD.Navien.WaterBoilerMat.Models.IBluetoothDevice>>();
+			var tcs = new TaskCompletionSource<IEnumerable<WaterBoilerMatDevice>>();
 
 			// check if BluetoothLE APIs are available
 			if (BluetoothLEHelper.IsBluetoothLESupported != true)
 			{
 				logger.Log($"BluetoothLE APIs are not available.)", Category.Warn, Priority.High);
-				return Task.FromResult(Enumerable.Empty<KD.Navien.WaterBoilerMat.Models.IBluetoothDevice>());
-			}			
+				return Task.FromResult(Enumerable.Empty<WaterBoilerMatDevice>());
+			}
 
 			// Start the Enumeration
 			bluetoothLEHelper.StartEnumeration();
@@ -71,7 +71,8 @@ namespace KD.Navien.WaterBoilerMat.UWP.Services
 				bluetoothLEHelper.StopEnumeration();
 				logger.Log($"Stop the BluetoothLE device Enumeration. Found {bluetoothLEHelper.BluetoothLeDevices.Count} devices.)", Category.Info, Priority.High);
 
-				tcs.SetResult(bluetoothLEHelper.BluetoothLeDevices.Select(d => new BluetoothLEDeviceDisplay(d)));
+				tcs.SetResult(bluetoothLEHelper.BluetoothLeDevices.Where(d => WaterBoilerMatDevice.IsNavienDevice(d.BluetoothAddressAsString))
+																  .Select(d => new WaterBoilerMatDeviceUwp(d)));
 
 			}, null, timeoutMilliseconds, Timeout.Infinite);
 
