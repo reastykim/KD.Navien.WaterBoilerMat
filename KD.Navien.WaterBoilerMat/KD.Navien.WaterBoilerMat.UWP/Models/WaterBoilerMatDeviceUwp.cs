@@ -17,12 +17,6 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		public override string Name => device?.Name;
 		public override string Address => device?.BluetoothAddressAsString;
 
-		public override ObservableCollection<IBluetoothGattService> Services
-		{
-			get { return services ?? (services = new ObservableCollection<IBluetoothGattService>()); }
-		}
-		private ObservableCollection<IBluetoothGattService> services;
-
 		#endregion
 
 		#region Fields
@@ -65,6 +59,8 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 					}
 					break;
 			}
+
+			IsReadyForBoilerService = Services.Any(S => S.UUID.Equals(WaterBoilerMatDevice.BoilerGattServiceUuid));
 		}
 
 		#endregion

@@ -6,7 +6,7 @@
 
     <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
 		<Button Text="Scan" Command="{Binding ScanCommand}" />
-		<ListView x:Name="deviceList" ItemsSource="{Binding FoundDevices}">
+		<ListView x:Name="deviceList" Header="Device List" ItemsSource="{Binding FoundDevices}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>
@@ -24,7 +24,8 @@
 			</ListView.ItemTemplate>
 		</ListView>
 		<Button Text="Connect" Command="{Binding ConnectCommand}" CommandParameter="{Binding Source={x:Reference deviceList}, SelectedItem}"/>
-		<ListView x:Name="serviceList" ItemsSource="{Binding Source={x:Reference deviceList}, SelectedItem.Services}">
+		<Label Text="{Binding Source={x:Reference deviceList}, SelectedItem.IsReadyForBoilerService}, StringFormat='IsReadyForBoilerService : [{0}]'}"/>
+		<ListView x:Name="serviceList" Header="GattService List" ItemsSource="{Binding Source={x:Reference deviceList}, SelectedItem.Services}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>
@@ -41,7 +42,7 @@
 				</DataTemplate>
 			</ListView.ItemTemplate>
 		</ListView>
-		<ListView ItemsSource="{Binding Source={x:Reference serviceList}, SelectedItem.GattCharacteristics}">
+		<ListView x:Name="characteristicList" Header="Characteristic List" ItemsSource="{Binding Source={x:Reference serviceList}, SelectedItem.GattCharacteristics}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>
