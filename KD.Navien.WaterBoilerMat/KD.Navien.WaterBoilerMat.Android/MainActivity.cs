@@ -1,7 +1,8 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
-using Microsoft.Practices.Unity;
+using Prism;
+using Prism.Ioc;
 using Prism.Unity;
 
 namespace KD.Navien.WaterBoilerMat.Droid
@@ -23,10 +24,10 @@ namespace KD.Navien.WaterBoilerMat.Droid
 
     public class AndroidInitializer : IPlatformInitializer
     {
-        public void RegisterTypes(IUnityContainer container)
-        {
-            // Register any platform specific implementations
-        }
-    }
+		public void RegisterTypes(IContainerRegistry containerRegistry)
+		{
+			// Register any platform specific implementations
+		}
+	}
 }
 

@@ -12,8 +12,12 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Microsoft.Practices.Unity;
 using Prism.Unity;
+using Prism;
+using Unity;
+using Prism.Ioc;
+using KD.Navien.WaterBoilerMat.Services;
+using KD.Navien.WaterBoilerMat.UWP.Services;
 
 namespace KD.Navien.WaterBoilerMat.UWP
 {
@@ -29,9 +33,9 @@ namespace KD.Navien.WaterBoilerMat.UWP
 
     public class UwpInitializer : IPlatformInitializer
     {
-        public void RegisterTypes(IUnityContainer container)
-        {
-
-        }
-    }
+		public void RegisterTypes(IContainerRegistry containerRegistry)
+		{
+			containerRegistry.Register<IBluetoothService, BluetoothService>();
+		}
+	}
 }

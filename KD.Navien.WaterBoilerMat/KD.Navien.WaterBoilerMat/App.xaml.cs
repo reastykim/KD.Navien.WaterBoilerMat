@@ -1,9 +1,13 @@
-﻿using KD.Navien.WaterBoilerMat.ViewModels;
+﻿using KD.Navien.WaterBoilerMat.Services;
+using KD.Navien.WaterBoilerMat.ViewModels;
 using KD.Navien.WaterBoilerMat.Views;
-using Microsoft.Practices.Unity;
+using Prism;
+using Prism.Ioc;
+using Prism.Logging;
 using Prism.Unity;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
+using System.Linq;
 
 [assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 namespace KD.Navien.WaterBoilerMat
@@ -17,7 +21,10 @@ namespace KD.Navien.WaterBoilerMat
          */
         public App() : this(null) { }
 
-        public App(IPlatformInitializer initializer) : base(initializer) { }
+        public App(IPlatformInitializer initializer) : base(initializer)
+		{
+
+		}
 
         protected override async void OnInitialized()
         {
@@ -26,10 +33,16 @@ namespace KD.Navien.WaterBoilerMat
             await NavigationService.NavigateAsync("NavigationPage/MainPage");
         }
 
-        protected override void RegisterTypes()
-        {
-            Container.RegisterTypeForNavigation<NavigationPage>();
-            Container.RegisterTypeForNavigation<MainPage>();
-        }
-    }
+		protected override void RegisterTypes(IContainerRegistry containerRegistry)
+		{
+			var container = containerRegistry.GetContainer();
+			foreach (var registration in container.Registrations.Where(p => p.RegisteredType == typeof(ILoggerFacade)))
+			{
+				registration.LifetimeManager.RemoveValue();
+			}
+			containerRegistry.RegisterSingleton<ILoggerFacade, DebugLogger>();
+			containerRegistry.RegisterForNavigation<NavigationPage>();
+			containerRegistry.RegisterForNavigation<MainPage>();
+		}
+	}
 }

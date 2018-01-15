@@ -1,0 +1,40 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Property Group for Tizen40 Project -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>tizen40</TargetFramework>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>None</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="lib\" />
+    <Folder Include="res\" />
+  </ItemGroup>
+
+  
+  <!-- If solution already has PCL project, will reference -->
+  
+
+  <!-- Include Nuget Package for Tizen Project building -->
+  <ItemGroup>
+    <PackageReference Include="Prism.Core" Version="7.0.0.362" />
+    <PackageReference Include="Prism.Forms" Version="7.0.0.362" />
+    <PackageReference Include="Prism.Unity.Forms" Version="7.0.0.362" />
+    <PackageReference Include="Tizen.NET" Version="4.0.0">
+      <ExcludeAssets>Runtime</ExcludeAssets>
+    </PackageReference>
+    <PackageReference Include="Tizen.NET.Sdk" Version="1.0.1" />
+    <PackageReference Include="Xamarin.Forms" Version="2.5.0.122203" />
+    <PackageReference Include="Xamarin.Forms.Platform.Tizen" Version="2.5.0.77107" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\KD.Navien.WaterBoilerMat\KD.Navien.WaterBoilerMat\KD.Navien.WaterBoilerMat.csproj" />
+  </ItemGroup>
+</Project>
