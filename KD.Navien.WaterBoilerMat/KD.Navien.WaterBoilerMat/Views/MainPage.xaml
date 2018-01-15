@@ -24,7 +24,7 @@
 			</ListView.ItemTemplate>
 		</ListView>
 		<Button Text="Connect" Command="{Binding ConnectCommand}"/>
-		<ListView ItemsSource="{Binding FoundGattDeviceServices}" SelectedItem="{Binding SelectedFoundGattDeviceService, Mode=TwoWay}">
+		<ListView ItemsSource="{Binding SelectedFoundDevice.Services}">
 			<ListView.ItemTemplate>
 				<DataTemplate>
 					<ViewCell>

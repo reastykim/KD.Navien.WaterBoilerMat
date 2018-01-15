@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp.Connectivity;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -14,6 +15,12 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		public override string Name => device?.Name;
 		public override string Address => device?.BluetoothAddressAsString;
+
+		public override ObservableCollection<IBluetoothGattService> Services
+		{
+			get { return services ?? (services = new ObservableCollection<IBluetoothGattService>()); }
+		}
+		private ObservableCollection<IBluetoothGattService> services;
 
 		#endregion
 
@@ -35,6 +42,25 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		private void Initialize()
 		{
 			device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+			device.Services.CollectionChanged += Services_CollectionChanged;
+		}
+		private void Services_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		{
+			switch (e.Action)
+			{
+				case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
+					{
+						Services.Add(item);
+					}
+					break;
+				case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
+					{
+						Services.Remove(item);
+					}
+					break;
+			}
 		}
 
 		#endregion
@@ -44,9 +70,9 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 			return device.ConnectAsync();
 		}
 
-		public override Task<IEnumerable<IBluetoothGattService>> GetBluetoothGattServiceAsync()
-		{
-			return Task.FromResult<IEnumerable<IBluetoothGattService>>(device.Services.Select(s => new BluetoothGattServiceUwp(s)));
-		}
+		//public override Task<IEnumerable<IBluetoothGattService>> GetBluetoothGattServiceAsync()
+		//{
+		//	return Task.FromResult<IEnumerable<IBluetoothGattService>>(device.Services.Select(s => new BluetoothGattServiceUwp(s)));
+		//}
 	}
 }
