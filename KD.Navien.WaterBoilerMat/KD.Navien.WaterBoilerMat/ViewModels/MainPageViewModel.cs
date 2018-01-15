@@ -52,8 +52,6 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		private void Initialize()
 		{
 			Title = "Main Page";
-
-			
 		}
 
 		#region Commands
@@ -65,18 +63,20 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		private DelegateCommand scanCommand;
 		private async void ExecuteScan()
 		{
-			FoundDevices.Clear();
+			CRC8 c = new CRC8();
+			c.Update("123456");
+			//FoundDevices.Clear();
 
 
-			IsAvailableBluetoothLEScan = false;
-			var devices = await bluetoothService.ScanAsync(5000);
-			IsAvailableBluetoothLEScan = true;
-			
-			foreach (var device in devices)
-			{
-				Logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
-				FoundDevices.Add(device);
-			}
+			//IsAvailableBluetoothLEScan = false;
+			//var devices = await bluetoothService.ScanAsync(5000);
+			//IsAvailableBluetoothLEScan = true;
+
+			//foreach (var device in devices)
+			//{
+			//	Logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
+			//	FoundDevices.Add(device);
+			//}
 		}
 		private bool CanExecuteScan()
 		{
