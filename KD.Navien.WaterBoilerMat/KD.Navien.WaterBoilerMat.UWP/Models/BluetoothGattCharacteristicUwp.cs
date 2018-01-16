@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace KD.Navien.WaterBoilerMat.UWP.Models
 {
@@ -28,8 +29,12 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		public BluetoothGattCharacteristicUwp(ObservableGattCharacteristics gattCharacteristics)
 		{
-			this.gattCharacteristics = gattCharacteristics;
 			this.gattCharacteristics.PropertyChanged += GattCharacteristics_PropertyChanged;
+		}
+		public BluetoothGattCharacteristicUwp(GattCharacteristic gattCharacteristics, ObservableGattDeviceService parent)
+			:this(new ObservableGattCharacteristics(gattCharacteristics, parent))
+		{
+
 		}
 
 		public Task<bool> SetNotifyAsync()

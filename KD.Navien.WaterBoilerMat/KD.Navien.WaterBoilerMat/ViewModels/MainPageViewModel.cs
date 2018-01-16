@@ -137,10 +137,15 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 				IBluetoothGattService gattService = device.BoilerGattService;
 				Logger.Log($"BoilerGattService Characteristics Count={gattService.GattCharacteristics.Count}", Category.Debug, Priority.None);
 
-				var gattCharacteristic = device.BoilerGattCharacteristic2;
-				var result = await gattCharacteristic.SetNotifyAsync();
+				var gattCharacteristic = await gattService.GetGattCharacteristicAsync()
+														  .ContinueWith(T => T.Result.FirstOrDefault(C => C.UUID.Equals(WaterBoilerMatDevice.BoilerGattCharacteristic2Uuid)));
+
+				Logger.Log($"GetGattCharacteristicAsync by [{WaterBoilerMatDevice.BoilerGattCharacteristic2Uuid}], Value=[gattCharacteristic]", Category.Debug, Priority.None);
+
+
+				var result = await gattCharacteristic?.SetNotifyAsync();
 				Logger.Log($"Call gattCharacteristic.SetNotifyAsync(). Result=[{result}]", Category.Debug, Priority.None);
-				result = await gattCharacteristic.WriteValueAsync(bytes);
+				result = await gattCharacteristic?.WriteValueAsync(bytes);
 				Logger.Log($"Call gattCharacteristic.WriteValueAsync(). Result=[{result}]", Category.Debug, Priority.None);
 				//IntroActivity.this.mBluetoothLeService.setCharacteristicNotification(gattCharacteristic, IntroActivity.D);
 				//IntroActivity.this.mBluetoothLeService.writeCharacteristic(gattCharacteristic);

@@ -7,6 +7,7 @@ using System.Collections.Specialized;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace KD.Navien.WaterBoilerMat.UWP.Models
 {
@@ -29,6 +30,16 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 			this.gattDeviceService = gattDeviceService;
 			this.gattDeviceService.Characteristics.CollectionChanged += Characteristics_CollectionChanged;
 		}
+
+		public async Task<IEnumerable<IBluetoothGattCharacteristic>> GetGattCharacteristicAsync()
+		{
+			var characteristicsAsyncResult = await gattDeviceService.Service.GetCharacteristicsAsync();
+			if (characteristicsAsyncResult.Status != GattCommunicationStatus.Success)
+				return Enumerable.Empty<IBluetoothGattCharacteristic>();
+
+			return characteristicsAsyncResult.Characteristics.Select(C => new BluetoothGattCharacteristicUwp(C, gattDeviceService));
+		}
+
 		private void Characteristics_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
 			switch (e.Action)
