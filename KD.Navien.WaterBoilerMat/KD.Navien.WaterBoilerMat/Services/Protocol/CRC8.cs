@@ -21,6 +21,11 @@ namespace KD.Navien.WaterBoilerMat.Services.Protocol
 			}
 		}
 
+		//public void Update(byte[] input)
+		//{
+		//	crc += input.Sum(b => b);
+		//}
+
 		public string GetValue()
 		{
 			return crc.ToString("X4").Substring(2, 2);
