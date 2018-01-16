@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace KD.Navien.WaterBoilerMat.Models
+namespace KD.Navien.WaterBoilerMat.Services.Protocol
 {
 	public class CRC8
 	{
