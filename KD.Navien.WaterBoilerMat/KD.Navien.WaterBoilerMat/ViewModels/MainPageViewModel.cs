@@ -31,6 +31,13 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		}
 		private ObservableCollection<WaterBoilerMatDevice> foundDevices;
 
+		public WaterBoilerMatDevice ConnectedWaterBoilerMatDevice
+		{
+			get => connectedWaterBoilerMatDevice;
+			set => SetProperty(ref connectedWaterBoilerMatDevice, value);
+		}
+		private WaterBoilerMatDevice connectedWaterBoilerMatDevice;
+
 		#endregion
 
 		#region Fields
@@ -64,6 +71,11 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		private async void ExecuteScan()
 		{
 			FoundDevices.Clear();
+			if (ConnectedWaterBoilerMatDevice != null)
+			{
+				ConnectedWaterBoilerMatDevice.IsReadyForBoilerServiceChanged -= ConnectedWaterBoilerMatDevice_IsReadyForBoilerServiceChanged;
+			}
+			ConnectedWaterBoilerMatDevice = null;
 
 
 			IsAvailableBluetoothLEScan = false;
@@ -91,12 +103,26 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 			try
 			{
 				await waterBoilerMatDevice.ConnectAsync();
+				ConnectedWaterBoilerMatDevice = waterBoilerMatDevice;
+				ConnectedWaterBoilerMatDevice.IsReadyForBoilerServiceChanged += ConnectedWaterBoilerMatDevice_IsReadyForBoilerServiceChanged;
 				Logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice.Name}, Address=[{waterBoilerMatDevice.Address}] Connect success.", Category.Info, Priority.Medium);
 			}
 			catch (Exception e)
 			{
 				Logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice.Name}, Address=[{waterBoilerMatDevice.Address}] Connect fail. Exception = [{e.Message}]", Category.Exception, Priority.High);
 			}
+		}
+
+		#endregion
+
+		#region Event Handlers
+
+		private void ConnectedWaterBoilerMatDevice_IsReadyForBoilerServiceChanged(object sender, bool e)
+		{
+			var device = sender as WaterBoilerMatDevice;
+			Logger.Log($"IsReadyForBoilerServiceChanged. [{device.IsReadyForBoilerService}] Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
+
+
 		}
 
 		#endregion

@@ -13,6 +13,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 		protected const string NavienDeviceMacPrefix = "2C:E2:A8";
 		protected const string BoilerGattServiceUuid = "00001c0d-d102-11e1-9b23-2ce2a80000dd";
 
+		public event EventHandler<bool> IsReadyForBoilerServiceChanged;
+
 		#region Properties
 
 		public abstract string Name { get; }
@@ -28,7 +30,13 @@ namespace KD.Navien.WaterBoilerMat.Models
 		public bool IsReadyForBoilerService
 		{
 			get => isReadyForBoilerService;
-			protected set => SetProperty(ref isReadyForBoilerService, value);
+			protected set
+			{
+				if (SetProperty(ref isReadyForBoilerService, value))
+				{
+					IsReadyForBoilerServiceChanged?.Invoke(this, value);
+				}
+			}
 		}
 		private bool isReadyForBoilerService;
 
