@@ -12,6 +12,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 	{
 		protected const string NavienDeviceMacPrefix = "2C:E2:A8";
 		protected const string BoilerGattServiceUuid = "00001c0d-d102-11e1-9b23-2ce2a80000dd";
+		protected const string BoilerGattCharacteristic1Uuid = "00001c0d-d102-11e1-9b23-2ce2a80100dd";
+		protected const string BoilerGattCharacteristic2Uuid = "00001c0d-d102-11e1-9b23-2ce2a80200dd";
 
 		public event EventHandler<bool> IsReadyForBoilerServiceChanged;
 
@@ -26,6 +28,21 @@ namespace KD.Navien.WaterBoilerMat.Models
 			get { return services ?? (services = new ObservableCollection<IBluetoothGattService>()); }
 		}
 		private ObservableCollection<IBluetoothGattService> services;
+
+		public IBluetoothGattService BoilerGattService
+		{
+			get => Services.FirstOrDefault(S => S.UUID == BoilerGattServiceUuid);
+		}
+
+		public IBluetoothGattCharacteristic BoilerGattCharacteristic1
+		{
+			get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic1Uuid);
+		}
+
+		public IBluetoothGattCharacteristic BoilerGattCharacteristic2
+		{
+			get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic2Uuid);
+		}
 
 		public bool IsReadyForBoilerService
 		{

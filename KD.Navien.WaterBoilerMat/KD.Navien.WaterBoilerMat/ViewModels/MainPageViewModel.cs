@@ -1,5 +1,7 @@
-﻿using KD.Navien.WaterBoilerMat.Models;
+﻿using KD.Navien.WaterBoilerMat.Extensions;
+using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
+using KD.Navien.WaterBoilerMat.Services.Protocol;
 using Prism.Commands;
 using Prism.Logging;
 using Prism.Mvvm;
@@ -11,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
 
 namespace KD.Navien.WaterBoilerMat.ViewModels
 {
@@ -116,13 +119,32 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		#endregion
 
 		#region Event Handlers
-
-		private void ConnectedWaterBoilerMatDevice_IsReadyForBoilerServiceChanged(object sender, bool e)
+		
+		private async void ConnectedWaterBoilerMatDevice_IsReadyForBoilerServiceChanged(object sender, bool e)
 		{
 			var device = sender as WaterBoilerMatDevice;
 			Logger.Log($"IsReadyForBoilerServiceChanged. [{device.IsReadyForBoilerService}] Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
+			
+			var requestData = new KDRequest();
+			requestData.Data.MessageType = KDMessageType.MAC_REGISTER;
+			requestData.Data.UniqueID = "";
+			byte[] bytes = requestData.GetValue().HexStringToByteArray();
 
+			Logger.Log($"Connected BluetoothLE Device GattService Count={device.Services.Count}", Category.Debug, Priority.None);
 
+			if (device.Services.Count >= 6)
+			{
+				IBluetoothGattService gattService = device.BoilerGattService;
+				Logger.Log($"BoilerGattService Characteristics Count={gattService.GattCharacteristics.Count}", Category.Debug, Priority.None);
+
+				var gattCharacteristic = device.BoilerGattCharacteristic2;
+				var result = await gattCharacteristic.SetNotifyAsync();
+				Logger.Log($"Call gattCharacteristic.SetNotifyAsync(). Result=[{result}]", Category.Debug, Priority.None);
+				result = await gattCharacteristic.WriteValueAsync(bytes);
+				Logger.Log($"Call gattCharacteristic.WriteValueAsync(). Result=[{result}]", Category.Debug, Priority.None);
+				//IntroActivity.this.mBluetoothLeService.setCharacteristicNotification(gattCharacteristic, IntroActivity.D);
+				//IntroActivity.this.mBluetoothLeService.writeCharacteristic(gattCharacteristic);
+			}
 		}
 
 		#endregion

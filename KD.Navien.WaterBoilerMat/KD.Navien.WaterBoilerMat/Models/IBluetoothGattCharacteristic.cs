@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
@@ -11,6 +12,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		string Name { get; }
 
-		//ObservableCollection<IBluetoothGattCharacteristic> GattCharacteristics { get; }
+		Task<bool> SetNotifyAsync();
+
+		Task<bool> WriteValueAsync(byte[] data);
 	}
 }
