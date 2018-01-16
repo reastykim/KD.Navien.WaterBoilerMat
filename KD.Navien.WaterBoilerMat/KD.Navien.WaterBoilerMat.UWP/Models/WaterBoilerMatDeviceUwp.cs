@@ -1,4 +1,5 @@
 ﻿using KD.Navien.WaterBoilerMat.Models;
+using KD.Navien.WaterBoilerMat.UWP.Extensions;
 using Microsoft.Toolkit.Uwp.Connectivity;
 using System;
 using System.Collections.Generic;
@@ -37,30 +38,11 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		private void Initialize()
 		{
 			device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
-			device.Services.CollectionChanged += Services_CollectionChanged;
 		}
-		private void Services_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			switch (e.Action)
-			{
-				case NotifyCollectionChangedAction.Reset:
-					Services.Clear();
-					break;
-				case NotifyCollectionChangedAction.Add:
-					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
-					{
-						Services.Add(item);
-					}
-					break;
-				case NotifyCollectionChangedAction.Remove:
-					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
-					{
-						Services.Remove(item);
-					}
-					break;
-			}
 
-			IsReadyForBoilerService = Services.Any(S => S.UUID.Equals(WaterBoilerMatDevice.BoilerGattServiceUuid));
+		public override Task<IEnumerable<IBluetoothGattService>> GetGattServicesAsync()
+		{
+			return device.GetGattServicesAsync();
 		}
 
 		#endregion

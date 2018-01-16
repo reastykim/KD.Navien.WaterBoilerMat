@@ -23,17 +23,6 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		public abstract string Address { get; }
 
-		public ObservableCollection<IBluetoothGattService> Services
-		{
-			get { return services ?? (services = new ObservableCollection<IBluetoothGattService>()); }
-		}
-		private ObservableCollection<IBluetoothGattService> services;
-
-		public IBluetoothGattService BoilerGattService
-		{
-			get => Services.FirstOrDefault(S => S.UUID == BoilerGattServiceUuid);
-		}
-
 		//public IBluetoothGattCharacteristic BoilerGattCharacteristic1
 		//{
 		//	get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic1Uuid);
@@ -44,24 +33,16 @@ namespace KD.Navien.WaterBoilerMat.Models
 		//	get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic2Uuid);
 		//}
 
-		public bool IsReadyForBoilerService
-		{
-			get => isReadyForBoilerService;
-			protected set
-			{
-				if (SetProperty(ref isReadyForBoilerService, value))
-				{
-					IsReadyForBoilerServiceChanged?.Invoke(this, value);
-				}
-			}
-		}
-		private bool isReadyForBoilerService;
-
 		#endregion
 
 		public virtual Task ConnectAsync()
 		{
 			return Task.CompletedTask;
+		}
+
+		public virtual Task<IEnumerable<IBluetoothGattService>> GetGattServicesAsync()
+		{
+			return Task.FromResult(Enumerable.Empty<IBluetoothGattService>());
 		}
 
 		public static bool IsNavienDevice(string address)

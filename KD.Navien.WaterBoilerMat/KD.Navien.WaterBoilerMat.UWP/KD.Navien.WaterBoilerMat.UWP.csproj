@@ -94,7 +94,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Extensions\DataExtensions.cs" />
-    <Compile Include="Extensions\ObservableGattCharacteristicsExtensions.cs" />
+    <Compile Include="Extensions\BluetoothExtensions.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>

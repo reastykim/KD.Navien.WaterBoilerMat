@@ -24,11 +24,16 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		private ObservableCollection<IBluetoothGattCharacteristic> gattCharacteristics;
 
 		private ObservableGattDeviceService gattDeviceService;
+		
 
 		public BluetoothGattServiceUwp(ObservableGattDeviceService gattDeviceService)
 		{
 			this.gattDeviceService = gattDeviceService;
 			this.gattDeviceService.Characteristics.CollectionChanged += Characteristics_CollectionChanged;
+		}
+		public BluetoothGattServiceUwp(GattDeviceService gattDeviceService) : this(new ObservableGattDeviceService(gattDeviceService))
+		{
+
 		}
 
 		public async Task<IEnumerable<IBluetoothGattCharacteristic>> GetGattCharacteristicAsync()
