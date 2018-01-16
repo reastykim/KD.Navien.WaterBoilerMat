@@ -38,11 +38,52 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		private void Initialize()
 		{
 			device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+			device.Services.CollectionChanged += Services_CollectionChanged;
 		}
 
-		public override Task<IEnumerable<IBluetoothGattService>> GetGattServicesAsync()
+		private void Services_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
-			return device.GetGattServicesAsync();
+			switch (e.Action)
+			{
+				case NotifyCollectionChangedAction.Reset:
+					Services.Clear();
+					break;
+				case NotifyCollectionChangedAction.Add:
+					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
+					{
+						if (item.UUID.Equals(WaterBoilerMatDevice.BoilerGattServiceUuid))
+						{
+							item.GattCharacteristics.CollectionChanged += GattCharacteristics_CollectionChanged;
+						}
+
+						Services.Add(item);
+					}
+					break;
+				case NotifyCollectionChangedAction.Remove:
+					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>())
+					{
+						var existItem = Services.FirstOrDefault(S => S.UUID.Equals(item.UUID));
+						if (existItem != null)
+						{
+							if (existItem.UUID.Equals(WaterBoilerMatDevice.BoilerGattServiceUuid))
+							{
+								existItem.GattCharacteristics.CollectionChanged -= GattCharacteristics_CollectionChanged;
+							}
+							Services.Remove(existItem);
+						}
+					}
+					break;
+			}
+		}
+
+		private void GattCharacteristics_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		{
+			var boilerGattServiceCharacteristics = sender as ObservableCollection<IBluetoothGattCharacteristic>;
+			if (boilerGattServiceCharacteristics.Any(C => C.UUID.Equals(WaterBoilerMatDevice.BoilerGattCharacteristic1Uuid)) &&
+				boilerGattServiceCharacteristics.Any(C => C.UUID.Equals(WaterBoilerMatDevice.BoilerGattCharacteristic2Uuid)))
+			{
+				IsReadyForBoilerService = true;
+			}
 		}
 
 		#endregion

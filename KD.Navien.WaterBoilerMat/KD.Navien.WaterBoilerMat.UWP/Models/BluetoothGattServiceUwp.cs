@@ -36,15 +36,6 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		}
 
-		public async Task<IEnumerable<IBluetoothGattCharacteristic>> GetGattCharacteristicAsync()
-		{
-			var characteristicsAsyncResult = await gattDeviceService.Service.GetCharacteristicsAsync();
-			if (characteristicsAsyncResult.Status != GattCommunicationStatus.Success)
-				return Enumerable.Empty<IBluetoothGattCharacteristic>();
-
-			return characteristicsAsyncResult.Characteristics.Select(C => new BluetoothGattCharacteristicUwp(C, gattDeviceService));
-		}
-
 		private void Characteristics_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
 			switch (e.Action)
@@ -59,9 +50,10 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 					}
 					break;
 				case NotifyCollectionChangedAction.Remove:
-					foreach (var item in e.NewItems.OfType<ObservableGattCharacteristics>().Select(C => new BluetoothGattCharacteristicUwp(C)))
+					foreach (var item in e.NewItems.OfType<ObservableGattCharacteristics>())
 					{
-						GattCharacteristics.Remove(item);
+						var existItem = GattCharacteristics.FirstOrDefault(C => C.UUID.Equals(item.UUID));
+						GattCharacteristics.Remove(existItem);
 					}
 					break;
 			}

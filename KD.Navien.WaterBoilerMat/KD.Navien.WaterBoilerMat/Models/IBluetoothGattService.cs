@@ -12,7 +12,5 @@ namespace KD.Navien.WaterBoilerMat.Models
 		string Name { get; }
 
 		ObservableCollection<IBluetoothGattCharacteristic> GattCharacteristics { get; }
-
-		Task<IEnumerable<IBluetoothGattCharacteristic>> GetGattCharacteristicAsync();
 	}
 }
