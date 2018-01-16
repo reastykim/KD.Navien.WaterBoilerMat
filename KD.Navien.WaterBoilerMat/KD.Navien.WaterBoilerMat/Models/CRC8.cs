@@ -23,8 +23,7 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		public string GetValue()
 		{
-			//return String.Format("%04X", new Object[] { Integer.valueOf(this.crc) }).substring(2, 4);
-			return String.Empty;
+			return crc.ToString("X4").Substring(2, 2);
 		}
 	}
 }
