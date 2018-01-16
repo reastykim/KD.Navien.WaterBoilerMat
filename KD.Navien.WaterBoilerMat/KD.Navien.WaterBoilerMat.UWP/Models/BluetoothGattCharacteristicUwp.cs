@@ -29,6 +29,7 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		public BluetoothGattCharacteristicUwp(ObservableGattCharacteristics gattCharacteristics)
 		{
+			this.gattCharacteristics = gattCharacteristics;
 			this.gattCharacteristics.PropertyChanged += GattCharacteristics_PropertyChanged;
 		}
 		public BluetoothGattCharacteristicUwp(GattCharacteristic gattCharacteristics, ObservableGattDeviceService parent)
