@@ -18,24 +18,43 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		public string Name => gattCharacteristics.Name;
 
-		public string Value
+		public string Value => gattCharacteristics.Value;
+
+		public List<IBluetoothGattDescriptor> GattDescriptor
 		{
-			get => _value;
-			private set => SetProperty(ref _value, value);
+			get => gattDescriptor;
+			private set => SetProperty(ref gattDescriptor, value);
 		}
-		private string _value;
+		private List<IBluetoothGattDescriptor> gattDescriptor = new List<IBluetoothGattDescriptor>();
 
 		public ObservableGattCharacteristics gattCharacteristics;
 
 		public BluetoothGattCharacteristicUwp(ObservableGattCharacteristics gattCharacteristics)
 		{
 			this.gattCharacteristics = gattCharacteristics;
-			this.gattCharacteristics.PropertyChanged += GattCharacteristics_PropertyChanged;
+
+			Initialize();
 		}
+
 		public BluetoothGattCharacteristicUwp(GattCharacteristic gattCharacteristics, ObservableGattDeviceService parent)
 			:this(new ObservableGattCharacteristics(gattCharacteristics, parent))
 		{
 
+		}
+
+		private void Initialize()
+		{
+			gattCharacteristics.PropertyChanged += (s, e) =>
+			{
+				if (e.PropertyName == "Value")
+				{
+					Debug.WriteLine($"GattCharacteristics_ValueChanged. Value=[{Value}]");
+				}
+
+				RaisePropertyChanged(e.PropertyName);
+			};
+
+			//gattCharacteristics.Characteristic.GetDescriptorsAsync();
 		}
 
 		public Task<bool> SetNotifyAsync()
@@ -46,15 +65,6 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		public Task<bool> WriteValueAsync(byte[] data)
 		{
 			return gattCharacteristics.WriteValueAsync(data);
-		}
-
-		private void GattCharacteristics_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-		{
-			if (e.PropertyName == "Value")
-			{
-				Value = gattCharacteristics.Value;
-				Debug.WriteLine($"GattCharacteristics_ValueChanged. Value=[{Value}]");
-			}
 		}
 	}
 }

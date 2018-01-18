@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Services
 {
-    public interface IBluetoothService
-    {
+    public interface IBluetoothLEService<T> where T : IBluetoothLEDevice
+	{
 		bool IsScanning { get; }
 
-		Task<IEnumerable<WaterBoilerMatDevice>> ScanAsync(int timeoutMilliseconds);
+		Task<IEnumerable<T>> ScanAsync(int timeoutMilliseconds);
 	}
 }

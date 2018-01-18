@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public abstract class WaterBoilerMatDevice : BindableBase
+    public abstract class WaterBoilerMatDevice : BindableBase, IBluetoothLEDevice
 	{
 		protected const string NavienDeviceMacPrefix = "2C:E2:A8";
 		public const string BoilerGattServiceUuid = "00001c0d-d102-11e1-9b23-2ce2a80000dd";
 		public const string BoilerGattCharacteristic1Uuid = "00001c0d-d102-11e1-9b23-2ce2a80100dd";
 		public const string BoilerGattCharacteristic2Uuid = "00001c0d-d102-11e1-9b23-2ce2a80200dd";
-
-		public event EventHandler<bool> IsReadyForBoilerServiceChanged;
+		
+		public event EventHandler ServicesUpdated;
 
 		#region Properties
 
@@ -23,41 +23,34 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		public abstract string Address { get; }
 
-		public ObservableCollection<IBluetoothGattService> Services
+		public List<IBluetoothGattService> Services
 		{
-			get { return services ?? (services = new ObservableCollection<IBluetoothGattService>()); }
+			get => services;
+			protected set => SetProperty(ref services, value);
 		}
-		private ObservableCollection<IBluetoothGattService> services;
+		private List<IBluetoothGattService> services = new List<IBluetoothGattService>();
 
-		public bool IsReadyForBoilerService
-		{
-			get => isReadyForBoilerService;
-			protected set
-			{
-				if (SetProperty(ref isReadyForBoilerService, value))
-				{
-					IsReadyForBoilerServiceChanged?.Invoke(this, value);
-				}
-			}
-		}
-		private bool isReadyForBoilerService;
+		//public IBluetoothGattService BoilerGattService
+		//{
+		//	get => Services.FirstOrDefault(S => S.UUID == BoilerGattServiceUuid);
+		//}
 
-		public IBluetoothGattService BoilerGattService
-		{
-			get => Services.FirstOrDefault(S => S.UUID == BoilerGattServiceUuid);
-		}
+		//public IBluetoothGattCharacteristic BoilerGattCharacteristic1
+		//{
+		//	get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic1Uuid);
+		//}
 
-		public IBluetoothGattCharacteristic BoilerGattCharacteristic1
-		{
-			get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic1Uuid);
-		}
-
-		public IBluetoothGattCharacteristic BoilerGattCharacteristic2
-		{
-			get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic2Uuid);
-		}
+		//public IBluetoothGattCharacteristic BoilerGattCharacteristic2
+		//{
+		//	get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic2Uuid);
+		//}
 
 		#endregion
+
+		protected void RaiseServicesUpdated()
+		{
+			ServicesUpdated?.Invoke(this, EventArgs.Empty);
+		}
 
 		public virtual Task ConnectAsync()
 		{

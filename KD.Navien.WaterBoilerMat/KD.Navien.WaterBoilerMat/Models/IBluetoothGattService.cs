@@ -8,9 +8,11 @@ namespace KD.Navien.WaterBoilerMat.Models
 {
     public interface IBluetoothGattService
     {
+		event EventHandler GattCharacteristicsUpdated;
+
 		string UUID { get; }
 		string Name { get; }
 
-		ObservableCollection<IBluetoothGattCharacteristic> GattCharacteristics { get; }
+		List<IBluetoothGattCharacteristic> GattCharacteristics { get; }
 	}
 }

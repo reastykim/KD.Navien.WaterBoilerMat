@@ -12,6 +12,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		string Name { get; }
 
+		List<IBluetoothGattDescriptor> GattDescriptor { get; }
+
 		Task<bool> SetNotifyAsync();
 
 		Task<bool> WriteValueAsync(byte[] data);

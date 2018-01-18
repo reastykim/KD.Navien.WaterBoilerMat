@@ -41,49 +41,25 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 			device.Services.CollectionChanged += Services_CollectionChanged;
 		}
 
-		private void Services_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+		private void Services_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
-			switch (e.Action)
+			foreach (var service in Services)
 			{
-				case NotifyCollectionChangedAction.Reset:
-					Services.Clear();
-					break;
-				case NotifyCollectionChangedAction.Add:
-					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)))
-					{
-						if (item.UUID.Equals(WaterBoilerMatDevice.BoilerGattServiceUuid))
-						{
-							item.GattCharacteristics.CollectionChanged += GattCharacteristics_CollectionChanged;
-						}
-
-						Services.Add(item);
-					}
-					break;
-				case NotifyCollectionChangedAction.Remove:
-					foreach (var item in e.NewItems.OfType<ObservableGattDeviceService>())
-					{
-						var existItem = Services.FirstOrDefault(S => S.UUID.Equals(item.UUID));
-						if (existItem != null)
-						{
-							if (existItem.UUID.Equals(WaterBoilerMatDevice.BoilerGattServiceUuid))
-							{
-								existItem.GattCharacteristics.CollectionChanged -= GattCharacteristics_CollectionChanged;
-							}
-							Services.Remove(existItem);
-						}
-					}
-					break;
+				service.GattCharacteristicsUpdated -= Service_GattCharacteristicsUpdated;
 			}
+
+			Services = device.Services.Select(S => new BluetoothGattServiceUwp(S)).ToList<IBluetoothGattService>();
+			foreach (var service in Services)
+			{
+				service.GattCharacteristicsUpdated += Service_GattCharacteristicsUpdated;
+			}
+
+			RaiseServicesUpdated();
 		}
 
-		private void GattCharacteristics_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+		private void Service_GattCharacteristicsUpdated(object sender, EventArgs e)
 		{
-			var boilerGattServiceCharacteristics = sender as ObservableCollection<IBluetoothGattCharacteristic>;
-			if (boilerGattServiceCharacteristics.Any(C => C.UUID.Equals(WaterBoilerMatDevice.BoilerGattCharacteristic1Uuid)) &&
-				boilerGattServiceCharacteristics.Any(C => C.UUID.Equals(WaterBoilerMatDevice.BoilerGattCharacteristic2Uuid)))
-			{
-				IsReadyForBoilerService = true;
-			}
+			RaiseServicesUpdated();
 		}
 
 		#endregion

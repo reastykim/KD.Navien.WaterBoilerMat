@@ -1,5 +1,6 @@
 ﻿using KD.Navien.WaterBoilerMat.Models;
 using Microsoft.Toolkit.Uwp.Connectivity;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,52 +12,44 @@ using Windows.Devices.Bluetooth.GenericAttributeProfile;
 
 namespace KD.Navien.WaterBoilerMat.UWP.Models
 {
-	public class BluetoothGattServiceUwp : IBluetoothGattService
+	public class BluetoothGattServiceUwp : BindableBase, IBluetoothGattService
 	{
+		public event EventHandler GattCharacteristicsUpdated;
+
 		public string UUID => gattDeviceService.UUID;
 
 		public string Name => gattDeviceService.Name;
 
-		public ObservableCollection<IBluetoothGattCharacteristic> GattCharacteristics
+		public List<IBluetoothGattCharacteristic> GattCharacteristics
 		{
-			get { return gattCharacteristics ?? (gattCharacteristics = new ObservableCollection<IBluetoothGattCharacteristic>()); }
+			get => gattCharacteristics;
+			private set => SetProperty(ref gattCharacteristics, value);
 		}
-		private ObservableCollection<IBluetoothGattCharacteristic> gattCharacteristics;
+		private List<IBluetoothGattCharacteristic> gattCharacteristics = new List<IBluetoothGattCharacteristic>();
 
 		private ObservableGattDeviceService gattDeviceService;
-		
+
 
 		public BluetoothGattServiceUwp(ObservableGattDeviceService gattDeviceService)
 		{
 			this.gattDeviceService = gattDeviceService;
-			this.gattDeviceService.Characteristics.CollectionChanged += Characteristics_CollectionChanged;
+
+			Initialize();
 		}
 		public BluetoothGattServiceUwp(GattDeviceService gattDeviceService) : this(new ObservableGattDeviceService(gattDeviceService))
 		{
 
 		}
+		private void Initialize()
+		{
+			gattDeviceService.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+			gattDeviceService.Characteristics.CollectionChanged += Characteristics_CollectionChanged;
+		}
 
 		private void Characteristics_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
 		{
-			switch (e.Action)
-			{
-				case NotifyCollectionChangedAction.Reset:
-					GattCharacteristics.Clear();
-					break;
-				case NotifyCollectionChangedAction.Add:
-					foreach (var item in e.NewItems.OfType<ObservableGattCharacteristics>().Select(C => new BluetoothGattCharacteristicUwp(C)))
-					{
-						GattCharacteristics.Add(item);
-					}
-					break;
-				case NotifyCollectionChangedAction.Remove:
-					foreach (var item in e.NewItems.OfType<ObservableGattCharacteristics>())
-					{
-						var existItem = GattCharacteristics.FirstOrDefault(C => C.UUID.Equals(item.UUID));
-						GattCharacteristics.Remove(existItem);
-					}
-					break;
-			}
+			GattCharacteristics = gattDeviceService.Characteristics.Select(C => new BluetoothGattCharacteristicUwp(C)).ToList<IBluetoothGattCharacteristic>();
+			GattCharacteristicsUpdated?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }
