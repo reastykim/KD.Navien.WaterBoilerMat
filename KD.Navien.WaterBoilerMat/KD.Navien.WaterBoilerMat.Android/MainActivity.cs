@@ -1,6 +1,9 @@
 ﻿using Android.App;
 using Android.Content.PM;
 using Android.OS;
+using KD.Navien.WaterBoilerMat.Droid.Services;
+using KD.Navien.WaterBoilerMat.Models;
+using KD.Navien.WaterBoilerMat.Services;
 using Prism;
 using Prism.Ioc;
 using Prism.Unity;
@@ -27,6 +30,7 @@ namespace KD.Navien.WaterBoilerMat.Droid
 		public void RegisterTypes(IContainerRegistry containerRegistry)
 		{
 			// Register any platform specific implementations
+			containerRegistry.Register<IBluetoothLEService<WaterBoilerMatDevice>, BluetoothLEService>();
 		}
 	}
 }
