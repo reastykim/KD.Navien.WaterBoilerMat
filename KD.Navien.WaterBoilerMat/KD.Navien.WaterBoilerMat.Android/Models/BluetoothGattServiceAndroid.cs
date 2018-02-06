@@ -23,17 +23,24 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 
 		public string Name => "";
 
+		public WaterBoilerMatDeviceAndroid WaterBoilerMatDevice { get; private set; }
+
 		public List<IBluetoothGattCharacteristic> GattCharacteristics
 		{
 			get => gattCharacteristics;
 			private set => SetProperty(ref gattCharacteristics, value);
 		}
-		private List<IBluetoothGattCharacteristic> gattCharacteristics = new List<IBluetoothGattCharacteristic>();		
+		private List<IBluetoothGattCharacteristic> gattCharacteristics = new List<IBluetoothGattCharacteristic>();
 
+		#region Fields
+		
 		private BluetoothGattService gattService;
 
-		public BluetoothGattServiceAndroid(BluetoothGattService gattService)
+		#endregion
+
+		public BluetoothGattServiceAndroid(WaterBoilerMatDeviceAndroid waterBoilerMatDevice, BluetoothGattService gattService)
 		{
+			this.WaterBoilerMatDevice = waterBoilerMatDevice;
 			this.gattService = gattService;
 
 			Initialize();
@@ -41,7 +48,8 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 
 		private void Initialize()
 		{
-			GattCharacteristics.AddRange(gattService.Characteristics.Select(C => new BluetoothGattCharacteristicAndroid(C)));
+			GattCharacteristics.AddRange(gattService.Characteristics.Select(C => new BluetoothGattCharacteristicAndroid(this, C)));
+			GattCharacteristicsUpdated?.Invoke(this, EventArgs.Empty);
 		}
 	}
 }

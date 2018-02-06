@@ -22,24 +22,28 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 		public string Name => "";
 
 		public List<IBluetoothGattDescriptor> GattDescriptor { get; }
-
 		
+		public BluetoothGattServiceAndroid GattService { get; private set; }
 
 		private BluetoothGattCharacteristic gattCharacteristics;
 
-		public BluetoothGattCharacteristicAndroid(BluetoothGattCharacteristic gattCharacteristics)
+		public BluetoothGattCharacteristicAndroid(BluetoothGattServiceAndroid gattService, BluetoothGattCharacteristic gattCharacteristics)
 		{
+			this.GattService = gattService;
 			this.gattCharacteristics = gattCharacteristics;
 		}
 
 		public Task<bool> SetNotifyAsync()
 		{
-			return Task.FromResult(true);
+			var result = GattService.WaterBoilerMatDevice.SetCharacteristicNotification(gattCharacteristics, true);
+			return Task.FromResult(result);
 		}
 
 		public Task<bool> WriteValueAsync(byte[] data)
 		{
-			return Task.FromResult(true);
+			var result = gattCharacteristics.SetValue(data);
+			result = GattService.WaterBoilerMatDevice.WriteCharacteristic(gattCharacteristics);
+			return Task.FromResult(result);
 		}
 	}
 }

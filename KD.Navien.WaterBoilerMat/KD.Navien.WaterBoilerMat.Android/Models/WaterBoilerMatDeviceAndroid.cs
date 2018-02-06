@@ -17,14 +17,22 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 {
 	public class WaterBoilerMatDeviceAndroid : WaterBoilerMatDevice
 	{
+		#region Properties
+
 		public override string Name => device.Name;
 
 		public override string Address => device.Address;
 
+		#endregion
+
+		#region Fields
 
 		private BluetoothDevice device;
 		private BluetoothAdapter bluetoothAdapter;
 		private BluetoothGatt bluetoothGatt;
+		private GattCallbacks gattCallback;
+
+		#endregion
 
 		public WaterBoilerMatDeviceAndroid(BluetoothDevice device, BluetoothAdapter bluetoothAdapter)
 		{
@@ -36,27 +44,9 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 
 		private void Initialize()
 		{
-			//device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
-			//device.Services.CollectionChanged += Services_CollectionChanged;
+
 		}
 
-		//private void Services_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-		//{
-		//	foreach (var service in Services)
-		//	{
-		//		service.GattCharacteristicsUpdated -= Service_GattCharacteristicsUpdated;
-		//	}
-
-		//	Services = device.Services.Select(S => new BluetoothGattServiceUwp(S)).ToList<IBluetoothGattService>();
-		//	foreach (var service in Services)
-		//	{
-		//		service.GattCharacteristicsUpdated += Service_GattCharacteristicsUpdated;
-		//	}
-
-		//	RaiseServicesUpdated();
-		//}
-
-		private GattCallbacks gattCallback;
 		private void Service_GattCharacteristicsUpdated(object sender, EventArgs e)
 		{
 			RaiseServicesUpdated();
@@ -66,8 +56,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 		{
 			if (bluetoothAdapter == null)
 			{
-				//Log.w(TAG, "BluetoothAdapter not initialized or unspecified address.");
-				return Task.FromException(new Exception("BluetoothAdapter not initialized."));
+				return Task.FromException(new BluetoothLEException("BluetoothAdapter not initialized."));
 			}
 
 			if (bluetoothGatt == null)
@@ -75,7 +64,6 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 				gattCallback = new GattCallbacks(
 					(gatt, status, newState) => // onConnectionStateChange
 					{
-						string intentAction;
 						if (newState == ProfileState.Connected)
 						{
 							//intentAction = BluetoothLeService.ACTION_GATT_CONNECTED;
@@ -102,7 +90,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 								System.Diagnostics.Debug.WriteLine($"GattService, UUID=[{service.Uuid}]");
 							}
 
-							Services = gatt.Services.Select(S => new BluetoothGattServiceAndroid(S)).ToList<IBluetoothGattService>();
+							Services.AddRange(gatt.Services.Select(S => new BluetoothGattServiceAndroid(this, S)));
 							RaiseServicesUpdated();
 						}
 						else
@@ -150,7 +138,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 				//Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
 				if (bluetoothGatt.Connect() != true)
 				{
-					return Task.FromException(new Exception("BluetoothGatt connect fail."));
+					return Task.FromException(new BluetoothLEException("BluetoothGatt connect fail."));
 				}
 				else
 				{
@@ -158,6 +146,16 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 					return Task.CompletedTask;
 				}
 			}
+		}
+
+		internal bool SetCharacteristicNotification(BluetoothGattCharacteristic characteristic, bool enable)
+		{
+			return bluetoothGatt.SetCharacteristicNotification(characteristic, enable);
+		}
+
+		internal bool WriteCharacteristic(BluetoothGattCharacteristic characteristic)
+		{
+			return bluetoothGatt.WriteCharacteristic(characteristic);
 		}
 	}
 }

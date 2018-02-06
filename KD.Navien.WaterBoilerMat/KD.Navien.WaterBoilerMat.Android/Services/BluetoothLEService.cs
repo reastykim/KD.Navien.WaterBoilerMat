@@ -18,6 +18,8 @@ using KD.Navien.WaterBoilerMat.Droid.Services.LE;
 using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
 using Prism.Logging;
+using Unity;
+using Unity.Resolution;
 using Xamarin.Forms;
 
 [assembly: Dependency(typeof(BluetoothLEService))]
@@ -33,6 +35,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Services
 
 		#region Fields
 
+		private IUnityContainer container;
 		private ILoggerFacade logger;
 		private Handler handler;
 		private BluetoothAdapter bluetoothAdapter;
@@ -42,8 +45,9 @@ namespace KD.Navien.WaterBoilerMat.Droid.Services
 
 		#region Constructors & Initialize
 
-		public BluetoothLEService(ILoggerFacade logger)
+		public BluetoothLEService(IUnityContainer container, ILoggerFacade logger)
 		{
+			this.container = container;
 			this.logger = logger;
 
 			Initialize();
@@ -68,7 +72,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Services
 				leScanner == null)
 			{
 				logger.Log($"BluetoothLE APIs are not available", Category.Warn, Priority.High);
-				return Task.FromResult(Enumerable.Empty<WaterBoilerMatDevice>());
+				return Task.FromException<IEnumerable<WaterBoilerMatDevice>>(new BluetoothLEException("BluetoothLE APIs are not available"));
 			}
 
 			var result = new List<BluetoothDevice>();
@@ -90,7 +94,6 @@ namespace KD.Navien.WaterBoilerMat.Droid.Services
 				logger.Log($"Stop the BluetoothLE device Enumeration. Found {result.Count} devices.", Category.Info, Priority.High);
 
 				tcs.SetResult(result.Where(D => WaterBoilerMatDevice.IsNavienDevice(D.Address))
-									//.Where(D => String.IsNullOrWhiteSpace(D.Name) != true)
 									.Select(D => new WaterBoilerMatDeviceAndroid(D, bluetoothAdapter)));
 
 			}, timeoutMilliseconds);
