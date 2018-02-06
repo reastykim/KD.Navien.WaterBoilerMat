@@ -14,14 +14,14 @@ using Android.Widget;
 
 namespace KD.Navien.WaterBoilerMat.Droid.Services.LE
 {
-	public class LollipopScanCallback : ScanCallback
+	public class ScanCallback : Android.Bluetooth.LE.ScanCallback
 	{
-		readonly Action<BluetoothDevice, int, ScanRecord> callback;
+		readonly Action<BluetoothDevice, int, ScanRecord> onScanResult;
 		
-		public LollipopScanCallback(Action<BluetoothDevice, int, ScanRecord> callback)
-			=> this.callback = callback;
+		public ScanCallback(Action<BluetoothDevice, int, ScanRecord> onScanResult)
+			=> this.onScanResult = onScanResult;
 		
 		public override void OnScanResult(ScanCallbackType callbackType, ScanResult result)
-			=> this.callback(result.Device, result.Rssi, result.ScanRecord);
+			=> onScanResult?.Invoke(result.Device, result.Rssi, result.ScanRecord);
 	}
 }

@@ -76,12 +76,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
+    <Compile Include="Models\BluetoothGattServiceAndroid.cs" />
     <Compile Include="Models\WaterBoilerMatDeviceAndroid.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\BluetoothLEService.cs" />
-    <Compile Include="Services\LE\LollipopScanCallback.cs" />
-    <Compile Include="Services\LE\PreLollipopScanCallback.cs" />
+    <Compile Include="Services\LE\GattCallback.cs" />
+    <Compile Include="Services\LE\ScanCallback.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />

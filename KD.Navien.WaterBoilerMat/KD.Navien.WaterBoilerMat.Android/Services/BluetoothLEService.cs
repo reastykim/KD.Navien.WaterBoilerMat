@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Bluetooth;
@@ -18,7 +19,6 @@ using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
 using Prism.Logging;
 using Xamarin.Forms;
-using static Android.Bluetooth.BluetoothAdapter;
 
 [assembly: Dependency(typeof(BluetoothLEService))]
 namespace KD.Navien.WaterBoilerMat.Droid.Services
@@ -65,69 +65,35 @@ namespace KD.Navien.WaterBoilerMat.Droid.Services
 
 			// check if BluetoothLE APIs are available
 			if (Android.App.Application.Context.PackageManager.HasSystemFeature(Android.Content.PM.PackageManager.FeatureBluetoothLe) != true ||
-				(Build.VERSION.SdkInt < BuildVersionCodes.Lollipop ? (object)bluetoothAdapter : (object)leScanner) == null)
+				leScanner == null)
 			{
 				logger.Log($"BluetoothLE APIs are not available", Category.Warn, Priority.High);
 				return Task.FromResult(Enumerable.Empty<WaterBoilerMatDevice>());
 			}
 
 			var result = new List<BluetoothDevice>();
-			var preLollipopScanCallback = new PreLollipopScanCallback((device, rssi, data) =>
+			var scanCallback = new LE.ScanCallback((device, rssi, record) =>
 			{
-				result.Add(device);
-			});
-			var lollipopScanCallback = new LollipopScanCallback((device, rssi, record) =>
-			{
+				if (result.Any(D => D.Address.Equals(device.Address)))
+					return;
+
 				result.Add(device);
 			});
 
 			// Start the Enumeration
-			if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop)
-			{
-				bluetoothAdapter.StartLeScan(preLollipopScanCallback);
-			}
-			else
-			{
-				leScanner.StartScan(lollipopScanCallback);
-			}
+			leScanner.StartScan(scanCallback);
 			logger.Log($"Start the BluetoothLE device Enumeration", Category.Info, Priority.High);
 
 			handler.PostDelayed(() =>
 			{
-				if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop)
-				{
-					bluetoothAdapter.StopLeScan(preLollipopScanCallback);
-				}
-				else
-				{
-					leScanner.StopScan(lollipopScanCallback);
-				}
+				leScanner.StopScan(scanCallback);
 				logger.Log($"Stop the BluetoothLE device Enumeration. Found {result.Count} devices.", Category.Info, Priority.High);
 
-				tcs.SetResult(result.Where(D => WaterBoilerMatDevice.IsNavienDevice(D.Address))
-									.Select(D => new WaterBoilerMatDeviceAndroid(D)));
-				//	IntroActivity.this.mCustomProgress.dismiss();
-				//	IntroActivity.this.mTextview_intro_button.setEnabled(IntroActivity.D);
-				//	IntroActivity.this.mImageButton_intro_refresh.setEnabled(IntroActivity.D);
-				//	IntroActivity.this.mPairedListView.setEnabled(IntroActivity.D);
-				//	IntroActivity.this.invalidateOptionsMenu();
-				//	Log.e("scan", "delayed");
+				tcs.SetResult(result//.Where(D => WaterBoilerMatDevice.IsNavienDevice(D.Address))
+									.Where(D => String.IsNullOrWhiteSpace(D.Name) != true)
+									.Select(D => new WaterBoilerMatDeviceAndroid(D, bluetoothAdapter)));
+
 			}, timeoutMilliseconds);
-
-
-
-			//Timer timer = null;
-			//timer = new Timer(delegate
-			//{
-			//	timer.Dispose();
-			//	// Stop the Enumeration
-			//	bluetoothLEHelper.StopEnumeration();
-			//	logger.Log($"Stop the BluetoothLE device Enumeration. Found {bluetoothLEHelper.BluetoothLeDevices.Count} devices.", Category.Info, Priority.High);
-
-			//	tcs.SetResult(bluetoothLEHelper.BluetoothLeDevices//.Where(d => WaterBoilerMatDevice.IsNavienDevice(d.BluetoothAddressAsString))
-			//													  .Select(d => new WaterBoilerMatDeviceUwp(d)));
-
-			//}, null, timeoutMilliseconds, Timeout.Infinite);
 
 			return tcs.Task;
 		}

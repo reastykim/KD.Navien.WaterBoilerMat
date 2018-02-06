@@ -107,8 +107,8 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 			{
 				await waterBoilerMatDevice.ConnectAsync();
 				ConnectedWaterBoilerMatDevice = waterBoilerMatDevice;
-				ConnectedWaterBoilerMatDevice.ServicesUpdated += ConnectedWaterBoilerMatDevice_ServicesUpdated;
-				Logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice.Name}], Address=[{waterBoilerMatDevice.Address}] Connect success.", Category.Info, Priority.Medium);
+				//ConnectedWaterBoilerMatDevice.ServicesUpdated += ConnectedWaterBoilerMatDevice_ServicesUpdated;
+				Logger.Log($"BluetoothLE Device Name=[{ConnectedWaterBoilerMatDevice.Name}], Address=[{ConnectedWaterBoilerMatDevice.Address}] Connect success.", Category.Info, Priority.Medium);
 			}
 			catch (Exception e)
 			{
