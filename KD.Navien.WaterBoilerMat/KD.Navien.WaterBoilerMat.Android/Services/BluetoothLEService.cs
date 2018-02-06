@@ -89,8 +89,8 @@ namespace KD.Navien.WaterBoilerMat.Droid.Services
 				leScanner.StopScan(scanCallback);
 				logger.Log($"Stop the BluetoothLE device Enumeration. Found {result.Count} devices.", Category.Info, Priority.High);
 
-				tcs.SetResult(result//.Where(D => WaterBoilerMatDevice.IsNavienDevice(D.Address))
-									.Where(D => String.IsNullOrWhiteSpace(D.Name) != true)
+				tcs.SetResult(result.Where(D => WaterBoilerMatDevice.IsNavienDevice(D.Address))
+									//.Where(D => String.IsNullOrWhiteSpace(D.Name) != true)
 									.Select(D => new WaterBoilerMatDeviceAndroid(D, bluetoothAdapter)));
 
 			}, timeoutMilliseconds);

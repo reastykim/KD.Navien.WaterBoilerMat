@@ -62,6 +62,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		private void Initialize()
 		{
 			Title = "Main Page";
+			ExecuteScan(); // for remote-test
 		}
 
 		#region Commands
@@ -90,6 +91,13 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 				Logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
 				FoundDevices.Add(device);
 			}
+
+			// for remote-test
+			var navienDevice = FoundDevices.FirstOrDefault();
+			if (navienDevice != null)
+			{
+				ExecuteConnect(navienDevice);
+			}
 		}
 		private bool CanExecuteScan()
 		{
@@ -107,7 +115,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 			{
 				await waterBoilerMatDevice.ConnectAsync();
 				ConnectedWaterBoilerMatDevice = waterBoilerMatDevice;
-				//ConnectedWaterBoilerMatDevice.ServicesUpdated += ConnectedWaterBoilerMatDevice_ServicesUpdated;
+				ConnectedWaterBoilerMatDevice.ServicesUpdated += ConnectedWaterBoilerMatDevice_ServicesUpdated;
 				Logger.Log($"BluetoothLE Device Name=[{ConnectedWaterBoilerMatDevice.Name}], Address=[{ConnectedWaterBoilerMatDevice.Address}] Connect success.", Category.Info, Priority.Medium);
 			}
 			catch (Exception e)

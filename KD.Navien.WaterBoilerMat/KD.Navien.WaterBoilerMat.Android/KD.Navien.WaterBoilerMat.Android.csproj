@@ -76,6 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MainActivity.cs" />
+    <Compile Include="Models\BluetoothGattCharacteristicAndroid.cs" />
     <Compile Include="Models\BluetoothGattServiceAndroid.cs" />
     <Compile Include="Models\WaterBoilerMatDeviceAndroid.cs" />
     <Compile Include="Resources\Resource.Designer.cs" />
