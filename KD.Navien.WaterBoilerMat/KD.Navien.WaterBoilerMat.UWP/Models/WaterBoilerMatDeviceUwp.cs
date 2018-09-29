@@ -17,12 +17,13 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		public override string Name => device?.Name;
 		public override string Address => device?.BluetoothAddressAsString;
+        public override bool IsConnected => device?.IsConnected == true;
 
-		#endregion
+        #endregion
 
-		#region Fields
+        #region Fields
 
-		private ObservableBluetoothLEDevice device;
+        private ObservableBluetoothLEDevice device;
 
 		#endregion
 
@@ -38,10 +39,11 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 		private void Initialize()
 		{
 			device.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
-			device.Services.CollectionChanged += Services_CollectionChanged;
+
+            device.Services.CollectionChanged += Services_CollectionChanged;
 		}
 
-		private void Services_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        private void Services_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
 		{
 			foreach (var service in Services)
 			{
@@ -64,9 +66,17 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 
 		#endregion
 
-		public override Task ConnectAsync()
+		public override async Task ConnectAsync()
 		{
-			return device.ConnectAsync();
+            //if (device.IsPaired != true)
+            //{
+            //    await device.DoInAppPairingAsync();
+            //}
+
+            if (device.IsConnected != true)
+            {
+                await device.ConnectAsync();
+            }
 		}
 	}
 }

@@ -48,7 +48,7 @@ namespace KD.Navien.WaterBoilerMat.UWP.Models
 			{
 				if (e.PropertyName == "Value")
 				{
-					Debug.WriteLine($"GattCharacteristics_ValueChanged. Value=[{Value}]");
+					Debug.WriteLine($"[{gattCharacteristics.Parent.Name}].[{gattCharacteristics.Name}] GattCharacteristics_ValueChanged. Value=[{Value}]");
 				}
 
 				RaisePropertyChanged(e.PropertyName);

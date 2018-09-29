@@ -23,6 +23,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		public abstract string Address { get; }
 
+        public abstract bool IsConnected { get; }
+
 		public List<IBluetoothGattService> Services
 		{
 			get => services;
@@ -30,24 +32,24 @@ namespace KD.Navien.WaterBoilerMat.Models
 		}
 		private List<IBluetoothGattService> services = new List<IBluetoothGattService>();
 
-		//public IBluetoothGattService BoilerGattService
-		//{
-		//	get => Services.FirstOrDefault(S => S.UUID == BoilerGattServiceUuid);
-		//}
+        public IBluetoothGattService BoilerGattService
+        {
+            get => Services.FirstOrDefault(S => S.UUID == BoilerGattServiceUuid);
+        }
 
-		//public IBluetoothGattCharacteristic BoilerGattCharacteristic1
-		//{
-		//	get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic1Uuid);
-		//}
+        public IBluetoothGattCharacteristic BoilerGattCharacteristic1
+        {
+            get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic1Uuid);
+        }
 
-		//public IBluetoothGattCharacteristic BoilerGattCharacteristic2
-		//{
-		//	get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic2Uuid);
-		//}
+        public IBluetoothGattCharacteristic BoilerGattCharacteristic2
+        {
+            get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic2Uuid);
+        }
 
-		#endregion
+        #endregion
 
-		protected void RaiseServicesUpdated()
+        protected void RaiseServicesUpdated()
 		{
 			ServicesUpdated?.Invoke(this, EventArgs.Empty);
 		}

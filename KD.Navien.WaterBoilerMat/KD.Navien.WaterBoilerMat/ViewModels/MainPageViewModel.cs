@@ -91,13 +91,6 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 				Logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
 				FoundDevices.Add(device);
 			}
-
-			// for remote-test
-			var navienDevice = FoundDevices.FirstOrDefault();
-			if (navienDevice != null)
-			{
-				ExecuteConnect(navienDevice);
-			}
 		}
 		private bool CanExecuteScan()
 		{
@@ -113,10 +106,23 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 		{
 			try
 			{
-				await waterBoilerMatDevice.ConnectAsync();
-				ConnectedWaterBoilerMatDevice = waterBoilerMatDevice;
-				ConnectedWaterBoilerMatDevice.ServicesUpdated += ConnectedWaterBoilerMatDevice_ServicesUpdated;
-				Logger.Log($"BluetoothLE Device Name=[{ConnectedWaterBoilerMatDevice.Name}], Address=[{ConnectedWaterBoilerMatDevice.Address}] Connect success.", Category.Info, Priority.Medium);
+                if (ConnectedWaterBoilerMatDevice != null)
+                {
+                    ConnectedWaterBoilerMatDevice.ServicesUpdated -= ConnectedWaterBoilerMatDevice_ServicesUpdated;
+                    ConnectedWaterBoilerMatDevice = null;
+                }
+                await waterBoilerMatDevice.ConnectAsync();
+
+                if (waterBoilerMatDevice.IsConnected)
+                {
+                    ConnectedWaterBoilerMatDevice = waterBoilerMatDevice;
+                    ConnectedWaterBoilerMatDevice.ServicesUpdated += ConnectedWaterBoilerMatDevice_ServicesUpdated;
+                    Logger.Log($"BluetoothLE Device Name=[{ConnectedWaterBoilerMatDevice.Name}], Address=[{ConnectedWaterBoilerMatDevice.Address}] Connect success.", Category.Info, Priority.Medium);
+                }
+                else
+                {
+                    Logger.Log($"BluetoothLE Device Name=[{ConnectedWaterBoilerMatDevice.Name}], Address=[{ConnectedWaterBoilerMatDevice.Address}] Connect fail.", Category.Info, Priority.Medium);
+                }
 			}
 			catch (Exception e)
 			{
@@ -124,11 +130,21 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 			}
 		}
 
-		#endregion
+        public DelegateCommand DebugCommand
+        {
+            get { return debugCommand ?? (debugCommand = new DelegateCommand(ExecuteDebug)); }
+        }
+        private DelegateCommand debugCommand;
+        private void ExecuteDebug()
+        {
 
-		#region Event Handlers
-		
-		private async void ConnectedWaterBoilerMatDevice_ServicesUpdated(object sender, EventArgs e)
+        }
+
+        #endregion
+
+        #region Event Handlers
+
+        private async void ConnectedWaterBoilerMatDevice_ServicesUpdated(object sender, EventArgs e)
 		{
 			var device = sender as WaterBoilerMatDevice;
 			var boilerGattService = device.Services.FirstOrDefault(S => S.UUID == WaterBoilerMatDevice.BoilerGattServiceUuid);
@@ -148,6 +164,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 				var requestData = new KDRequest();
 				requestData.Data.MessageType = KDMessageType.MAC_REGISTER;
 				requestData.Data.UniqueID = "";
+
 				byte[] bytes = requestData.GetValue().HexStringToByteArray();
 
 				var result = await boilerGattCharacteristic2.SetNotifyAsync();
