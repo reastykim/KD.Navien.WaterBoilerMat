@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using KD.Navien.WaterBoilerMat.Extensions;
 using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
 
 namespace KD.Navien.WaterBoilerMat.Services.Protocol
 {
-	public class KDRequest// implements Serializable
+	public class KDRequest
 	{
 		public KDData Data { get; set; } = new KDData();
 
@@ -111,5 +112,10 @@ namespace KD.Navien.WaterBoilerMat.Services.Protocol
 
 			return result;
 		}
+
+        public byte[] GetByteArrayValue()
+        {
+            return GetValue().HexStringToByteArray();
+        }
 	}
 }

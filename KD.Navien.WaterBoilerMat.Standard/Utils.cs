@@ -29,9 +29,9 @@ namespace KD.Navien.WaterBoilerMat
 		/// <typeparam name="T"></typeparam>
 		/// <param name="bytes"></param>
 		/// <returns></returns>
-		public static string ToString(this IEnumerable<byte> bytes, string format = "X2")
+		public static string ToString(this IEnumerable<byte> bytes, string format, string separator = "")
         {
-            return String.Join(" ", bytes.Select(B => B.ToString(format)));
+            return String.Join(separator, bytes.Select(B => B.ToString(format)));
         }
     }
 }

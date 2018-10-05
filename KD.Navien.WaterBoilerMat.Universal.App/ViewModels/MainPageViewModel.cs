@@ -203,7 +203,11 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                 ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.ValueChanged += BoilerGattCharacteristic2_ValueChanged;
 
                 result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.WriteValueAsync(bytes);
-                if (result != true)
+                if (result)
+                {
+                    _logger.Log($"BoilerGattCharacteristic2.WriteValueAsync(). Value = [{requestDataValue}]", Category.Debug, Priority.High);
+                }
+                else
                 {
                     throw new ApplicationException($"Call BoilerCharacteristic2.WriteValueAsync(). Result=[{result}], Data=[{requestDataValue}]");
                 }
@@ -215,24 +219,24 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             }
         }
 
-        private async void BoilerGattCharacteristic2_ValueChanged(object sender, string e)
+        private async void BoilerGattCharacteristic2_ValueChanged(object sender, byte[] data)
         {
-            _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Value = [{e}]", Category.Debug, Priority.None);
+            var dataValue = data.ToString("X02");
+            _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Value = [{dataValue}]", Category.Debug, Priority.High);
 
             try
             {
                 ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.ValueChanged -= BoilerGattCharacteristic2_ValueChanged;
 
                 KDResponse responseData = new KDResponse();
-                byte[] getData = e.HexStringToByteArray("-", ":", " ");
-                if (responseData.SetValue(getData))
+                if (responseData.SetValue(data))
                 {
                     if (responseData.Data.UniqueID != null)
                     {
                         _pairingList.Add(ConnectedWaterBoilerMatDevice.Address, responseData.Data.UniqueID);
                     }
 
-                    _logger.Log($"Response Received. Data=[{e}]", Category.Info, Priority.None);
+                    _logger.Log($"Response Received. Data=[{dataValue}]", Category.Info, Priority.None);
                 }
                 else
                 {
@@ -244,12 +248,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                     ConnectedWaterBoilerMatDevice.Disconnect();
                     ConnectedWaterBoilerMatDevice = null;
 
-                    throw new ApplicationException($"KDResponse.SetValue() fail. Data=[{e}]");
+                    throw new ApplicationException($"KDResponse.SetValue() fail.");
                 }
             }
             catch (Exception ex)
             {
-                _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{e}]", Category.Exception, Priority.High);
+                _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{dataValue}]", Category.Exception, Priority.High);
                 await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
             }
         }

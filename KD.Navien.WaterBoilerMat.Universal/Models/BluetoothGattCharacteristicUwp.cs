@@ -16,7 +16,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 	{
         #region Events
 
-        public event EventHandler<string> ValueChanged;
+        public event EventHandler<byte[]> ValueChanged;
 
         #endregion
 
@@ -58,14 +58,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
 		private void Initialize()
 		{
-			gattCharacteristics.PropertyChanged += (s, e) =>
-			{
-				if (e.PropertyName == "Value")
-				{
-					//Debug.WriteLine($"[{gattCharacteristics.Parent.Name}].[{gattCharacteristics.Name}] GattCharacteristics_ValueChanged. Value=[{Value}]");
-                    ValueChanged?.Invoke(this, Value);
-				}
-			};
+            gattCharacteristics.Characteristic.ValueChanged += (s, e) => ValueChanged?.Invoke(this, e.CharacteristicValue.ToBytes());
+            gattCharacteristics.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
 		}
 
 		public Task<bool> SetNotifyAsync(bool isEnable)
