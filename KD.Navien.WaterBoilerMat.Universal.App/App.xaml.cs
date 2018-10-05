@@ -45,12 +45,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.App
             {
                 // The app was launched from a Secondary Tile
                 // Navigate to the item's page
-                NavigationService.Navigate("Main", args.Arguments);
+                NavigationService.Navigate("Intro", args.Arguments);
             }
             else
             {
                 // Navigate to the initial page
-                NavigationService.Navigate("Main", null);
+                NavigationService.Navigate("Intro", null);
             }
 
             Window.Current.Activate();

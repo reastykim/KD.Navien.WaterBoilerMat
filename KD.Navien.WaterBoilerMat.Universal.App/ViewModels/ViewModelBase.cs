@@ -6,6 +6,7 @@ using Prism.Windows.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Windows.ApplicationModel;
 
 namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 {
@@ -25,6 +26,16 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             NavigationService = navigationService;
 			Logger = logger;
-		}
+        }
+
+        public DelegateCommand LoadedCommand
+        {
+            get { return _loadedCommand ?? (_loadedCommand = new DelegateCommand(ExecuteLoaded)); }
+        }
+        private DelegateCommand _loadedCommand;
+        protected virtual void ExecuteLoaded()
+        {
+
+        }
     }
 }

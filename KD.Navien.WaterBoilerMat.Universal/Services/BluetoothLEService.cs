@@ -32,11 +32,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
 
         private ILoggerFacade _logger;
         private BluetoothLEHelper _bluetoothLEHelper;
-        /// <summary> 
-        /// Reader/Writer lock for when we are updating the collection. 
-        /// </summary> 
-        private readonly ReaderWriterLockSlim _readerWriterLockSlim = new ReaderWriterLockSlim();
-        private readonly ManualResetEvent _advertisementScanResetEvent = new ManualResetEvent(false);
 
         #endregion
 
