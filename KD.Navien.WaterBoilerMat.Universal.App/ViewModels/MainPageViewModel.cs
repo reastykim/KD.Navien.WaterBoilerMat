@@ -24,6 +24,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
     public class MainPageViewModel : ViewModelBase
     {
         const int ScanTimeout = 5000;
+
         #region Properties
 
         public bool IsAvailableBluetoothLEScan
@@ -65,6 +66,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         private async void ExecuteScan()
         {
             FoundDevices.Clear();
+            if (ConnectedWaterBoilerMatDevice != null)
+            {
+                ConnectedWaterBoilerMatDevice.BoilerServiceReady -= ConnectedWaterBoilerMatDevice_BoilerServiceReady;
+                ConnectedWaterBoilerMatDevice.Disconnect();
+                ConnectedWaterBoilerMatDevice = null;
+            }
 
             IsAvailableBluetoothLEScan = false;
             var devices = await _bluetoothLEService.ScanAsync(ScanTimeout);
@@ -72,7 +79,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
             foreach (var device in devices)
             {
-                _logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
+                Logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
                 FoundDevices.Add(device);
             }
         }
@@ -103,7 +110,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             }
             catch (Exception e)
             {
-                _logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice?.Name}], Address=[{waterBoilerMatDevice?.Address}] Connect fail. Exception=[{e.Message}]", Category.Exception, Priority.High);
+                Logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice?.Name}], Address=[{waterBoilerMatDevice?.Address}] Connect fail. Exception=[{e.Message}]", Category.Exception, Priority.High);
             }
         }
 
@@ -123,9 +130,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         private readonly IBluetoothLEService<WaterBoilerMatDevice> _bluetoothLEService;
         private readonly IAlertMessageService _alertMessageService;
-        private readonly INavigationService _navigationService;
         private readonly IPairingList _pairingList;
-        private readonly ILoggerFacade _logger;
 
         #endregion
 
@@ -135,12 +140,11 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             INavigationService navigationService, IAlertMessageService alertMessageService,
             IPairingList pairingList,
             ILoggerFacade logger)
+            : base(navigationService, logger)
         {
             _bluetoothLEService = bluetoothLEService;
-            _navigationService = navigationService;
             _alertMessageService = alertMessageService;
             _pairingList = pairingList;
-            _logger = logger;
         }
 
         #endregion
@@ -205,7 +209,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                 result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.WriteValueAsync(bytes);
                 if (result)
                 {
-                    _logger.Log($"BoilerGattCharacteristic2.WriteValueAsync(). Value = [{requestDataValue}]", Category.Debug, Priority.High);
+                    Logger.Log($"BoilerGattCharacteristic2.WriteValueAsync(). Value = [{requestDataValue}]", Category.Debug, Priority.High);
                 }
                 else
                 {
@@ -214,7 +218,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.Log($"ConnectedWaterBoilerMatDevice_BoilerServiceReady. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+                Logger.Log($"ConnectedWaterBoilerMatDevice_BoilerServiceReady. Exception=[{ex.Message}]", Category.Exception, Priority.High);
                 await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
             }
         }
@@ -222,7 +226,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         private async void BoilerGattCharacteristic2_ValueChanged(object sender, byte[] data)
         {
             var dataValue = data.ToString("X02");
-            _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Value = [{dataValue}]", Category.Debug, Priority.High);
+            Logger.Log($"BoilerGattCharacteristic2_ValueChanged. Value = [{dataValue}]", Category.Debug, Priority.High);
 
             try
             {
@@ -236,14 +240,14 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                         _pairingList.Add(ConnectedWaterBoilerMatDevice.Address, responseData.Data.UniqueID);
                     }
 
-                    _logger.Log($"Response Received. Data=[{dataValue}]", Category.Info, Priority.None);
+                    Logger.Log($"Response Received. Data=[{dataValue}]", Category.Info, Priority.None);
                 }
                 else
                 {
-                    _logger.Log($"Connect fail. Raw=[{responseData.Data.DEBUGCode}]", Category.Info, Priority.High);
+                    Logger.Log($"Connect fail. Raw=[{responseData.Data.DEBUGCode}]", Category.Info, Priority.High);
 
                     var result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.SetNotifyAsync(false);
-                    _logger.Log($"Call BoilerCharacteristic2.SetNotifyAsync(false). Result=[{result}]", Category.Debug, Priority.None);
+                    Logger.Log($"Call BoilerCharacteristic2.SetNotifyAsync(false). Result=[{result}]", Category.Debug, Priority.None);
 
                     ConnectedWaterBoilerMatDevice.Disconnect();
                     ConnectedWaterBoilerMatDevice = null;
@@ -253,7 +257,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             }
             catch (Exception ex)
             {
-                _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{dataValue}]", Category.Exception, Priority.High);
+                Logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{dataValue}]", Category.Exception, Priority.High);
                 await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
             }
         }

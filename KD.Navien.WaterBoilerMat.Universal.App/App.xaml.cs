@@ -1,7 +1,7 @@
 ﻿using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
-using KD.Navien.WaterBoilerMat.Universal.App.Models;
 using KD.Navien.WaterBoilerMat.Universal.App.Services;
+using KD.Navien.WaterBoilerMat.Universal.Models;
 using KD.Navien.WaterBoilerMat.Universal.Services;
 using Microsoft.Practices.Unity;
 using Prism.Events;

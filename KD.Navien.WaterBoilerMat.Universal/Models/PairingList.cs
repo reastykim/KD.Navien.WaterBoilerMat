@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App.Models
+namespace KD.Navien.WaterBoilerMat.Universal.Models
 {
     public class PairingList : IPairingList
     {

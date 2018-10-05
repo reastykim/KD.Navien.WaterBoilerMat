@@ -7,12 +7,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace KD.Navien.WaterBoilerMat.Universal.ViewModels
+namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 {
-    public class ViewModelBase : Prism.Windows.Mvvm.ViewModelBase
+    public abstract class ViewModelBase : Prism.Windows.Mvvm.ViewModelBase
     {
-        public event EventHandler IsActiveChanged;
-
         protected INavigationService NavigationService { get; private set; }
 		protected ILoggerFacade Logger { get; private set; }
 
@@ -23,7 +21,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.ViewModels
         }
         private string _title;
 
-        public ViewModelBase(INavigationService navigationService, ILoggerFacade logger)
+        protected ViewModelBase(INavigationService navigationService, ILoggerFacade logger)
         {
             NavigationService = navigationService;
 			Logger = logger;
