@@ -167,7 +167,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 
 				byte[] bytes = requestData.GetValue().HexStringToByteArray();
 
-				var result = await boilerGattCharacteristic2.SetNotifyAsync();
+				var result = await boilerGattCharacteristic2.SetNotifyAsync(true);
 				Logger.Log($"Call BoilerCharacteristic2.SetNotifyAsync(). Result=[{result}]", Category.Debug, Priority.None);
 				result = await boilerGattCharacteristic2.WriteValueAsync(bytes);
 				Logger.Log($"Call BoilerCharacteristic2.WriteValueAsync(). Result=[{result}]", Category.Debug, Priority.None);

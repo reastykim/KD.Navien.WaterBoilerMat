@@ -1,7 +1,11 @@
 ﻿using Foundation;
 using UIKit;
-using Microsoft.Practices.Unity;
-using Prism.Unity;
+using Prism;
+using Unity;
+using Prism.Ioc;
+using KD.Navien.WaterBoilerMat.Services;
+using KD.Navien.WaterBoilerMat.Models;
+using KD.Navien.WaterBoilerMat.iOS.Services;
 
 namespace KD.Navien.WaterBoilerMat.iOS
 {
@@ -29,9 +33,10 @@ namespace KD.Navien.WaterBoilerMat.iOS
 
     public class iOSInitializer : IPlatformInitializer
     {
-        public void RegisterTypes(IUnityContainer container)
+        public void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            
+            // Register any platform specific implementations
+            containerRegistry.Register<IBluetoothLEService<WaterBoilerMatDevice>, BluetoothLEService>();
         }
     }
 }

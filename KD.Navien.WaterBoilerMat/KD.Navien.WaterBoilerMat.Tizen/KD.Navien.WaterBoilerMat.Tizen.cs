@@ -1,3 +1,4 @@
+using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
 using KD.Navien.WaterBoilerMat.Tizen.Logging;
 using KD.Navien.WaterBoilerMat.Tizen.Services;
@@ -31,7 +32,7 @@ namespace KD.Navien.WaterBoilerMat.Tizen
 		{
 			// Register any platform specific implementations
 			containerRegistry.RegisterSingleton<ILoggerFacade, TizenLogger>();
-			containerRegistry.RegisterSingleton<IBluetoothService, BluetoothService>();
-		}
+            containerRegistry.Register<IBluetoothLEService<WaterBoilerMatDevice>, BluetoothLEService>();
+        }
 	}
 }

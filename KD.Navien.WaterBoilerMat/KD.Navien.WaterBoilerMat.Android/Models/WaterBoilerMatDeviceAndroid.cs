@@ -19,15 +19,17 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 	{
 		#region Properties
 
-		public override string Name => device.Name;
+		public override string Name => device?.Name;
 
-		public override string Address => device.Address;
+		public override string Address => device?.Address;
 
-		#endregion
+        public override bool IsConnected => device?.BondState == Bond.Bonded;
 
-		#region Fields
+        #endregion
 
-		private BluetoothDevice device;
+        #region Fields
+
+        private BluetoothDevice device;
 		private BluetoothAdapter bluetoothAdapter;
 		private BluetoothGatt bluetoothGatt;
 		private GattCallbacks gattCallback;
@@ -148,7 +150,20 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 			}
 		}
 
-		internal bool SetCharacteristicNotification(BluetoothGattCharacteristic characteristic, bool enable)
+        public override void Disconnect()
+        {
+            if (bluetoothAdapter == null)
+            {
+                throw new BluetoothLEException("BluetoothAdapter not initialized.");
+            }
+
+            if (bluetoothGatt == null)
+            {
+                bluetoothGatt.Disconnect();
+            }
+        }
+
+        internal bool SetCharacteristicNotification(BluetoothGattCharacteristic characteristic, bool enable)
 		{
 			return bluetoothGatt.SetCharacteristicNotification(characteristic, enable);
 		}
@@ -157,5 +172,10 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 		{
 			return bluetoothGatt.WriteCharacteristic(characteristic);
 		}
-	}
+
+        public override Task<T> GetNativeBluetoothLEDeviceObjectAsync<T>()
+        {
+            return Task.FromResult(bluetoothGatt?.Device as T);
+        }
+    }
 }

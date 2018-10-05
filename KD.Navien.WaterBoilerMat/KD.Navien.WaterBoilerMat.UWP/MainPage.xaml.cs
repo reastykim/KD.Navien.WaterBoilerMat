@@ -17,7 +17,7 @@ using Prism;
 using Unity;
 using Prism.Ioc;
 using KD.Navien.WaterBoilerMat.Services;
-using KD.Navien.WaterBoilerMat.UWP.Services;
+using KD.Navien.WaterBoilerMat.Universal.Services;
 using KD.Navien.WaterBoilerMat.Models;
 
 namespace KD.Navien.WaterBoilerMat.UWP
