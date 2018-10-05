@@ -23,6 +23,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
+        const int ScanTimeout = 5000;
         #region Properties
 
         public bool IsAvailableBluetoothLEScan
@@ -66,7 +67,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             FoundDevices.Clear();
 
             IsAvailableBluetoothLEScan = false;
-            var devices = await _bluetoothLEService.ScanAsync(5000);
+            var devices = await _bluetoothLEService.ScanAsync(ScanTimeout);
             IsAvailableBluetoothLEScan = true;
 
             foreach (var device in devices)
@@ -91,15 +92,14 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             {
                 if (ConnectedWaterBoilerMatDevice != null)
                 {
-                    //ConnectedWaterBoilerMatDevice.ServicesUpdated -= ConnectedWaterBoilerMatDevice_ServicesUpdated;
                     ConnectedWaterBoilerMatDevice.BoilerServiceReady -= ConnectedWaterBoilerMatDevice_BoilerServiceReady;
+                    ConnectedWaterBoilerMatDevice.Disconnect();
                     ConnectedWaterBoilerMatDevice = null;
                 }
 
                 await waterBoilerMatDevice.ConnectAsync();
                 ConnectedWaterBoilerMatDevice = waterBoilerMatDevice;
                 ConnectedWaterBoilerMatDevice.BoilerServiceReady += ConnectedWaterBoilerMatDevice_BoilerServiceReady;
-                //ConnectedWaterBoilerMatDevice.ServicesUpdated += ConnectedWaterBoilerMatDevice_ServicesUpdated;
             }
             catch (Exception e)
             {
@@ -123,8 +123,9 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         private readonly IBluetoothLEService<WaterBoilerMatDevice> _bluetoothLEService;
         private readonly IAlertMessageService _alertMessageService;
-        private INavigationService _navigationService;
-        private ILoggerFacade _logger;
+        private readonly INavigationService _navigationService;
+        private readonly IPairingList _pairingList;
+        private readonly ILoggerFacade _logger;
 
         #endregion
 
@@ -132,11 +133,13 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         public MainPageViewModel(IBluetoothLEService<WaterBoilerMatDevice> bluetoothLEService, 
             INavigationService navigationService, IAlertMessageService alertMessageService,
+            IPairingList pairingList,
             ILoggerFacade logger)
         {
             _bluetoothLEService = bluetoothLEService;
             _navigationService = navigationService;
             _alertMessageService = alertMessageService;
+            _pairingList = pairingList;
             _logger = logger;
         }
 
@@ -175,23 +178,40 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
+                // Create a request
                 var requestData = new KDRequest();
                 requestData.Data.MessageType = KDMessageType.MAC_REGISTER;
-                requestData.Data.UniqueID = "";
+                // check, is the pairing mode
+                if (_pairingList.Contains(ConnectedWaterBoilerMatDevice.Address))
+                {
+                    requestData.Data.UniqueID = _pairingList[ConnectedWaterBoilerMatDevice.Address];
+                }
+                else
+                {
+                    requestData.Data.UniqueID = "";
+                }
+                // to bytes
                 var requestDataValue = requestData.GetValue();
                 byte[] bytes = requestDataValue.HexStringToByteArray();
                 
                 var result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.SetNotifyAsync(true);
-                _logger.Log($"Call BoilerCharacteristic2.SetNotifyAsync(true). Result=[{result}]", Category.Debug, Priority.None);
+                if (result != true)
+                {
+                    throw new ApplicationException($"Call BoilerCharacteristic2.SetNotifyAsync(true). Result=[{result}]");
+                }
 
                 ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.ValueChanged += BoilerGattCharacteristic2_ValueChanged;
 
                 result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.WriteValueAsync(bytes);
-                _logger.Log($"Call BoilerCharacteristic2.WriteValueAsync(). Result=[{result}], Data=[{requestDataValue}]", Category.Debug, Priority.None);
+                if (result != true)
+                {
+                    throw new ApplicationException($"Call BoilerCharacteristic2.WriteValueAsync(). Result=[{result}], Data=[{requestDataValue}]");
+                }
             }
             catch (Exception ex)
             {
-                _logger.Log($"WaterBoilerMatDevice Communication fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+                _logger.Log($"ConnectedWaterBoilerMatDevice_BoilerServiceReady. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+                await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
             }
         }
 
@@ -201,20 +221,17 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
             try
             {
+                ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.ValueChanged -= BoilerGattCharacteristic2_ValueChanged;
+
                 KDResponse responseData = new KDResponse();
                 byte[] getData = e.HexStringToByteArray("-", ":", " ");
                 if (responseData.SetValue(getData))
                 {
                     if (responseData.Data.UniqueID != null)
                     {
-                        //new PairingList(IntroActivity.this.mContext).setPairing(IntroActivity.this.mDeviceAddress, IntroActivity.this.mDeviceName, responseData.mData.UniqueID, IntroActivity.D);
+                        _pairingList.Add(ConnectedWaterBoilerMatDevice.Address, responseData.Data.UniqueID);
                     }
-                    //Intent serverIntent = new Intent(IntroActivity.this.mContext, MainActivity.class);
-                    //serverIntent.setFlags(67108864);
-                    //serverIntent.putExtra(Constants.DEVICE_ADDRESS, IntroActivity.this.mDeviceAddress);
-                    //IntroActivity.this.startActivity(serverIntent);
-                    //IntroActivity.this.unregisterReceiver(IntroActivity.this.mGattUpdateReceiver);
-                    //IntroActivity.this.finish();
+
                     _logger.Log($"Response Received. Data=[{e}]", Category.Info, Priority.None);
                 }
                 else
@@ -224,57 +241,18 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                     var result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.SetNotifyAsync(false);
                     _logger.Log($"Call BoilerCharacteristic2.SetNotifyAsync(false). Result=[{result}]", Category.Debug, Priority.None);
 
-                    ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.ValueChanged -= BoilerGattCharacteristic2_ValueChanged;
                     ConnectedWaterBoilerMatDevice.Disconnect();
                     ConnectedWaterBoilerMatDevice = null;
-                }
-                //var requestData = new KDRequest();
-                //requestData.Data.MessageType = KDMessageType.MAC_REGISTER;
-                //requestData.Data.UniqueID = ConnectedWaterBoilerMatDevice.Address.ToUpper().Replace(":", "");
-                //var requestDataValue = requestData.GetValue();
-                //byte[] bytes = requestDataValue.HexStringToByteArray();
 
-                //var result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.WriteValueAsync(bytes);
-                //_logger.Log($"Call BoilerCharacteristic2.WriteValueAsync(). Result=[{result}], Data=[{requestDataValue}]", Category.Debug, Priority.None);
+                    throw new ApplicationException($"KDResponse.SetValue() fail. Data=[{e}]");
+                }
             }
             catch (Exception ex)
             {
-                _logger.Log($"BoilerGattCharacteristic2 Unknown response. Exception=[{ex.Message}], Response = [{e}]", Category.Exception, Priority.High);
+                _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{e}]", Category.Exception, Priority.High);
+                await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
             }
         }
-//            if (IntroActivity.this.mBluetoothLeService != null) 
-//              {
-//                if (Boolean.valueOf(responseData.SetValue(getData)).booleanValue())
-//                {
-//                    if (responseData.mData.UniqueID != null)
-//                    {
-//                        new PairingList(IntroActivity.this.mContext).setPairing(IntroActivity.this.mDeviceAddress, IntroActivity.this.mDeviceName, responseData.mData.UniqueID, IntroActivity.D);
-//                    }
-//                    Intent serverIntent = new Intent(IntroActivity.this.mContext, MainActivity.class);
-//                        serverIntent.setFlags(67108864);
-//                        serverIntent.putExtra(Constants.DEVICE_ADDRESS, IntroActivity.this.mDeviceAddress);
-//                        IntroActivity.this.startActivity(serverIntent);
-//                    IntroActivity.this.unregisterReceiver(IntroActivity.this.mGattUpdateReceiver);
-//                    IntroActivity.this.finish();
-//                } else {
-//                                    Toast.makeText(IntroActivity.this.mContext, IntroActivity.this.getResources().getString(R.string.message_waterboiler_connected_fail), 0).show();
-//                                    if (IntroActivity.this.mBluetoothLeService != null) {
-//                    IntroActivity.this.mBluetoothLeService.close();
-//                }
-//                }
-//                IntroActivity.this.mTextview_intro_button.setEnabled(IntroActivity.D);
-
-//                IntroActivity.this.mImageButton_intro_refresh.setEnabled(IntroActivity.D);
-
-//                IntroActivity.this.mPairedListView.setEnabled(IntroActivity.D);
-
-//                IntroActivity.this.mCustomProgress.dismiss();
-
-//                IntroActivity.this.TimeHandlerRefresh(false);
-//                Log.e("broad cast", "action gatt changed");
-//                }
-
-//}
 
         #endregion
     }

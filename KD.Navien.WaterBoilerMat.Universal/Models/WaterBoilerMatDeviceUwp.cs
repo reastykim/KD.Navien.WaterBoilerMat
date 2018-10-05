@@ -17,7 +17,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 		#region Properties
 
 		public override string Name => device?.Name;
-		public override string Address => device?.BluetoothAddressAsString;
+		public override string Address => device?.BluetoothAddressAsString?.ToUpper();
         public override bool IsConnected => device?.IsConnected == true;
 
         #endregion

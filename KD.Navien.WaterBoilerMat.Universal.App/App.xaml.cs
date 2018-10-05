@@ -1,5 +1,6 @@
 ﻿using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
+using KD.Navien.WaterBoilerMat.Universal.App.Models;
 using KD.Navien.WaterBoilerMat.Universal.App.Services;
 using KD.Navien.WaterBoilerMat.Universal.Services;
 using Microsoft.Practices.Unity;
@@ -56,21 +57,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App
             return Task.FromResult<object>(null);
         }
 
-        protected override void OnRegisterKnownTypesForSerialization()
-        {
-            // Set up the list of known types for the SuspensionManager
-            //SessionStateService.RegisterKnownType(typeof(Address));
-            //SessionStateService.RegisterKnownType(typeof(PaymentMethod));
-            //SessionStateService.RegisterKnownType(typeof(UserInfo));
-            //SessionStateService.RegisterKnownType(typeof(CheckoutDataViewModel));
-            //SessionStateService.RegisterKnownType(typeof(ObservableCollection<CheckoutDataViewModel>));
-            //SessionStateService.RegisterKnownType(typeof(ShippingMethod));
-            //SessionStateService.RegisterKnownType(typeof(Dictionary<string, Collection<string>>));
-            //SessionStateService.RegisterKnownType(typeof(Order));
-            //SessionStateService.RegisterKnownType(typeof(Product));
-            //SessionStateService.RegisterKnownType(typeof(Collection<Product>));
-        }
-
         protected override Task OnInitializeAsync(IActivatedEventArgs args)
         {
             EventAggregator = new EventAggregator();
@@ -81,6 +67,10 @@ namespace KD.Navien.WaterBoilerMat.Universal.App
             //Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
             Container.RegisterType<IBluetoothLEService<WaterBoilerMatDevice>, BluetoothLEService>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAlertMessageService, AlertMessageService>(new ContainerControlledLifetimeManager());
+
+            Container.RegisterType<IPairingList, PairingList>(new ContainerControlledLifetimeManager());
+
+            
 
             //// Register child view models
             //Container.RegisterType<IShippingAddressUserControlViewModel, ShippingAddressUserControlViewModel>();
