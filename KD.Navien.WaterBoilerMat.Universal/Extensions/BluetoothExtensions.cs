@@ -63,7 +63,10 @@ namespace KD.Navien.WaterBoilerMat.Universal.Extensions
 
         public static void Disconnect(this ObservableBluetoothLEDevice device)
         {
-            device.BluetoothLEDevice.Dispose();
+            if (device.IsConnected)
+            {
+                device.BluetoothLEDevice.Dispose();
+            }
         }
     }
 }

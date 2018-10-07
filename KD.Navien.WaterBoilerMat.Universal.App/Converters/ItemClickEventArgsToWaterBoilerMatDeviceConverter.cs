@@ -9,6 +9,28 @@ using Windows.UI.Xaml.Data;
 
 namespace KD.Navien.WaterBoilerMat.Universal.App.Converters
 {
+    public class ItemClickEventArgsConverter : IValueConverter
+    {
+        public Type TargetType { get; set; }
+
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            if (value is ItemClickEventArgs args)
+            {
+                return System.Convert.ChangeType(args.ClickedItem, TargetType);
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class ItemClickEventArgsToWaterBoilerMatDeviceConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)

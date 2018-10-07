@@ -2,7 +2,9 @@
 using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
 using KD.Navien.WaterBoilerMat.Services.Protocol;
+using KD.Navien.WaterBoilerMat.Universal.App.Models;
 using KD.Navien.WaterBoilerMat.Universal.App.Services;
+using KD.Navien.WaterBoilerMat.Universal.App.Views;
 using KD.Navien.WaterBoilerMat.Universal.Extensions;
 using Prism.Commands;
 using Prism.Logging;
@@ -16,102 +18,45 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Devices.Bluetooth;
-using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
 
 namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
-        const int ScanTimeout = 5000;
-
         #region Properties
 
-        public bool IsAvailableBluetoothLEScan
+        public ObservableCollection<NavigationViewItemData> NavigationViewItemDataCollection
         {
-            get => _isAvailableBluetoothLEScan;
-            set => SetProperty(ref _isAvailableBluetoothLEScan, value);
-        }
-        private bool _isAvailableBluetoothLEScan = true;
+            get
+            {
+                if (_navigationViewItemDataCollection == null)
+                {
+                    _navigationViewItemDataCollection = new ObservableCollection<NavigationViewItemData>();
+                    _navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Home", TextIcon = "\uE80F", TargetPageType = typeof(HomePage) });
+                    _navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Sleep", TextIcon = "\uE708", TargetPageType = typeof(SleepPage) }); // uEC46
+                    _navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Help", TextIcon = "\uE946", TargetPageType = typeof(HelpPage) }); // uE897 uE946 uE82D
+                    //_navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Settings", TextIcon = "\uE713", TargetPageType = typeof(SettingsPage) });
+                }
 
-        public ObservableCollection<WaterBoilerMatDevice> FoundDevices
-        {
-            get { return _foundDevices ?? (_foundDevices = new ObservableCollection<WaterBoilerMatDevice>()); }
+                return _navigationViewItemDataCollection;
+            }
         }
-        private ObservableCollection<WaterBoilerMatDevice> _foundDevices;
+        private ObservableCollection<NavigationViewItemData> _navigationViewItemDataCollection;
 
-        public WaterBoilerMatDevice ConnectedWaterBoilerMatDevice
+        public NavigationViewItemData SelectedNavigationViewItemData
         {
-            get => _connectedWaterBoilerMatDevice;
-            set => SetProperty(ref _connectedWaterBoilerMatDevice, value);
+            get => _selectedNavigationViewItemData;
+            set => SetProperty(ref _selectedNavigationViewItemData, value);
         }
-        private WaterBoilerMatDevice _connectedWaterBoilerMatDevice;
-
-        public bool LoadingData
-        {
-            get { return _loadingData; }
-            private set { SetProperty(ref _loadingData, value); }
-        }
-        private bool _loadingData;
+        private NavigationViewItemData _selectedNavigationViewItemData;
 
         #endregion
 
         #region Commands
 
-        public DelegateCommand ScanCommand
+        protected override void ExecuteLoaded()
         {
-            get { return _scanCommand ?? (_scanCommand = new DelegateCommand(ExecuteScan, CanExecuteScan).ObservesProperty(() => IsAvailableBluetoothLEScan)); }
-        }
-        private DelegateCommand _scanCommand;
-        private async void ExecuteScan()
-        {
-            FoundDevices.Clear();
-            if (ConnectedWaterBoilerMatDevice != null)
-            {
-                ConnectedWaterBoilerMatDevice.BoilerServiceReady -= ConnectedWaterBoilerMatDevice_BoilerServiceReady;
-                ConnectedWaterBoilerMatDevice.Disconnect();
-                ConnectedWaterBoilerMatDevice = null;
-            }
-
-            IsAvailableBluetoothLEScan = false;
-            var devices = await _bluetoothLEService.ScanAsync(ScanTimeout);
-            IsAvailableBluetoothLEScan = true;
-
-            foreach (var device in devices)
-            {
-                Logger.Log($"Found a BLE Device. Name=[{device.Name}, Address=[{device.Address}]]", Category.Debug, Priority.Low);
-                FoundDevices.Add(device);
-            }
-        }
-        private bool CanExecuteScan()
-        {
-            return IsAvailableBluetoothLEScan;
-        }
-
-        public DelegateCommand<WaterBoilerMatDevice> ConnectCommand
-        {
-            get { return _connectCommand ?? (_connectCommand = new DelegateCommand<WaterBoilerMatDevice>(ExecuteConnect)); }
-        }
-        private DelegateCommand<WaterBoilerMatDevice> _connectCommand;
-        private async void ExecuteConnect(WaterBoilerMatDevice waterBoilerMatDevice)
-        {
-            try
-            {
-                if (ConnectedWaterBoilerMatDevice != null)
-                {
-                    ConnectedWaterBoilerMatDevice.BoilerServiceReady -= ConnectedWaterBoilerMatDevice_BoilerServiceReady;
-                    ConnectedWaterBoilerMatDevice.Disconnect();
-                    ConnectedWaterBoilerMatDevice = null;
-                }
-
-                await waterBoilerMatDevice.ConnectAsync();
-                ConnectedWaterBoilerMatDevice = waterBoilerMatDevice;
-                ConnectedWaterBoilerMatDevice.BoilerServiceReady += ConnectedWaterBoilerMatDevice_BoilerServiceReady;
-            }
-            catch (Exception e)
-            {
-                Logger.Log($"BluetoothLE Device Name=[{waterBoilerMatDevice?.Name}], Address=[{waterBoilerMatDevice?.Address}] Connect fail. Exception=[{e.Message}]", Category.Exception, Priority.High);
-            }
+            SelectedNavigationViewItemData = NavigationViewItemDataCollection.Single(I => I.TargetPageType == typeof(HomePage));
         }
 
         public DelegateCommand DebugCommand
@@ -128,137 +73,38 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         #region Fields
 
-        private readonly IBluetoothLEService<WaterBoilerMatDevice> _bluetoothLEService;
         private readonly IAlertMessageService _alertMessageService;
-        private readonly IPairingList _pairingList;
+
+        private WaterBoilerMatDevice _connectedDevice;
 
         #endregion
 
         #region Constructors & Initialize
 
-        public MainPageViewModel(IBluetoothLEService<WaterBoilerMatDevice> bluetoothLEService, 
-            INavigationService navigationService, IAlertMessageService alertMessageService,
-            IPairingList pairingList,
-            ILoggerFacade logger)
+        public MainPageViewModel(INavigationService navigationService, IAlertMessageService alertMessageService, ILoggerFacade logger)
             : base(navigationService, logger)
         {
-            _bluetoothLEService = bluetoothLEService;
             _alertMessageService = alertMessageService;
-            _pairingList = pairingList;
         }
 
         #endregion
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
-            string errorMessage = string.Empty;
-
-            try
-            {
-                LoadingData = true;
-            }
-            catch (Exception ex)
-            {
-                //errorMessage = string.Format(CultureInfo.CurrentCulture,
-                //                             _resourceLoader.GetString("GeneralServiceErrorMessage"),
-                //                             Environment.NewLine,
-                //                             ex.Message);
-            }
-            finally
-            {
-                LoadingData = false;
-            }
-
-            if (!string.IsNullOrWhiteSpace(errorMessage))
-            {
-                //await _alertMessageService.ShowAsync(errorMessage, _resourceLoader.GetString("ErrorServiceUnreachable"));
-                return;
-            }
-        }
-
         #region Event Handlers
 
-        private async void ConnectedWaterBoilerMatDevice_BoilerServiceReady(object sender, EventArgs e)
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            try
+            if (e.Parameter is WaterBoilerMatDevice connectedDevice)
             {
-                // Create a request
-                var requestData = new KDRequest();
-                requestData.Data.MessageType = KDMessageType.MAC_REGISTER;
-                // check, is the pairing mode
-                if (_pairingList.Contains(ConnectedWaterBoilerMatDevice.Address))
-                {
-                    requestData.Data.UniqueID = _pairingList[ConnectedWaterBoilerMatDevice.Address];
-                }
-                else
-                {
-                    requestData.Data.UniqueID = "";
-                }
-                // to bytes
-                var requestDataValue = requestData.GetValue();
-                byte[] bytes = requestDataValue.HexStringToByteArray();
-                
-                var result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.SetNotifyAsync(true);
-                if (result != true)
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic2.SetNotifyAsync(true). Result=[{result}]");
-                }
-
-                ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.ValueChanged += BoilerGattCharacteristic2_ValueChanged;
-
-                result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.WriteValueAsync(bytes);
-                if (result)
-                {
-                    Logger.Log($"BoilerGattCharacteristic2.WriteValueAsync(). Value = [{requestDataValue}]", Category.Debug, Priority.High);
-                }
-                else
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic2.WriteValueAsync(). Result=[{result}], Data=[{requestDataValue}]");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"ConnectedWaterBoilerMatDevice_BoilerServiceReady. Exception=[{ex.Message}]", Category.Exception, Priority.High);
-                await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
+                _connectedDevice = connectedDevice;
             }
         }
 
-        private async void BoilerGattCharacteristic2_ValueChanged(object sender, byte[] data)
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
-            var dataValue = data.ToString("X02");
-            Logger.Log($"BoilerGattCharacteristic2_ValueChanged. Value = [{dataValue}]", Category.Debug, Priority.High);
-
-            try
+            if (_connectedDevice?.IsConnected == true)
             {
-                ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.ValueChanged -= BoilerGattCharacteristic2_ValueChanged;
-
-                KDResponse responseData = new KDResponse();
-                if (responseData.SetValue(data))
-                {
-                    if (responseData.Data.UniqueID != null)
-                    {
-                        _pairingList.Add(ConnectedWaterBoilerMatDevice.Address, responseData.Data.UniqueID);
-                    }
-
-                    Logger.Log($"Response Received. Data=[{dataValue}]", Category.Info, Priority.None);
-                }
-                else
-                {
-                    Logger.Log($"Connect fail. Raw=[{responseData.Data.DEBUGCode}]", Category.Info, Priority.High);
-
-                    var result = await ConnectedWaterBoilerMatDevice.BoilerGattCharacteristic2.SetNotifyAsync(false);
-                    Logger.Log($"Call BoilerCharacteristic2.SetNotifyAsync(false). Result=[{result}]", Category.Debug, Priority.None);
-
-                    ConnectedWaterBoilerMatDevice.Disconnect();
-                    ConnectedWaterBoilerMatDevice = null;
-
-                    throw new ApplicationException($"KDResponse.SetValue() fail.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{dataValue}]", Category.Exception, Priority.High);
-                await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
+                _connectedDevice.Disconnect();
+                _connectedDevice = null;
             }
         }
 

@@ -13,6 +13,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.UI.Core;
 using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
 
 namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
@@ -58,11 +59,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         protected override void ExecuteLoaded()
         {
-            // When the IntroPage loads, it scan for WaterBoilerMatDevice.
-            if (ScanCommand.CanExecute())
-            {
-                ScanCommand.Execute();
-            }
+            
         }
 
         public DelegateCommand ScanCommand
@@ -157,6 +154,18 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         #endregion
 
         #region Event Handlers
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            // When the IntroPage is newly navigated, it scan for WaterBoilerMatDevice.
+            if (e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.New)
+            {
+                if (ScanCommand.CanExecute())
+                {
+                    ScanCommand.Execute();
+                }
+            }
+        }
 
         private async void OnDeviceBoilerServiceReady(object sender, EventArgs e)
         {

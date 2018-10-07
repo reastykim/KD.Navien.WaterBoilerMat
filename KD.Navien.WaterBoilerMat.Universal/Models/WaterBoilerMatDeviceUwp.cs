@@ -88,13 +88,25 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         public override void Disconnect()
         {
-            IsBoilerServiceReady = false;
-            device.Disconnect();
+            if (device.IsConnected)
+            {
+                device.Services.CollectionChanged -= Services_CollectionChanged;
+
+                foreach (var service in Services)
+                {
+                    service.GattCharacteristicsUpdated -= Service_GattCharacteristicsUpdated;
+                    service.Dispose();
+                }
+                Services.Clear();
+
+                IsBoilerServiceReady = false;
+                device.Disconnect();
+            }
         }
 
         public void Dispose()
         {
-
+            Disconnect();
         }
 
         public override async Task<T> GetNativeBluetoothLEDeviceObjectAsync<T>()

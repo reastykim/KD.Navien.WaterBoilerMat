@@ -43,11 +43,16 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 		}
 		private void Initialize()
 		{
-            //gattDeviceService.Service.Session.SessionStatusChanged += Session_SessionStatusChanged;
-
             gattDeviceService.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
 			gattDeviceService.Characteristics.CollectionChanged += Characteristics_CollectionChanged;
 		}
+
+        public void Dispose()
+        {
+            gattDeviceService.Characteristics.CollectionChanged -= Characteristics_CollectionChanged;
+            gattDeviceService.Service.Dispose();
+            gattDeviceService = null;
+        }
 
         private void Session_SessionStatusChanged(GattSession sender, GattSessionStatusChangedEventArgs args)
         {
@@ -59,5 +64,5 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 			GattCharacteristics = gattDeviceService.Characteristics.Select(C => new BluetoothGattCharacteristicUwp(C)).ToList<IBluetoothGattCharacteristic>();
 			GattCharacteristicsUpdated?.Invoke(this, EventArgs.Empty);
 		}
-	}
+    }
 }
