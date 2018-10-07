@@ -5,10 +5,8 @@
 	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:prismMvvm="using:Prism.Windows.Mvvm"
-	  xmlns:behaviors="using:KD.Navien.WaterBoilerMat.Universal.App.Behaviors"
+	  xmlns:behaviors="using:KD.Navien.WaterBoilerMat.Universal.Behaviors"
 	  xmlns:models="using:KD.Navien.WaterBoilerMat.Universal.Models"
-	  xmlns:umodels="using:KD.Navien.WaterBoilerMat.Universal.Models"
-	  xmlns:amodels="using:KD.Navien.WaterBoilerMat.Universal.App.Models"
 	  xmlns:views="using:KD.Navien.WaterBoilerMat.Universal.App.Views"
 	  mc:Ignorable="d"
 	  xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -26,7 +24,7 @@
 		</core:EventTriggerBehavior>
 	</i:Interaction.Behaviors>
 
-	<NavigationView x:Name="nav" Header="NAVIEN MATE" AlwaysShowHeader="True"
+	<NavigationView x:Name="nav" Header=" " AlwaysShowHeader="False" 
 					MenuItemsSource="{Binding NavigationViewItemDataCollection}"
 					SelectedItem="{Binding SelectedNavigationViewItemData}">
 		<i:Interaction.Behaviors>
@@ -35,7 +33,7 @@
 		</i:Interaction.Behaviors>
 
 		<NavigationView.MenuItemTemplate>
-			<DataTemplate x:DataType="amodels:NavigationViewItemData">
+			<DataTemplate x:DataType="models:NavigationViewItemData">
 				<Grid Height="40" Margin="-16,0,0,0" HorizontalAlignment="Left">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition Width="48" />

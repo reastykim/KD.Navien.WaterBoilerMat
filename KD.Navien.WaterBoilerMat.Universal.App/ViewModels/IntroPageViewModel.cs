@@ -2,7 +2,7 @@
 using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
 using KD.Navien.WaterBoilerMat.Services.Protocol;
-using KD.Navien.WaterBoilerMat.Universal.App.Services;
+using KD.Navien.WaterBoilerMat.Universal.Services;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Prism.Commands;
 using Prism.Logging;
@@ -243,7 +243,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
                     Logger.Log($"Response Received. Data=[{dataValue}]", Category.Info, Priority.None);
                     // Navigate to MainPage
-                    await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                    await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
                     {
                         NavigationService.Navigate("Main", _connectingDevice);
                         IsConnecting = false;

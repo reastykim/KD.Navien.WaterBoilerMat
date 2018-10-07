@@ -7,15 +7,15 @@ using System.Threading.Tasks;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App.Converters
+namespace KD.Navien.WaterBoilerMat.Universal.Converters
 {
-    public class ItemClickEventArgsToWaterBoilerMatDeviceConverter : IValueConverter
+    public class ItemClickEventArgsConverter<T> : IValueConverter where T : class
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
             if (value is ItemClickEventArgs args)
             {
-                return args.ClickedItem as WaterBoilerMatDevice;
+                return args.ClickedItem as T;
             }
             else
             {
@@ -28,4 +28,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.Converters
             throw new NotImplementedException();
         }
     }
+
+    public class ItemClickEventArgsToWaterBoilerMatDeviceConverter : ItemClickEventArgsConverter<WaterBoilerMatDevice>
+    {
+    }    
 }

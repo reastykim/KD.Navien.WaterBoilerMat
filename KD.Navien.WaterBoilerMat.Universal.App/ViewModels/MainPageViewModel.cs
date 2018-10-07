@@ -2,10 +2,10 @@
 using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
 using KD.Navien.WaterBoilerMat.Services.Protocol;
-using KD.Navien.WaterBoilerMat.Universal.App.Models;
-using KD.Navien.WaterBoilerMat.Universal.App.Services;
 using KD.Navien.WaterBoilerMat.Universal.App.Views;
 using KD.Navien.WaterBoilerMat.Universal.Extensions;
+using KD.Navien.WaterBoilerMat.Universal.Models;
+using KD.Navien.WaterBoilerMat.Universal.Services;
 using Prism.Commands;
 using Prism.Logging;
 using Prism.Windows.AppModel;

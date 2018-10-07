@@ -1,4 +1,4 @@
-﻿using KD.Navien.WaterBoilerMat.Universal.App.Models;
+﻿using KD.Navien.WaterBoilerMat.Universal.Models;
 using Microsoft.Xaml.Interactivity;
 using System;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App.Behaviors
+namespace KD.Navien.WaterBoilerMat.Universal.Behaviors
 {
     public class NavigationViewHelper : Behavior<NavigationView>
     {

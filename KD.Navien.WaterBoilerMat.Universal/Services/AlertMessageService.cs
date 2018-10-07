@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Popups;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App.Services
+namespace KD.Navien.WaterBoilerMat.Universal.Services
 {
     public class AlertMessageService : IAlertMessageService
     {

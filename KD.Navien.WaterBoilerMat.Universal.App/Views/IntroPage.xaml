@@ -7,7 +7,7 @@
 	  xmlns:models_c="clr-namespace:KD.Navien.WaterBoilerMat.Models;assembly=KD.Navien.WaterBoilerMat.Standard"
 	  xmlns:models="using:KD.Navien.WaterBoilerMat.Models"
 	  xmlns:viewModels="using:KD.Navien.WaterBoilerMat.Universal.App.ViewModels"
-	  xmlns:converters="using:KD.Navien.WaterBoilerMat.Universal.App.Converters"
+	  xmlns:converters="using:KD.Navien.WaterBoilerMat.Universal.Converters"
 	  xmlns:views="using:KD.Navien.WaterBoilerMat.Universal.App.Views"
       mc:Ignorable="d"
       xmlns:prismMvvm="using:Prism.Windows.Mvvm"

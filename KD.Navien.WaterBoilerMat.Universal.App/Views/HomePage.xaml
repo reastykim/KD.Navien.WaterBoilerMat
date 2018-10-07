@@ -5,12 +5,13 @@
 	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:prismMvvm="using:Prism.Windows.Mvvm"
+	  xmlns:controls="using:KD.Navien.WaterBoilerMat.Universal.App.Controls"
 	  mc:Ignorable="d"
 	  prismMvvm:ViewModelLocator.AutoWireViewModel="True"
 	  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-		<TextBlock Text="Home"/>
+		<controls:PageHeader x:Name="pageHeader" Title="NAVIEN MATE" VerticalAlignment="Top" FontSize="{StaticResource TitleBarFontSize}" />
 	</Grid>
 
 	<!--<Page.TopAppBar>

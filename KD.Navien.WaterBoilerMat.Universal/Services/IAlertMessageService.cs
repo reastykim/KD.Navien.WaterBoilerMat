@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App.Services
+namespace KD.Navien.WaterBoilerMat.Universal.Services
 {
     public interface IAlertMessageService
     {

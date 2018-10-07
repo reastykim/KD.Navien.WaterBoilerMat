@@ -5,4 +5,11 @@
     xmlns:local="using:KD.Navien.WaterBoilerMat.Universal.App"
 	xmlns:prismUnity="using:Prism.Unity.Windows">
 
+	<prismUnity:PrismUnityApplication.Resources>
+		<ResourceDictionary>
+			<x:Double x:Key="Breakpoint640Plus">641</x:Double>
+			<x:String x:Key="AppName">NAVIEN MATE</x:String>
+			<x:Double x:Key="TitleBarFontSize">42</x:Double>
+		</ResourceDictionary>
+	</prismUnity:PrismUnityApplication.Resources>
 </prismUnity:PrismUnityApplication>

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App.Models
+namespace KD.Navien.WaterBoilerMat.Universal.Models
 {
     public class NavigationViewItemData : BindableBase
     {
