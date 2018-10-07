@@ -166,7 +166,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Behaviors
             {
                 if (args.SelectedItem is NavigationViewItemData item)
                 {
-                    Navigate(item.TargetPageType);
+                    Navigate(item.TargetPageType, item.Tag);
                 }
             }
         }

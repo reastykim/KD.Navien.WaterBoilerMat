@@ -109,6 +109,7 @@
   <ItemGroup>
     <Compile Include="Behaviors\NavigationViewHelper.cs" />
     <Compile Include="Common\DeviceFamilyTrigger.cs" />
+    <Compile Include="Common\INavigationViewItemPageAware.cs" />
     <Compile Include="Converters\ItemClickEventArgsConverter.cs" />
     <Compile Include="Extensions\BluetoothExtensions.cs" />
     <Compile Include="Extensions\DataExtensions.cs" />
@@ -121,6 +122,7 @@
     <Compile Include="Services\AlertMessageService.cs" />
     <Compile Include="Services\BluetoothLEService.cs" />
     <Compile Include="Services\IAlertMessageService.cs" />
+    <Compile Include="Views\NavigationViewItemPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">

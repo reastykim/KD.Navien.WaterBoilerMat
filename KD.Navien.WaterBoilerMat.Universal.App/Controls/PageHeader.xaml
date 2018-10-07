@@ -40,7 +40,7 @@
 						<Setter Target="controlsSearchBox.HorizontalAlignment" Value="Right" />
 						<Setter Target="controlsSearchBox.Visibility" Value="Visible" />
 						<Setter Target="searchButton.Visibility" Value="Collapsed" />
-						<Setter Target="commandBarBorder.Visibility" Value="Visible" />
+						<!--<Setter Target="commandBarBorder.Visibility" Value="Visible" />-->
 						<Setter Target="NarrowBackground.Visibility" Value="Collapsed" />
 						<Setter Target="WideBackground.Visibility" Value="Visible" />
 					</VisualState.Setters>
@@ -107,23 +107,20 @@
                     TextWrapping="NoWrap" />
 			</Grid>
 			<Border x:Name="commandBarBorder" Grid.Column="1">
-				<CommandBar
-                    x:Name="topCommandBar"
-                    Margin="0,-36,12,0"
-                    Background="Transparent"
-                    ClosedDisplayMode="Compact"
-                    DefaultLabelPosition="Right"
-                    IsOpen="False"
-                    IsSticky="False"
-                    Visibility="Collapsed">
-					<AppBarButton
-                        x:Name="ThemeButton"
-                        Click="OnThemeButtonClick"
-                        Label="Toggle Theme">
-						<AppBarButton.Icon>
-							<FontIcon Glyph="&#xE771;" Margin="0,-2,0,0" />
-						</AppBarButton.Icon>
-					</AppBarButton>
+				<CommandBar x:Name="topCommandBar" Margin="0,-36,12,0" Background="Transparent"
+							DefaultLabelPosition="Bottom" OverflowButtonVisibility="Collapsed">
+					<AppBarToggleButton Label="UnLock">
+						<AppBarToggleButton.Icon>
+							<FontIcon x:Name="LockIcon" Glyph="&#xE785;" Margin="0,-2,0,0"/>
+							<!--<FontIcon x:Name="LockIcon" Glyph="&#xE72E;" Margin="0,-2,0,0"/>-->
+							
+						</AppBarToggleButton.Icon>
+					</AppBarToggleButton>
+					<AppBarToggleButton Label="Power" Command="{x:Bind PowerCommand}">
+						<AppBarToggleButton.Icon>
+							<FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;" Margin="0,-2,0,0" />
+						</AppBarToggleButton.Icon>
+					</AppBarToggleButton>
 				</CommandBar>
 			</Border>
 		</Grid>

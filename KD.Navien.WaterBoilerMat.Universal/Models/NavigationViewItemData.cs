@@ -29,5 +29,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
             set => SetProperty(ref _targetPageType, value);
         }
         private Type _targetPageType;
+
+        public object Tag
+        {
+            get => _tag;
+            set => SetProperty(ref _tag, value);
+        }
+        private object _tag;
     }
 }

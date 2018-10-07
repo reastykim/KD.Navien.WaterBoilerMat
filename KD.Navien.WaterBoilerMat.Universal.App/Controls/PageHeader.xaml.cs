@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Windows.Input;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -31,21 +32,27 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.Controls
             get { return (double)GetValue(BackgroundColorOpacityProperty); }
             set { SetValue(BackgroundColorOpacityProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for BackgroundColorOpacity.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty BackgroundColorOpacityProperty =
             DependencyProperty.Register("BackgroundColorOpacity", typeof(double), typeof(PageHeader), new PropertyMetadata(0.0));
-
 
         public double AcrylicOpacity
         {
             get { return (double)GetValue(AcrylicOpacityProperty); }
             set { SetValue(AcrylicOpacityProperty, value); }
         }
-
-        // Using a DependencyProperty as the backing store for BackgroundColorOpacity.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty AcrylicOpacityProperty =
             DependencyProperty.Register("AcrylicOpacity", typeof(double), typeof(PageHeader), new PropertyMetadata(0.3));
+
+        public ICommand PowerCommand
+        {
+            get { return (ICommand)GetValue(PowerCommandProperty); }
+            set { SetValue(PowerCommandProperty, value); }
+        }
+        public static readonly DependencyProperty PowerCommandProperty =
+            DependencyProperty.Register("PowerCommand", typeof(ICommand), typeof(PageHeader), new PropertyMetadata(null));
+
+
+
 
 
         public CommandBar TopCommandBar
@@ -58,8 +65,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.Controls
             get { return pageTitle; }
         }
 
-        public Action ToggleThemeAction { get; set; }
-
         public PageHeader()
         {
             this.InitializeComponent();
@@ -68,11 +73,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.Controls
         public void UpdateBackground(bool isFilteredPage)
         {
             VisualStateManager.GoToState(this, isFilteredPage ? "FilteredPage" : "NonFilteredPage", false);
-        }
-
-        private void OnThemeButtonClick(object sender, RoutedEventArgs e)
-        {
-            ToggleThemeAction?.Invoke();
         }
 
         private void Layout_SizeChanged(object sender, SizeChangedEventArgs e)
