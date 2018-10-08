@@ -13,6 +13,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Navigation;
+using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
 
 namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 {
@@ -35,6 +36,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             {
                 KDRequest requestData = new KDRequest();
                 requestData.Data = _response.Data;
+                requestData.Data.MessageType = KDMessageType.STATUS_CHANGE;
                 requestData.Data.Mode = 6;
                 requestData.Data.Power = _response.Data.Power == 0 ? 1 : 0;
                 requestData.Data.SleepStartButtonEnable = 0;
