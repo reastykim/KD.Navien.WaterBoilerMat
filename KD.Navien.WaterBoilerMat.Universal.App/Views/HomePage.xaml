@@ -13,7 +13,7 @@
 							   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
 
 	<uviews:NavigationViewItemPage.Resources>
-		<converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" TrueValue="Visible" FalseValue="Collapsed"/>
+		<converters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
 	</uviews:NavigationViewItemPage.Resources>
 
 	<Grid>
@@ -46,7 +46,8 @@
 		</VisualStateManager.VisualStateGroups>
 
 		<controls:PageHeader Grid.Row="0" x:Name="pageHeader" Title="NAVIEN MATE" VerticalAlignment="Top" FontSize="{StaticResource TitleBarFontSize}"
-							 PowerCommand="{Binding PowerCommand}"/>
+							 PowerCommand="{Binding PowerCommand}"
+							 LockCommand="{Binding LockCommand}"/>
 
 		<Grid Grid.Row="1" x:Name="content">
 			<Grid.RowDefinitions>
@@ -54,7 +55,7 @@
 				<RowDefinition />
 			</Grid.RowDefinitions>
 
-			<Border Grid.Row="0" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource BoolToVisibilityConverter}}">
+			<Border Grid.Row="0" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
 				<Border.Background>
 					<SolidColorBrush Color="{ThemeResource SystemColorInactiveCaptionColor}"/>
 				</Border.Background>

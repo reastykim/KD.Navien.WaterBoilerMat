@@ -51,7 +51,13 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.Controls
         public static readonly DependencyProperty PowerCommandProperty =
             DependencyProperty.Register("PowerCommand", typeof(ICommand), typeof(PageHeader), new PropertyMetadata(null));
 
-
+        public ICommand LockCommand
+        {
+            get { return (ICommand)GetValue(LockCommandProperty); }
+            set { SetValue(LockCommandProperty, value); }
+        }
+        public static readonly DependencyProperty LockCommandProperty =
+            DependencyProperty.Register("LockCommand", typeof(ICommand), typeof(PageHeader), new PropertyMetadata(null));
 
 
 

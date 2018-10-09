@@ -34,10 +34,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         public DelegateCommand PowerCommand
         {
-            get
-            {
-                return _powerCommand ?? (_powerCommand = new DelegateCommand(ExecutePower));
-            }
+            get { return _powerCommand ?? (_powerCommand = new DelegateCommand(ExecutePower)); }
         }
         private DelegateCommand _powerCommand;
         private async void ExecutePower()
@@ -45,6 +42,28 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             try
             {
                 await _device.RequestPowerOnOffAsync(!_device.IsPowerOn);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"PowerCommand execute fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+
+                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                {
+                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice Power command execute fail.", "Error");
+                });
+            }
+        }
+
+        public DelegateCommand LockCommand
+        {
+            get { return _lockCommand ?? (_lockCommand = new DelegateCommand(ExecuteLock)); }
+        }
+        private DelegateCommand _lockCommand;
+        private async void ExecuteLock()
+        {
+            try
+            {
+                await _device.RequestLockOnOffAsync(!_device.IsLock);
             }
             catch (Exception ex)
             {

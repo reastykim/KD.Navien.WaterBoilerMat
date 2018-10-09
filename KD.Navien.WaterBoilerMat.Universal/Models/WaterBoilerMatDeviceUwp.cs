@@ -122,6 +122,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
             await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
             {
                 IsPowerOn = Convert.ToBoolean(data.Power);
+                IsLock = Convert.ToBoolean(data.KeyLock);
             });
         }
 

@@ -14,11 +14,12 @@ namespace KD.Navien.WaterBoilerMat.Models
         IBluetoothGattCharacteristic BoilerGattCharacteristic2 { get; }
 
         bool IsPowerOn { get; }
+        bool IsLock { get; }
 
         Task<string> ConnectAsync(string uniqueID);
-
         void Disconnect();
 
         Task RequestPowerOnOffAsync(bool isOn);
+        Task RequestLockOnOffAsync(bool isLock);
     }
 }

@@ -58,6 +58,13 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private bool _isPowerOn;
 
+        public bool IsLock
+        {
+            get => _isLock;
+            protected set => SetProperty(ref _isLock, value);
+        }
+        private bool _isLock;
+
         #endregion
 
         #region Fields
@@ -144,6 +151,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
                     // Update
                     UpdateDeviceStatus(response.Data);
+
+                    _connectTcs.TrySetResult(_uniqueID);
                 }
                 else
                 {
@@ -175,9 +184,7 @@ namespace KD.Navien.WaterBoilerMat.Models
                     }
                     _logger.Log($"Set UniqueID = [{_uniqueID}]", Category.Info, Priority.High);
 
-                    _connectTcs.TrySetResult(_uniqueID);
-
-                    // Write a dummy packet : Start receiving
+                    // Write a dummy packet. This is the end of connecting step.
                     await BoilerGattCharacteristic1.WriteValueAsync(new byte[0]);
                 }
                 else
@@ -218,6 +225,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         protected abstract Task ConnectAsync();
 
+        public abstract void Disconnect();
+
         protected abstract void UpdateDeviceStatus(KDData data);
 
         public abstract Task<T> GetNativeBluetoothLEDeviceObjectAsync<T>() where T : class;
@@ -241,19 +250,47 @@ namespace KD.Navien.WaterBoilerMat.Models
             return _connectTcs.Task;
         }
 
-        public abstract void Disconnect();
-
         public async Task RequestPowerOnOffAsync(bool isOn)
         {
-            KDRequest requestData = new KDRequest();
-            requestData.Data = _response.Data;
-            requestData.Data.MessageType = KDMessageType.STATUS_CHANGE;
-            requestData.Data.Mode = 6;
-            requestData.Data.Power = isOn ? 1 : 0;
-            requestData.Data.SleepStartButtonEnable = 0;
-            requestData.Data.SleepStopButtonEnable = 1;
+            KDRequest request = new KDRequest();
+            request.Data = _response.Data;
+            request.Data.MessageType = KDMessageType.STATUS_CHANGE;
+            request.Data.Mode = 6;
+            request.Data.Power = Convert.ToInt32(isOn);
+            request.Data.SleepStartButtonEnable = 0;
+            request.Data.SleepStopButtonEnable = 1;
 
-            var requestDataValue = requestData.GetValue();
+            var requestDataValue = request.GetValue();
+            byte[] bytes = requestDataValue.HexStringToByteArray();
+            await BoilerGattCharacteristic1.WriteValueAsync(bytes);
+            _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
+        }
+
+        public async Task RequestLockOnOffAsync(bool isLock)
+        {
+            KDRequest request = new KDRequest();
+            request.Data = _response.Data;
+            request.Data.MessageType = KDMessageType.STATUS_CHANGE;
+            request.Data.KeyLock = Convert.ToInt32(isLock);
+            if (request.Data.Status == 4)
+            {
+                request.Data.TemperatureSettingLeft = 0;
+            }
+            if (request.Data.Status == 3)
+            {
+                request.Data.TemperatureSettingRight = 0;
+            }
+            if (request.Data.Mode == 3)
+            {
+                //request.Data.SleepSupplySettingTime = MainFragment.this.mResponseData.mData.SleepSupplySettingTime;
+                //request.Data.SleepLeftSettingTime = MainFragment.this.mResponseData.mData.SleepLeftSettingTime;
+                //request.Data.SleepRightSettingTime = MainFragment.this.mResponseData.mData.SleepRightSettingTime;
+                //request.Data.SleepStartButtonEnable = MainFragment.this.mResponseData.mData.SleepStartButtonEnable;
+            }
+            request.Data.SleepStartButtonEnable = 0;
+            request.Data.SleepStopButtonEnable = 1;
+
+            var requestDataValue = request.GetValue();
             byte[] bytes = requestDataValue.HexStringToByteArray();
             await BoilerGattCharacteristic1.WriteValueAsync(bytes);
             _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
