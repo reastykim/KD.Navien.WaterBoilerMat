@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace KD.Navien.WaterBoilerMat.Services.Protocol
@@ -27,6 +28,11 @@ namespace KD.Navien.WaterBoilerMat.Services.Protocol
             {
                 crc += int.Parse(input.Substring(i, 2), System.Globalization.NumberStyles.HexNumber);
             }
+        }
+
+        public void Update(byte[] input)
+        {
+            crc = input.Sum(b => b);
         }
     }
 }

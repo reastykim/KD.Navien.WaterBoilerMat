@@ -29,7 +29,7 @@
 						<AdaptiveTrigger MinWindowWidth="{StaticResource Breakpoint640Plus}" />
 					</VisualState.StateTriggers>
 					<VisualState.Setters>
-						
+						<Setter Target="pageHeader.Visibility" Value="Visible" />
 					</VisualState.Setters>
 				</VisualState>
 				<VisualState x:Name="NarrowLayout">
@@ -63,6 +63,42 @@
 						   Style="{StaticResource BaseTextBlockStyle}"/>
 			</Border>
 
+			<Grid Grid.Row="1" HorizontalAlignment="Center">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto"/>
+					<RowDefinition />
+					<RowDefinition Height="Auto"/>
+				</Grid.RowDefinitions>
+
+				<Grid Grid.Row="0">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition />
+						<ColumnDefinition />
+						<ColumnDefinition />
+					</Grid.ColumnDefinitions>
+
+					<ToggleButton Grid.Column="0" Margin="5,10" Content="좌측난방"/>
+					<ToggleButton Grid.Column="1" Margin="5,10" Content="전체온도변경"/>
+					<ToggleButton Grid.Column="2" Margin="5,10" Content="우측난방"/>
+				</Grid>
+
+				<Grid Grid.Row="1">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="1*"/>
+						<ColumnDefinition Width="2*"/>
+						<ColumnDefinition Width="1*"/>
+					</Grid.ColumnDefinitions>
+
+					
+					<Slider Grid.Column="0" HorizontalAlignment="Left"
+							Orientation="Vertical" Value="50" Maximum="100"/>
+					<Slider Grid.Column="2" HorizontalAlignment="Right"
+							Orientation="Vertical" Value="50" Maximum="100"/>
+				</Grid>
+
+				<Button Grid.Row="2" Margin="20" HorizontalAlignment="Center" 
+						Content="저장"/>
+			</Grid>
 		</Grid>
 	</Grid>
 </uviews:NavigationViewItemPage>

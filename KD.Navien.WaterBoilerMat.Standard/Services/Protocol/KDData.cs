@@ -43,12 +43,20 @@ namespace KD.Navien.WaterBoilerMat.Services.Protocol
 		public int Volume;
 		public int WaterCapacity;
 
-		public class KDMessageType
+        public override string ToString()
+        {
+            return $"KD.Navien.WaterBoilerMat.Services.Protocol.KDData, MessageType=[{MessageType}], Mode=[{Mode}], Status=[{Status}], DEBUGCode=[{DEBUGCode}]";
+        }
+
+        public class KDMessageType
 		{
 			public const string MAC_ACCESS = "00";
 			public const string MAC_REGISTER = "01";
 			public const string STATUS_CHANGE = "80";
 			public const string STATUS_REFRESH = "30";
 		}
-	}
+
+        const int MODE_NORMAL = 0;
+        const int MODE_OFF = 6;
+    }
 }
