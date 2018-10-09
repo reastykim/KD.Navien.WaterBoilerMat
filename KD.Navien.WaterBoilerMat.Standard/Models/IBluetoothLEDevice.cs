@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public interface IBluetoothLEDevice
+    public interface IBluetoothLEDevice : IDisposable
     {
 		string Name { get; }
 
@@ -13,7 +13,7 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		List<IBluetoothGattService> Services { get; }
 
-		Task ConnectAsync();
+        Task<string> ConnectAsync(string uniqueID);
 
         void Disconnect();
 	}

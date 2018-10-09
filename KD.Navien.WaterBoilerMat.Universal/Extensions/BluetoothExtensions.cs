@@ -24,7 +24,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.Extensions
                                                if (T.Result.Status != GattCommunicationStatus.Success)
                                                    throw new Exception($"ProtocolError=[{T.Result.ProtocolError}]");
 
-
                                                return T.Result.Services.Select(S => (IBluetoothGattService)new BluetoothGattServiceUwp(S));
                                            });
         }
@@ -60,13 +59,5 @@ namespace KD.Navien.WaterBoilerMat.Universal.Extensions
                                                      }
                                                  });
 		}
-
-        public static void Disconnect(this ObservableBluetoothLEDevice device)
-        {
-            if (device.IsConnected)
-            {
-                device.BluetoothLEDevice.Dispose();
-            }
-        }
     }
 }

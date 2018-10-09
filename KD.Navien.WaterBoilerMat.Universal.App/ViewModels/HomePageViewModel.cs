@@ -19,6 +19,16 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 {
     public class HomePageViewModel : ViewModelBase, INavigationViewItemPageAware
     {
+        #region Properties
+
+        public IWaterBoilerMatDevice Device
+        {
+            get => _device;
+            private set => SetProperty(ref _device, value);
+        }
+        private IWaterBoilerMatDevice _device;
+
+        #endregion
 
         #region Commands
 
@@ -34,32 +44,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                KDRequest requestData = new KDRequest();
-                requestData.Data = _response.Data;
-                requestData.Data.MessageType = KDMessageType.STATUS_CHANGE;
-                requestData.Data.Mode = 6;
-                requestData.Data.Power = _response.Data.Power == 0 ? 1 : 0;
-                requestData.Data.SleepStartButtonEnable = 0;
-                requestData.Data.SleepStopButtonEnable = 1;
-
-                var requestDataValue = requestData.GetValue();
-                byte[] bytes = requestDataValue.HexStringToByteArray();
-
-                var result = await _connectedDevice.BoilerGattCharacteristic1.SetNotifyAsync(true);
-                if (result != true)
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic1.SetNotifyAsync(true). Result=[{result}]");
-                }
-
-                result = await _connectedDevice.BoilerGattCharacteristic1.WriteValueAsync(bytes);
-                if (result)
-                {
-                    Logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Debug, Priority.High);
-                }
-                else
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic1.WriteValueAsync(). Result=[{result}], Data=[{requestDataValue}]");
-                }
+                await _device.RequestPowerOnOffAsync(!_device.IsPowerOn);
             }
             catch (Exception ex)
             {
@@ -77,8 +62,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         #region Fields
 
         private readonly IAlertMessageService _alertMessageService;
-        private WaterBoilerMatDevice _connectedDevice;
-        private KDResponse _response;
 
         #endregion
 
@@ -90,25 +73,15 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         public void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (e.Parameter is WaterBoilerMatDevice connectedDevice)
+            if (e.Parameter is IWaterBoilerMatDevice device)
             {
-                _connectedDevice = connectedDevice;
-                _connectedDevice.BoilerGattCharacteristic1.ValueChanged += BoilerGattCharacteristic1_ValueChanged;
+                _device = device;
             }
         }
 
         public void OnNavigatedFrom(NavigationEventArgs e)
         {
-            _connectedDevice.BoilerGattCharacteristic1.ValueChanged -= BoilerGattCharacteristic1_ValueChanged;
-        }
 
-        private void BoilerGattCharacteristic1_ValueChanged(object sender, byte[] e)
-        {
-            KDResponse response = new KDResponse();
-            if (response.SetValue(e))
-            {
-                _response = response;
-            }
         }
     }
 }

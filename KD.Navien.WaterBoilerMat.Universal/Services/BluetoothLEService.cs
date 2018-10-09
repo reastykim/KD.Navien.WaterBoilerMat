@@ -72,7 +72,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
                 _logger.Log($"Stop the BluetoothLE device Enumeration. Found {_bluetoothLEHelper.BluetoothLeDevices.Count} devices", Category.Info, Priority.High);
 
                 tcs.SetResult(_bluetoothLEHelper.BluetoothLeDevices.Where(d => WaterBoilerMatDevice.IsNavienDevice(d.BluetoothAddressAsString))
-                                                                  .Select(d => new WaterBoilerMatDeviceUwp(d)));
+                                                                  .Select(d => new WaterBoilerMatDeviceUwp(d, _logger)));
             });
             _bluetoothLEHelper.EnumerationCompleted += onEnumerationCompleted;
             _bluetoothLEHelper.StartEnumeration();
@@ -90,7 +90,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
                     _logger.Log($"Stop the BluetoothLE device Enumeration. Found {_bluetoothLEHelper.BluetoothLeDevices.Count} devices.", Category.Info, Priority.High);
 
                     tcs.SetResult(_bluetoothLEHelper.BluetoothLeDevices.Where(d => WaterBoilerMatDevice.IsNavienDevice(d.BluetoothAddressAsString))
-                                                                       .Select(d => new WaterBoilerMatDeviceUwp(d)));
+                                                                       .Select(d => new WaterBoilerMatDeviceUwp(d, _logger)));
                 }
 
             }, null, timeoutMilliseconds, Timeout.Infinite);

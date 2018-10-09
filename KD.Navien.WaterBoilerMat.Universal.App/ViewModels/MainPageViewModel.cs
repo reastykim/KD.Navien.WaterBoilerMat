@@ -97,7 +97,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             if (e.Parameter is WaterBoilerMatDevice connectedDevice)
             {
                 _connectedDevice = connectedDevice;
-                InitializeDevice(connectedDevice);
 
                 foreach (var itemData in NavigationViewItemDataCollection)
                 {
@@ -115,51 +114,9 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             }
         }
 
-        private void OnBoilerGattCharacteristic1_ValueChanged(object sender, byte[] e)
-        {
-            KDResponse response = new KDResponse();
-            if (response.SetValue(e))
-            {
-                System.Diagnostics.Debug.WriteLine($"DEBUGCode = [{response.Data.DEBUGCode}]");
-            }
-        }
-
         #endregion
 
         #region Methods
-
-        private async void InitializeDevice(WaterBoilerMatDevice device)
-        {
-            try
-            {
-                var result = await device.BoilerGattCharacteristic1.SetNotifyAsync(true);
-                if (result != true)
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic1.SetNotifyAsync(true). Result=[{result}]");
-                }
-
-                device.BoilerGattCharacteristic1.ValueChanged += OnBoilerGattCharacteristic1_ValueChanged;
-                // Write a dummy packet
-                result = await device.BoilerGattCharacteristic1.WriteValueAsync(new byte[0]);
-                if (result)
-                {
-                    Logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = []", Category.Debug, Priority.High);
-                }
-                else
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic1.WriteValueAsync(). Result=[{result}], Data=[]");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"InitializeDevice. Exception=[{ex.Message}]", Category.Exception, Priority.High);
-
-                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
-                {
-                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice initialize fail.", "Error");
-                });
-            }
-        }
 
         #endregion
     }

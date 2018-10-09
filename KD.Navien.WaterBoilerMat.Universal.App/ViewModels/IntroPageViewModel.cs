@@ -57,11 +57,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         #region Commands
 
-        protected override void ExecuteLoaded()
-        {
-            
-        }
-
         public DelegateCommand ScanCommand
         {
             get { return _scanCommand ?? (_scanCommand = new DelegateCommand(ExecuteScan, CanExecuteScan)
@@ -100,24 +95,32 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                if (_connectingDevice != null)
-                {
-                    _connectingDevice.Disconnect();
-                    _connectingDevice = null;
-                }
-
-                _connectingDevice = device;
                 IsConnecting = true;
 
-                // Call to ConnectAsync method. If device is connected to WaterBoilerMatDevice, raise a BoilerServiceReady event.
-                await _connectingDevice.ConnectAsync();
-                _connectingDevice.BoilerServiceReady += OnDeviceBoilerServiceReady;
+                var uniqueID = _pairingList[device.Address];
+
+                Logger.Log($"Connect to Device. Address=[{device.Address}] UniqueID=[{uniqueID}]", Category.Info, Priority.High);
+
+                uniqueID = await device.ConnectAsync(uniqueID);
+                _pairingList[device.Address] = uniqueID;
+
+                Logger.Log($"Connected to Device. Address=[{device.Address}] UniqueID=[{uniqueID}]", Category.Info, Priority.High);
+
+                // Navigate to MainPage
+                await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                {
+                    NavigationService.Navigate("Main", device);
+                    IsConnecting = false;
+                });
             }
             catch (Exception e)
             {
                 Logger.Log($"BluetoothLE Device Name=[{device?.Name}], Address=[{device?.Address}] Connect fail. Exception=[{e.Message}]", Category.Exception, Priority.High);
 
                 await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
+            }
+            finally
+            {
                 IsConnecting = false;
             }
         }
@@ -133,8 +136,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         private readonly IBluetoothLEService<WaterBoilerMatDevice> _bluetoothLEService;
         private readonly IAlertMessageService _alertMessageService;
         private readonly IPairingList _pairingList;
-
-        private WaterBoilerMatDevice _connectingDevice;
 
         #endregion
 
@@ -164,113 +165,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                 {
                     ScanCommand.Execute();
                 }
-            }
-        }
-
-        private async void OnDeviceBoilerServiceReady(object sender, EventArgs e)
-        {
-            try
-            {
-                _connectingDevice.BoilerServiceReady -= OnDeviceBoilerServiceReady;
-
-                // BLE Connection is ok now. 
-                // But if we want to keep BLE connection, we must request a MAC_REGISTER.
-                // If not, BLE connection will be lost.
-
-                // Create a request
-                var requestData = new KDRequest();
-                requestData.Data.MessageType = KDMessageType.MAC_REGISTER;
-                // check, is the device pairing mode : if the actual MatDevice is on BLE PairingMode set the UniqueID to String.Empty, otherwise set the already stored UniqueID.
-                if (_pairingList.Contains(_connectingDevice.Address))
-                {
-                    requestData.Data.UniqueID = _pairingList[_connectingDevice.Address];
-                }
-                else
-                {
-                    requestData.Data.UniqueID = "";
-                }
-
-                var requestDataValue = requestData.GetValue();
-                byte[] bytes = requestDataValue.HexStringToByteArray();
-
-                var result = await _connectingDevice.BoilerGattCharacteristic2.SetNotifyAsync(true);
-                if (result != true)
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic2.SetNotifyAsync(true). Result=[{result}]");
-                }
-
-                _connectingDevice.BoilerGattCharacteristic2.ValueChanged += OnBoilerGattCharacteristic2ValueChanged;
-                // Write a request packet
-                result = await _connectingDevice.BoilerGattCharacteristic2.WriteValueAsync(bytes);
-                if (result)
-                {
-                    Logger.Log($"BoilerGattCharacteristic2.WriteValueAsync(). Value = [{requestDataValue}]", Category.Debug, Priority.High);
-                }
-                else
-                {
-                    throw new ApplicationException($"Call BoilerCharacteristic2.WriteValueAsync(). Result=[{result}], Data=[{requestDataValue}]");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"ConnectedWaterBoilerMatDevice_BoilerServiceReady. Exception=[{ex.Message}]", Category.Exception, Priority.High);
-                
-                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
-                {
-                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
-                    IsConnecting = false;
-                });
-            }
-        }
-
-        private async void OnBoilerGattCharacteristic2ValueChanged(object sender, byte[] data)
-        {
-            var gattCharacteristic = sender as IBluetoothGattCharacteristic;
-            var dataValue = data.ToString("X02");
-            Logger.Log($"BoilerGattCharacteristic2_ValueChanged. Value = [{dataValue}]", Category.Debug, Priority.High);
-
-            try
-            {
-                gattCharacteristic.ValueChanged -= OnBoilerGattCharacteristic2ValueChanged;
-
-                KDResponse responseData = new KDResponse();
-                if (responseData.SetValue(data))
-                {// Connect & MAC_REGISTER Success.
-                    if (responseData.Data.UniqueID != null)
-                    {
-                        _pairingList.Add(_connectingDevice.Address, responseData.Data.UniqueID);
-                    }
-
-                    Logger.Log($"Response Received. Data=[{dataValue}]", Category.Info, Priority.None);
-                    // Navigate to MainPage
-                    await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
-                    {
-                        NavigationService.Navigate("Main", _connectingDevice);
-                        IsConnecting = false;
-                    });
-                }
-                else
-                {
-                    Logger.Log($"Connect fail. Raw=[{responseData.Data.DEBUGCode}]", Category.Info, Priority.High);
-
-                    var result = await _connectingDevice.BoilerGattCharacteristic2.SetNotifyAsync(false);
-                    Logger.Log($"Call BoilerCharacteristic2.SetNotifyAsync(false). Result=[{result}]", Category.Debug, Priority.None);
-
-                    _connectingDevice.Disconnect();
-                    _connectingDevice = null;
-
-                    throw new ApplicationException($"KDResponse.SetValue() fail.");
-                }
-            }
-            catch (Exception ex)
-            {
-                Logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{dataValue}]", Category.Exception, Priority.High);
-
-                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
-                {
-                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice connect fail.", "Error");
-                    IsConnecting = false;
-                });
             }
         }
 
