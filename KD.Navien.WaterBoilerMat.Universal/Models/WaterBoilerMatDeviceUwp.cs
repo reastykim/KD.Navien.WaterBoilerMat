@@ -41,9 +41,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 		{
             _device.PropertyChanged += (s, e) =>
             {
-                RaisePropertyChanged(e.PropertyName);
-                Type type = typeof(ObservableBluetoothLEDevice);
-                var value = type.GetProperty(e.PropertyName).GetValue(_device);
+                if (_device != null)
+                {
+                    RaisePropertyChanged(e.PropertyName);
+                    Type type = typeof(ObservableBluetoothLEDevice);
+                    var value = type.GetProperty(e.PropertyName).GetValue(_device);
+                }
             };
 
             _device.Services.CollectionChanged += Services_CollectionChanged;
@@ -57,16 +60,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 if (disposing)
                 {
                     _device.Services.CollectionChanged -= Services_CollectionChanged;
-                    foreach (var service in Services)
-                    {
-                        service.GattCharacteristicsUpdated -= Service_GattCharacteristicsUpdated;
-                    }
-                    Services.Clear();
-                    Services = null;
+                    Disconnect();
                 }
-
-                _device.BluetoothLEDevice.Dispose();
-                _device = null;
             }
             finally
             {

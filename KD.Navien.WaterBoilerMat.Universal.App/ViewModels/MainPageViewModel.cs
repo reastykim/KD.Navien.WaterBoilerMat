@@ -107,10 +107,10 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
-            if (_connectedDevice?.IsConnected == true)
+            if (_connectedDevice.IsConnected == true)
             {
                 _connectedDevice.Disconnect();
-                _connectedDevice = null;
+                _connectedDevice.Dispose();
             }
         }
 

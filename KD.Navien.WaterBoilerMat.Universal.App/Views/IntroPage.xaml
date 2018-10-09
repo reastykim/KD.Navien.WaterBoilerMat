@@ -5,6 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:models_c="clr-namespace:KD.Navien.WaterBoilerMat.Models;assembly=KD.Navien.WaterBoilerMat.Standard"
+	  xmlns:tkconverters="using:Microsoft.Toolkit.Uwp.UI.Converters"
 	  xmlns:models="using:KD.Navien.WaterBoilerMat.Models"
 	  xmlns:viewModels="using:KD.Navien.WaterBoilerMat.Universal.App.ViewModels"
 	  xmlns:converters="using:KD.Navien.WaterBoilerMat.Universal.Converters"
@@ -17,6 +18,7 @@
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 	<Page.Resources>
 		<converters:ItemClickEventArgsToWaterBoilerMatDeviceConverter x:Key="ItemClickEventArgsToWaterBoilerMatDeviceConverter"/>
+		<tkconverters:BoolToVisibilityConverter x:Key="TrueToVisibilityConverter"/>
 	</Page.Resources>
 
 	<i:Interaction.Behaviors>
@@ -44,39 +46,49 @@
 			<TextBlock Grid.Row="0" Text="연결 가능한 온수 매트" Margin="0,20" HorizontalAlignment="Center" VerticalAlignment="Center" 
 					   Style="{StaticResource SubheaderTextBlockStyle}"/>
 
-			<ListView Grid.Row="1" Margin="20" Padding="10" MinWidth="300" HorizontalAlignment="Center" BorderThickness="1"
-					  ItemsSource="{Binding Devices}" IsItemClickEnabled="True" SelectionMode="None">
-				<i:Interaction.Behaviors>
-					<core:EventTriggerBehavior EventName="ItemClick">
-						<core:InvokeCommandAction Command="{Binding ConnectCommand}" 
-												  InputConverter="{StaticResource ItemClickEventArgsToWaterBoilerMatDeviceConverter}"/>
-					</core:EventTriggerBehavior>
-				</i:Interaction.Behaviors>
+			<Grid Grid.Row="1" Margin="20" MinWidth="300" HorizontalAlignment="Center">
+				<Grid.RowDefinitions>
+					<RowDefinition />
+					<RowDefinition Height="10"/>
+				</Grid.RowDefinitions>
 				
-				<ListView.BorderBrush>
-					<SolidColorBrush Color="{ThemeResource SystemAccentColorLight3}"/>
-				</ListView.BorderBrush>
-				<ListView.ItemContainerStyle>
-					<Style TargetType="ListViewItem">
-						<Style.Setters>
-							<Setter Property="BorderThickness" Value="0,0,0,1"/>
-							<Setter Property="BorderBrush">
-								<Setter.Value>
-									<SolidColorBrush Color="{StaticResource SystemAccentColorLight1}"/>
-								</Setter.Value>
-							</Setter>
-						</Style.Setters>
-					</Style>
-				</ListView.ItemContainerStyle>
-				<ListView.ItemTemplate>
-					<DataTemplate x:DataType="models:WaterBoilerMatDevice">
-						<StackPanel>
-							<TextBlock Text="{Binding Name}"/>
-							<TextBlock Text="{Binding Address}"/>
-						</StackPanel>
-					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
+				<ListView Grid.Row="0" Padding="10"  BorderThickness="1"
+					  ItemsSource="{Binding Devices}" IsItemClickEnabled="True" SelectionMode="None">
+					<i:Interaction.Behaviors>
+						<core:EventTriggerBehavior EventName="ItemClick">
+							<core:InvokeCommandAction Command="{Binding ConnectCommand}" 
+												  InputConverter="{StaticResource ItemClickEventArgsToWaterBoilerMatDeviceConverter}"/>
+						</core:EventTriggerBehavior>
+					</i:Interaction.Behaviors>
+
+					<ListView.BorderBrush>
+						<SolidColorBrush Color="{ThemeResource SystemAccentColorLight3}"/>
+					</ListView.BorderBrush>
+					<ListView.ItemContainerStyle>
+						<Style TargetType="ListViewItem">
+							<Style.Setters>
+								<Setter Property="BorderThickness" Value="0,0,0,1"/>
+								<Setter Property="BorderBrush">
+									<Setter.Value>
+										<SolidColorBrush Color="{StaticResource SystemAccentColorLight1}"/>
+									</Setter.Value>
+								</Setter>
+							</Style.Setters>
+						</Style>
+					</ListView.ItemContainerStyle>
+					<ListView.ItemTemplate>
+						<DataTemplate x:DataType="models:WaterBoilerMatDevice">
+							<StackPanel>
+								<TextBlock Text="{Binding Name}"/>
+								<TextBlock Text="{Binding Address}"/>
+							</StackPanel>
+						</DataTemplate>
+					</ListView.ItemTemplate>
+				</ListView>
+
+				<ProgressBar Grid.Row="1" IsIndeterminate="True" VerticalAlignment="Center"
+							 Visibility="{Binding IsScanning, Converter={StaticResource TrueToVisibilityConverter}}"/>
+			</Grid>			
 		</Grid>
 
 		<Button Grid.Row="2" Content="새 온수매트 검색" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource AccentButtonStyle}"
