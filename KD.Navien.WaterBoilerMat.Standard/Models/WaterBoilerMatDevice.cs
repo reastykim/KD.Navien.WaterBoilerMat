@@ -253,6 +253,9 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         public async Task RequestPowerOnOffAsync(bool isOn)
         {
+            if (_response == null)
+                return;
+
             KDRequest request = new KDRequest();
             request.Data = _response.Data;
             request.Data.MessageType = KDMessageType.STATUS_CHANGE;
@@ -269,6 +272,9 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         public async Task RequestLockOnOffAsync(bool isLock)
         {
+            if (_response == null)
+                return;
+
             KDRequest request = new KDRequest();
             request.Data = _response.Data;
             request.Data.MessageType = KDMessageType.STATUS_CHANGE;
@@ -299,19 +305,25 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         public async Task RequestLeftPowerOnOff(bool isOn)
         {
+            if (_response == null)
+                return;
+
             if (_response.Data.Mode == 4)
             {
                 //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_cleanmode_fail), 0).show();
+                return;
             }
-            else if (_response.Data.Mode == 7)
+            if (_response.Data.Mode == 7)
             {
                 //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_wateroutmode_fail), 0).show();
+                return;
             }
-            else if ((_response.Data.Status != 3 || _response.Data.ModelType == 1 || _response.Data.ModelType == 17)
-                     && _response.Data.KeyLock != 1)
+
+
+            if ((_response.Data.Status != 3 || _response.Data.ModelType == 1 || _response.Data.ModelType == 17)
+                && _response.Data.KeyLock != 1)
             {
                 int value;
-                int i;
                 KDRequest request = new KDRequest();
                 request.Data = _response.Data;
                 request.Data.MessageType = KDMessageType.STATUS_CHANGE;
@@ -349,10 +361,9 @@ namespace KD.Navien.WaterBoilerMat.Models
                 }
 
                 request.Data.Status = value;
-                KDData kDData = request.Data;
                 if (value == 4)
                 {
-                    kDData.TemperatureSettingLeft = 0;
+                    request.Data.TemperatureSettingLeft = 0;
                 }
                 request.Data.SleepStartButtonEnable = 0;
                 request.Data.SleepStopButtonEnable = 1;
@@ -363,11 +374,84 @@ namespace KD.Navien.WaterBoilerMat.Models
                 _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
             }
         }
+
+        public async Task RequestRightPowerOnOff(bool isOn)
+        {
+            if (_response == null)
+                return;
+
+            if (_response.Data.Mode == 4)
+            {
+                //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_cleanmode_fail), 0).show();
+                return;
+            }
+            if (_response.Data.Mode == 7)
+            {
+                //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_wateroutmode_fail), 0).show();
+                return;
+            }
+
+
+            if ((_response.Data.Status != 4 || _response.Data.ModelType == 1 || _response.Data.ModelType == 17)
+                && _response.Data.KeyLock != 1)
+            {
+                int value;
+                KDRequest request = new KDRequest();
+                request.Data = _response.Data;
+                request.Data.MessageType = KDMessageType.STATUS_CHANGE;
+
+                if (_response.Data.ModelType != 1 && _response.Data.ModelType != 17)
+                {
+                    value = _response.Data.Status == 3 ? 2 : 3;
+                }
+                else if (_response.Data.MattType == 1)
+                {
+                    if (_response.Data.Status == 2)
+                    {
+                        value = 0;
+                    }
+                    else
+                    {
+                        value = 2;
+                    }
+                }
+                else if (_response.Data.Status == 3)
+                {
+                    value = 2;
+                }
+                else if (_response.Data.Status == 1 || _response.Data.Status == 2)
+                {
+                    value = 3;
+                }
+                else if (_response.Data.Status == 0)
+                {
+                    value = 4;
+                }
+                else
+                {
+                    value = 0;
+                }
+
+                request.Data.Status = value;
+                if (value == 3)
+                {
+                    request.Data.TemperatureSettingRight = 0;
+                }
+                request.Data.SleepStartButtonEnable = 0;
+                request.Data.SleepStopButtonEnable = 1;
+
+                var requestDataValue = request.GetValue();
+                byte[] bytes = requestDataValue.HexStringToByteArray();
+                await BoilerGattCharacteristic1.WriteValueAsync(bytes);
+                _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
+            }
+        }
+
         #endregion
-        
+
         #region Static Methods
 
-            public static bool IsNavienDevice(string address)
+        public static bool IsNavienDevice(string address)
         {
             return address.StartsWith(NavienDeviceMacPrefix, StringComparison.CurrentCultureIgnoreCase);
         }
