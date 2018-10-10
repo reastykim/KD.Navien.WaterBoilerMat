@@ -46,6 +46,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                     RaisePropertyChanged(e.PropertyName);
                     Type type = typeof(ObservableBluetoothLEDevice);
                     var value = type.GetProperty(e.PropertyName).GetValue(_device);
+                    _logger.Log($"WaterBoilerMatDeviceUwp.PropertyChanged. [{e.PropertyName}]=[{value}]", Category.Debug, Priority.High);
                 }
             };
 

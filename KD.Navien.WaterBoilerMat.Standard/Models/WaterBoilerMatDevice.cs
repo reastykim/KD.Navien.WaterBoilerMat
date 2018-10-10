@@ -283,10 +283,10 @@ namespace KD.Navien.WaterBoilerMat.Models
             }
             if (request.Data.Mode == 3)
             {
-                //request.Data.SleepSupplySettingTime = MainFragment.this.mResponseData.mData.SleepSupplySettingTime;
-                //request.Data.SleepLeftSettingTime = MainFragment.this.mResponseData.mData.SleepLeftSettingTime;
-                //request.Data.SleepRightSettingTime = MainFragment.this.mResponseData.mData.SleepRightSettingTime;
-                //request.Data.SleepStartButtonEnable = MainFragment.this.mResponseData.mData.SleepStartButtonEnable;
+                //request.Data.SleepSupplySettingTime = _response.Data.SleepSupplySettingTime;
+                //request.Data.SleepLeftSettingTime = _response.Data.SleepLeftSettingTime;
+                //request.Data.SleepRightSettingTime = _response.Data.SleepRightSettingTime;
+                //request.Data.SleepStartButtonEnable = _response.Data.SleepStartButtonEnable;
             }
             request.Data.SleepStartButtonEnable = 0;
             request.Data.SleepStopButtonEnable = 1;
@@ -299,63 +299,73 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         public async Task RequestLeftPowerOnOff(bool isOn)
         {
-            if (MainFragment.this.mResponseData.mData.Mode == 4) {
-                Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_cleanmode_fail), 0).show();
-            } else if (MainFragment.this.mResponseData.mData.Mode == 7) {
-                Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_wateroutmode_fail), 0).show();
-            } else if ((MainFragment.this.mResponseData.mData.Status != 3 || MainFragment.this.mResponseData.mData.ModelType == 1 || MainFragment.this.mResponseData.mData.ModelType == 17) && MainFragment.this.mResponseData.mData.KeyLock != 1) {
+            if (_response.Data.Mode == 4)
+            {
+                //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_cleanmode_fail), 0).show();
+            }
+            else if (_response.Data.Mode == 7)
+            {
+                //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_wateroutmode_fail), 0).show();
+            }
+            else if ((_response.Data.Status != 3 || _response.Data.ModelType == 1 || _response.Data.ModelType == 17)
+                     && _response.Data.KeyLock != 1)
+            {
                 int value;
                 int i;
-                KDRequest requestData = new KDRequest();
-                if (MainFragment.this.mResponseData.mData.ModelType != 1 && MainFragment.this.mResponseData.mData.ModelType != 17) {
-                    value = MainFragment.this.mResponseData.mData.Status == 4 ? 2 : 4;
-                } else if (MainFragment.this.mResponseData.mData.MattType == 1) {
-                    if (MainFragment.this.mResponseData.mData.Status == 2) {
+                KDRequest request = new KDRequest();
+                request.Data = _response.Data;
+                request.Data.MessageType = KDMessageType.STATUS_CHANGE;
+
+                if (_response.Data.ModelType != 1 && _response.Data.ModelType != 17)
+                {
+                    value = _response.Data.Status == 4 ? 2 : 4;
+                }
+                else if (_response.Data.MattType == 1)
+                {
+                    if (_response.Data.Status == 2)
+                    {
                         value = 0;
-                    } else {
+                    }
+                    else
+                    {
                         value = 2;
                     }
-                } else if (MainFragment.this.mResponseData.mData.Status == 4) {
-                    value = 2;
-                } else if (MainFragment.this.mResponseData.mData.Status == 0) {
-                    value = 3;
-                } else if (MainFragment.this.mResponseData.mData.Status == 1 || MainFragment.this.mResponseData.mData.Status == 2) {
-                    value = 4;
-                } else {
-                    value = 0;
                 }
-                requestData.mData = MainFragment.this.mResponseData.mData;
-                requestData.mData.Mode = MainFragment.this.mResponseData.mData.Mode;
-                requestData.mData.MattType = MainFragment.this.mResponseData.mData.MattType;
-                requestData.mData.Power = MainFragment.this.mResponseData.mData.Power;
-                requestData.mData.KeyLock = MainFragment.this.mResponseData.mData.KeyLock;
-                requestData.mData.DegreeType = MainFragment.this.mResponseData.mData.DegreeType;
-                requestData.mData.WaterCapacity = MainFragment.this.mResponseData.mData.WaterCapacity;
-                requestData.mData.Volume = MainFragment.this.mResponseData.mData.Volume;
-                requestData.mData.Status = value;
-                requestData.mData.TemperatureSupply = MainFragment.this.mResponseData.mData.TemperatureSupply;
-                requestData.mData.TemperatureReturnLeft = MainFragment.this.mResponseData.mData.TemperatureReturnLeft;
-                requestData.mData.TemperatureReturnRight = MainFragment.this.mResponseData.mData.TemperatureReturnRight;
-                requestData.mData.TemperatureSupplySetting = MainFragment.this.mResponseData.mData.TemperatureSupplySetting;
-                KDData kDData = requestData.mData;
-                if (value == 4)
+                else if (_response.Data.Status == 4)
                 {
-                    i = 0;
+                    value = 2;
+                }
+                else if (_response.Data.Status == 0)
+                {
+                    value = 3;
+                }
+                else if (_response.Data.Status == 1 || _response.Data.Status == 2)
+                {
+                    value = 4;
                 }
                 else
                 {
-                    i = MainFragment.this.mResponseData.mData.TemperatureSettingLeft;
+                    value = 0;
                 }
-                kDData.TemperatureSettingLeft = i;
-                requestData.mData.TemperatureSettingRight = MainFragment.this.mResponseData.mData.TemperatureSettingRight;
-                requestData.mData.SleepStartButtonEnable = 0;
-                requestData.mData.SleepStopButtonEnable = 1;
 
+                request.Data.Status = value;
+                KDData kDData = request.Data;
+                if (value == 4)
+                {
+                    kDData.TemperatureSettingLeft = 0;
+                }
+                request.Data.SleepStartButtonEnable = 0;
+                request.Data.SleepStopButtonEnable = 1;
+
+                var requestDataValue = request.GetValue();
+                byte[] bytes = requestDataValue.HexStringToByteArray();
+                await BoilerGattCharacteristic1.WriteValueAsync(bytes);
+                _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
             }
-
-            #endregion
-
-            #region Static Methods
+        }
+        #endregion
+        
+        #region Static Methods
 
             public static bool IsNavienDevice(string address)
         {
