@@ -19,6 +19,7 @@ using Prism.Ioc;
 using KD.Navien.WaterBoilerMat.Services;
 using KD.Navien.WaterBoilerMat.Universal.Services;
 using KD.Navien.WaterBoilerMat.Models;
+using KD.Navien.WaterBoilerMat.Universal.Models;
 
 namespace KD.Navien.WaterBoilerMat.UWP
 {
@@ -36,8 +37,9 @@ namespace KD.Navien.WaterBoilerMat.UWP
     {
 		public void RegisterTypes(IContainerRegistry containerRegistry)
 		{
-			// Register any platform specific implementations
-			containerRegistry.Register<IBluetoothLEService<WaterBoilerMatDevice>, BluetoothLEService>();
-		}
+            // Register any platform specific implementations
+            containerRegistry.Register<IBluetoothLEService<WaterBoilerMatDevice>, BluetoothLEService>();
+            containerRegistry.Register<IPairingList, PairingList>();
+        }
 	}
 }
