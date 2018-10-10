@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KD.Navien.WaterBoilerMat.Views.IntroPage"
+             xmlns:models="clr-namespace:KD.Navien.WaterBoilerMat.Models;assembly=KD.Navien.WaterBoilerMat.Standard"
+             xmlns:behaviors="clr-namespace:Prism.Behaviors;assembly=Prism.Forms"
+             xmlns:converters="clr-namespace:KD.Navien.WaterBoilerMat.Converters"
+             Title="{Binding Title}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <Grid Grid.Row="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Label Grid.Row="0" Text="연결 가능한 온수 매트" Margin="0,20" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+
+            <Grid Grid.Row="1" Margin="20" MinimumWidthRequest="300" HorizontalOptions="CenterAndExpand">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="10"/>
+                </Grid.RowDefinitions>
+
+                <ListView Grid.Row="0" ItemsSource="{Binding Devices}" HorizontalOptions="Center">
+                    <ListView.Behaviors>
+                        <behaviors:EventToCommandBehavior EventName="ItemTapped"
+                                                              Command="{Binding ConnectCommand}" EventArgsParameterPath="Item"/>
+                    </ListView.Behaviors>
+                    <ListView.ItemTemplate>
+                        <DataTemplate x:DataType="models:WaterBoilerMatDevice">
+                            <ViewCell>
+                                <StackLayout>
+                                    <Label Text="{Binding Name}"/>
+                                    <Label Text="{Binding Address}"/>
+                                </StackLayout>
+                            </ViewCell>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
+
+                <ActivityIndicator Grid.Row="1" IsRunning="{Binding IsScanning}" />
+            </Grid>
+        </Grid>
+
+        <Button Grid.Row="1" Text="새 온수매트 검색" Margin="20" HorizontalOptions="Center" VerticalOptions="Center"
+                    Command="{Binding ScanCommand}"/>
+    </Grid>
+</ContentPage>

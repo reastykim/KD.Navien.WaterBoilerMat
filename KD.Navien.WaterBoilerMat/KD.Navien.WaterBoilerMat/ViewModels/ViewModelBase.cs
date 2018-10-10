@@ -8,7 +8,7 @@ using System.Text;
 
 namespace KD.Navien.WaterBoilerMat.ViewModels
 {
-    public class ViewModelBase : BindableBase, INavigationAware, IDestructible
+    public abstract class ViewModelBase : BindableBase, INavigationAware, IDestructible
     {
         protected INavigationService NavigationService { get; private set; }
 		protected ILoggerFacade Logger { get; private set; }

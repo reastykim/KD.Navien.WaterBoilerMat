@@ -1,65 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
-             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="KD.Navien.WaterBoilerMat.Views.MainPage"
-             Title="{Binding Title}">
+<TabbedPage xmlns="http://xamarin.com/schemas/2014/forms"
+            xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+            x:Class="KD.Navien.WaterBoilerMat.Views.MainPage"
+            xmlns:views="clr-namespace:KD.Navien.WaterBoilerMat.Views"
+            Title="{Binding Title}">
 
-    <StackLayout HorizontalOptions="CenterAndExpand" VerticalOptions="CenterAndExpand">
-		<Button Text="Scan" Command="{Binding ScanCommand}" />
-		<ListView x:Name="deviceList" Header="Device List" ItemsSource="{Binding FoundDevices}">
-			<ListView.ItemTemplate>
-				<DataTemplate>
-					<ViewCell>
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition />
-								<ColumnDefinition />
-							</Grid.ColumnDefinitions>
-
-							<Label Grid.Column="0" Text="{Binding Name}"/>
-							<Label Grid.Column="1" Text="{Binding Address}"/>
-						</Grid>
-					</ViewCell>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-		<Button Text="Connect" Command="{Binding ConnectCommand}" CommandParameter="{Binding Source={x:Reference deviceList}, SelectedItem}"/>
-		<Label Text="{Binding Source={x:Reference deviceList}, SelectedItem.IsReadyForBoilerService}, StringFormat='IsReadyForBoilerService : [{0}]'}"/>
-		<ListView x:Name="serviceList" Header="GattService List" ItemsSource="{Binding Source={x:Reference deviceList}, SelectedItem.Services}">
-			<ListView.ItemTemplate>
-				<DataTemplate>
-					<ViewCell>
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition />
-								<ColumnDefinition />
-							</Grid.ColumnDefinitions>
-
-							<Label Grid.Column="0" Text="{Binding Name}"/>
-							<Label Grid.Column="1" Text="{Binding UUID}"/>
-						</Grid>
-					</ViewCell>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-		<ListView x:Name="characteristicList" Header="Characteristic List" ItemsSource="{Binding Source={x:Reference serviceList}, SelectedItem.GattCharacteristics}">
-			<ListView.ItemTemplate>
-				<DataTemplate>
-					<ViewCell>
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition />
-								<ColumnDefinition />
-							</Grid.ColumnDefinitions>
-
-							<Label Grid.Column="0" Text="{Binding Name}"/>
-							<Label Grid.Column="1" Text="{Binding UUID}"/>
-						</Grid>
-					</ViewCell>
-				</DataTemplate>
-			</ListView.ItemTemplate>
-		</ListView>
-		<Button Text="Debug" Command="{Binding DebugCommand}" />
-	</StackLayout>
-
-</ContentPage>
+    <views:HomePage />
+    <views:SleepPage />
+    <views:HelpPage />
+    <views:SettingsPage />
+</TabbedPage>

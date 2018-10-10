@@ -23,9 +23,9 @@ using KD.Navien.WaterBoilerMat.Universal.Models;
 
 namespace KD.Navien.WaterBoilerMat.UWP
 {
-    public sealed partial class MainPage
+    public sealed partial class IntroPage
     {
-        public MainPage()
+        public IntroPage()
         {
             this.InitializeComponent();
 

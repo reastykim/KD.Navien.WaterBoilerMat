@@ -30,7 +30,7 @@ namespace KD.Navien.WaterBoilerMat
         {
             InitializeComponent();
 
-            await NavigationService.NavigateAsync("NavigationPage/MainPage");
+            await NavigationService.NavigateAsync($"NavigationPage/{nameof(IntroPage)}");
         }
 
 		protected override void RegisterTypes(IContainerRegistry containerRegistry)
@@ -41,8 +41,9 @@ namespace KD.Navien.WaterBoilerMat
 				registration.LifetimeManager.RemoveValue();
 			}
 			containerRegistry.RegisterSingleton<ILoggerFacade, DebugLogger>();
-			containerRegistry.RegisterForNavigation<NavigationPage>();
-			containerRegistry.RegisterForNavigation<MainPage>();
-		}
+            containerRegistry.RegisterForNavigation<NavigationPage>();
+            containerRegistry.RegisterForNavigation<IntroPage>();
+            containerRegistry.RegisterForNavigation<MainPage>();
+        }
 	}
 }
