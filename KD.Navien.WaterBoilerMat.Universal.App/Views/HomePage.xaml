@@ -95,11 +95,15 @@
 
 					
 					<Slider Grid.Column="0" HorizontalAlignment="Left"
-							Orientation="Vertical" Value="50" Maximum="100"
-                            IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"/>
+							Orientation="Vertical" 
+                            IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
+                            Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"/>
 					<Slider Grid.Column="2" HorizontalAlignment="Right"
-							Orientation="Vertical" Value="50" Maximum="100"
-                            IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"/>
+							Orientation="Vertical" 
+                            IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
+                            Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"/>
 				</Grid>
 
 				<Button Grid.Row="2" Margin="20" HorizontalAlignment="Center" 

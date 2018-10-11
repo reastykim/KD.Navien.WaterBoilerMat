@@ -121,6 +121,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 IsLock = Convert.ToBoolean(data.KeyLock);
                 IsLeftPartsPowerOn = (data.Status == 2 || data.Status == 3);
                 IsRightPartsPowerOn = (data.Status == 2 || data.Status == 4);
+
+                TemperatureInfo = new TemperatureInfo(data.MaxTemperatureHighLow);
             });
         }
 

@@ -20,6 +20,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         bool IsRightPartsPowerOn { get; }
 
+        TemperatureInfo TemperatureInfo { get; }
+
         Task<string> ConnectAsync(string uniqueID);
         void Disconnect();
 

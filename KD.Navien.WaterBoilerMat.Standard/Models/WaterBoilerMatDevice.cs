@@ -80,6 +80,13 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private bool _isRightPartsPowerOn;
 
+        public TemperatureInfo TemperatureInfo
+        {
+            get => _temperatureInfo;
+            protected set => SetProperty(ref _temperatureInfo, value);
+        }
+        private TemperatureInfo _temperatureInfo;
+
         #endregion
 
         #region Fields
