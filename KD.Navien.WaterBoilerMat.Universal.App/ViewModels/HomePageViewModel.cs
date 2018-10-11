@@ -41,7 +41,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await _device.RequestPowerOnOffAsync(!_device.IsPowerOn);
+                await _device.RequestPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -63,7 +63,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await _device.RequestLockOnOffAsync(!_device.IsLock);
+                await _device.RequestLockOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -72,6 +72,56 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                 await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
                 {
                     await _alertMessageService.ShowAsync("WaterBoilerMatDevice Power command execute fail.", "Error");
+                });
+            }
+        }
+
+        public DelegateCommand LeftPartsPowerCommand
+        {
+            get
+            {
+                return _leftPartsPowerCommand ?? (_leftPartsPowerCommand = new DelegateCommand(ExecuteLeftPartsPower).ObservesCanExecute(() => Device.IsPowerOn));
+            }
+        }
+        private DelegateCommand _leftPartsPowerCommand;
+        private async void ExecuteLeftPartsPower()
+        {
+            try
+            {
+                await _device.RequestLeftPartsPowerOnOffAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"LeftPartsPowerCommand execute fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+
+                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                {
+                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice LeftPartsPower command execute fail.", "Error");
+                });
+            }
+        }
+
+        public DelegateCommand RightPartsPowerCommand
+        {
+            get
+            {
+                return _rightPartsPowerCommand ?? (_rightPartsPowerCommand = new DelegateCommand(ExecuteRightPartsPower).ObservesCanExecute(() => Device.IsPowerOn));
+            }
+        }
+        private DelegateCommand _rightPartsPowerCommand;
+        private async void ExecuteRightPartsPower()
+        {
+            try
+            {
+                await _device.RequestRightPartsPowerOnOffAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"RightPartsPowerCommand execute fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+
+                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                {
+                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice RightPartsPower command execute fail.", "Error");
                 });
             }
         }

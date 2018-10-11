@@ -5,7 +5,9 @@ using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
@@ -18,8 +20,6 @@ namespace KD.Navien.WaterBoilerMat.Models
 		public const string BoilerGattServiceUuid = "00001c0d-d102-11e1-9b23-2ce2a80000dd";
 		public const string BoilerGattCharacteristic1Uuid = "00001c0d-d102-11e1-9b23-2ce2a80100dd";
 		public const string BoilerGattCharacteristic2Uuid = "00001c0d-d102-11e1-9b23-2ce2a80200dd";
-		
-		public event EventHandler ServicesUpdated;
 
         #region Properties
 
@@ -64,6 +64,21 @@ namespace KD.Navien.WaterBoilerMat.Models
             protected set => SetProperty(ref _isLock, value);
         }
         private bool _isLock;
+
+        public bool IsLeftPartsPowerOn
+        {
+            get => _isLeftPartsPowerOn;
+            protected set => SetProperty(ref _isLeftPartsPowerOn, value);
+        }
+        private bool _isLeftPartsPowerOn;
+
+
+        public bool IsRightPartsPowerOn
+        {
+            get => _isRightPartsPowerOn;
+            protected set => SetProperty(ref _isRightPartsPowerOn, value);
+        }
+        private bool _isRightPartsPowerOn;
 
         #endregion
 
@@ -118,11 +133,19 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
 
         #endregion
-        
+
+        protected override void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            base.OnPropertyChanged(args);
+
+            if (args.PropertyName == nameof(IsConnected) && IsConnected == false)
+            {
+                _connectTcs.TrySetException(new ApplicationException("Connection is lost by native object."));
+            }
+        }
+
         protected async void RaiseServicesUpdated()
 		{
-			ServicesUpdated?.Invoke(this, EventArgs.Empty);
-
             if (BoilerGattCharacteristic1 != null && BoilerGattCharacteristic2 != null && _isReady == false)
             {
                 _isReady = true;
@@ -140,15 +163,15 @@ namespace KD.Navien.WaterBoilerMat.Models
         private void BoilerGattCharacteristic1_ValueChanged(object sender, byte[] value)
         {
             var dataValue = value.ToString("X02");
-            _logger.Log($"BoilerGattCharacteristic1_ValueChanged. Value = [{dataValue}]", Category.Debug, Priority.High);
 
             try
             {
                 KDResponse response = new KDResponse();
                 if (response.SetValue(value))
                 {
+                    _logger.Log($"RECV KDResponse. {response.Data}", Category.Info, Priority.High);
                     _response = response;
-                    _logger.Log($"{response.Data}", Category.Info, Priority.Medium);
+                    
 
                     // Update
                     UpdateDeviceStatus(response.Data);
@@ -172,25 +195,27 @@ namespace KD.Navien.WaterBoilerMat.Models
         private async void BoilerGattCharacteristic2_ValueChanged(object sender, byte[] value)
         {
             var dataValue = value.ToString("X02");
-            _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Value = [{dataValue}]", Category.Debug, Priority.High);
 
             try
             {
-                KDResponse responseData = new KDResponse();
-                if (responseData.SetValue(value))
+                KDResponse response = new KDResponse();
+                if (response.SetValue(value))
                 {// Connect & MAC_REGISTER Success.
-                    if (String.IsNullOrWhiteSpace(responseData.Data.UniqueID) != true)
+                    _logger.Log($"RECV KDResponse.\t{response.Data}", Category.Info, Priority.High);
+
+                    if (String.IsNullOrWhiteSpace(response.Data.UniqueID) != true)
                     {
-                        _uniqueID = responseData.Data.UniqueID;
+                        _uniqueID = response.Data.UniqueID;
                     }
                     _logger.Log($"Set UniqueID = [{_uniqueID}]", Category.Info, Priority.High);
 
                     // Write a dummy packet. This is the end of connecting step.
                     await BoilerGattCharacteristic1.WriteValueAsync(new byte[0]);
+                    _logger.Log($"SEND KDRequest. \t[0]", Category.Info, Priority.High);
                 }
                 else
                 {
-                    _logger.Log($"Connect fail. Raw=[{responseData.Data.DEBUGCode}]", Category.Debug, Priority.High);
+                    _logger.Log($"Connect fail. Raw=[{response.Data.DEBUGCode}]", Category.Debug, Priority.High);
                     throw new ApplicationException($"KDResponse.SetValue() fail.");
                 }
             }
@@ -205,23 +230,26 @@ namespace KD.Navien.WaterBoilerMat.Models
         private Task<bool> RequestMacRegisterAsync(string uniqueID)
         {
             // Create a request
-            var requestData = new KDRequest();
-            requestData.Data.MessageType = KDMessageType.MAC_REGISTER;
+            var request = new KDRequest();
+            request.Data.MessageType = KDMessageType.MAC_REGISTER;
             // check, is the device pairing mode : if the actual MatDevice is on BLE PairingMode set the UniqueID to String.Empty, otherwise set the already stored UniqueID.
             if (String.IsNullOrWhiteSpace(uniqueID))
             {
-                requestData.Data.UniqueID = "";
+                request.Data.UniqueID = "";
             }
             else
             {
-                requestData.Data.UniqueID = uniqueID;
+                request.Data.UniqueID = uniqueID;
             }
 
-            var requestDataValue = requestData.GetValue();
+            var requestDataValue = request.GetValue();
             byte[] bytes = requestDataValue.HexStringToByteArray();
 
             // Write a request packet
-            return BoilerGattCharacteristic2.WriteValueAsync(bytes);
+            var writeValueTask = BoilerGattCharacteristic2.WriteValueAsync(bytes);
+            _logger.Log($"SEND KDRequest. \t{request.Data}", Category.Info, Priority.High);
+
+            return writeValueTask;
         }
 
         protected abstract Task ConnectAsync();
@@ -251,7 +279,7 @@ namespace KD.Navien.WaterBoilerMat.Models
             return _connectTcs.Task;
         }
 
-        public async Task RequestPowerOnOffAsync(bool isOn)
+        public async Task RequestPowerOnOffAsync()
         {
             if (_response == null)
                 return;
@@ -260,17 +288,17 @@ namespace KD.Navien.WaterBoilerMat.Models
             request.Data = _response.Data;
             request.Data.MessageType = KDMessageType.STATUS_CHANGE;
             request.Data.Mode = 6;
-            request.Data.Power = Convert.ToInt32(isOn);
+            request.Data.Power = Convert.ToInt32(!IsPowerOn);
             request.Data.SleepStartButtonEnable = 0;
             request.Data.SleepStopButtonEnable = 1;
 
             var requestDataValue = request.GetValue();
             byte[] bytes = requestDataValue.HexStringToByteArray();
             await BoilerGattCharacteristic1.WriteValueAsync(bytes);
-            _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
+            _logger.Log($"SEND KDRequest. \t{request.Data}", Category.Info, Priority.High);
         }
 
-        public async Task RequestLockOnOffAsync(bool isLock)
+        public async Task RequestLockOnOffAsync()
         {
             if (_response == null)
                 return;
@@ -278,7 +306,7 @@ namespace KD.Navien.WaterBoilerMat.Models
             KDRequest request = new KDRequest();
             request.Data = _response.Data;
             request.Data.MessageType = KDMessageType.STATUS_CHANGE;
-            request.Data.KeyLock = Convert.ToInt32(isLock);
+            request.Data.KeyLock = Convert.ToInt32(!IsLock);
             if (request.Data.Status == 4)
             {
                 request.Data.TemperatureSettingLeft = 0;
@@ -300,10 +328,10 @@ namespace KD.Navien.WaterBoilerMat.Models
             var requestDataValue = request.GetValue();
             byte[] bytes = requestDataValue.HexStringToByteArray();
             await BoilerGattCharacteristic1.WriteValueAsync(bytes);
-            _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
+            _logger.Log($"SEND KDRequest. \t{request.Data}", Category.Info, Priority.High);
         }
 
-        public async Task RequestLeftPowerOnOff(bool isOn)
+        public async Task RequestLeftPartsPowerOnOffAsync()
         {
             if (_response == null)
                 return;
@@ -371,11 +399,11 @@ namespace KD.Navien.WaterBoilerMat.Models
                 var requestDataValue = request.GetValue();
                 byte[] bytes = requestDataValue.HexStringToByteArray();
                 await BoilerGattCharacteristic1.WriteValueAsync(bytes);
-                _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
+                _logger.Log($"SEND KDRequest. \t{request.Data}", Category.Info, Priority.High);
             }
         }
 
-        public async Task RequestRightPowerOnOff(bool isOn)
+        public async Task RequestRightPartsPowerOnOffAsync()
         {
             if (_response == null)
                 return;
@@ -443,7 +471,7 @@ namespace KD.Navien.WaterBoilerMat.Models
                 var requestDataValue = request.GetValue();
                 byte[] bytes = requestDataValue.HexStringToByteArray();
                 await BoilerGattCharacteristic1.WriteValueAsync(bytes);
-                _logger.Log($"BoilerGattCharacteristic1.WriteValueAsync(). Value = [{requestDataValue}]", Category.Info, Priority.Medium);
+                _logger.Log($"SEND KDRequest. \t{request.Data}", Category.Info, Priority.High);
             }
         }
 

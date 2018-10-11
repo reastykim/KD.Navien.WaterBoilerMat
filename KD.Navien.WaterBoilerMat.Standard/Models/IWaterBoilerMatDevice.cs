@@ -16,10 +16,18 @@ namespace KD.Navien.WaterBoilerMat.Models
         bool IsPowerOn { get; }
         bool IsLock { get; }
 
+        bool IsLeftPartsPowerOn { get; }
+
+        bool IsRightPartsPowerOn { get; }
+
         Task<string> ConnectAsync(string uniqueID);
         void Disconnect();
 
-        Task RequestPowerOnOffAsync(bool isOn);
-        Task RequestLockOnOffAsync(bool isLock);
+        Task RequestPowerOnOffAsync();
+        Task RequestLockOnOffAsync();
+
+        Task RequestLeftPartsPowerOnOffAsync();
+
+        Task RequestRightPartsPowerOnOffAsync();
     }
 }

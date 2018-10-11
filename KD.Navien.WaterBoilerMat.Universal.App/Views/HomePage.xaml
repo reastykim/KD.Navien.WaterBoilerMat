@@ -10,7 +10,7 @@
 							   xmlns:uviews="using:KD.Navien.WaterBoilerMat.Universal.Views"
 							   mc:Ignorable="d"
 							   prismMvvm:ViewModelLocator.AutoWireViewModel="True"
-							   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" >
+							   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 	<uviews:NavigationViewItemPage.Resources>
 		<converters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
@@ -77,9 +77,13 @@
 						<ColumnDefinition />
 					</Grid.ColumnDefinitions>
 
-					<ToggleButton Grid.Column="0" Margin="5,10" Content="좌측난방"/>
+					<ToggleButton Grid.Column="0" Margin="5,10" Content="좌측난방"
+                                  IsChecked="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
+                                  Command="{Binding LeftPartsPowerCommand}"/>
 					<ToggleButton Grid.Column="1" Margin="5,10" Content="전체온도변경"/>
-					<ToggleButton Grid.Column="2" Margin="5,10" Content="우측난방"/>
+                    <ToggleButton Grid.Column="2" Margin="5,10" Content="우측난방"
+                                  IsChecked="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
+                                  Command="{Binding RightPartsPowerCommand}"/>
 				</Grid>
 
 				<Grid Grid.Row="1">
@@ -91,9 +95,11 @@
 
 					
 					<Slider Grid.Column="0" HorizontalAlignment="Left"
-							Orientation="Vertical" Value="50" Maximum="100"/>
+							Orientation="Vertical" Value="50" Maximum="100"
+                            IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"/>
 					<Slider Grid.Column="2" HorizontalAlignment="Right"
-							Orientation="Vertical" Value="50" Maximum="100"/>
+							Orientation="Vertical" Value="50" Maximum="100"
+                            IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"/>
 				</Grid>
 
 				<Button Grid.Row="2" Margin="20" HorizontalAlignment="Center" 
