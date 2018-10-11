@@ -98,12 +98,14 @@
 							Orientation="Vertical" 
                             IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
                             Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
-                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"/>
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
+							Value="{Binding Device.SetupLeftTemperature, Mode=TwoWay}"/>
 					<Slider Grid.Column="2" HorizontalAlignment="Right"
 							Orientation="Vertical" 
                             IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
                             Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
-                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"/>
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
+							Value="{Binding Device.SetupRightTemperature, Mode=TwoWay}"/>
 				</Grid>
 
 				<Button Grid.Row="2" Margin="20" HorizontalAlignment="Center" 

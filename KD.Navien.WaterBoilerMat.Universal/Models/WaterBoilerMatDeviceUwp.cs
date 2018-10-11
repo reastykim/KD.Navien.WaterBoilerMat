@@ -123,6 +123,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 IsRightPartsPowerOn = (data.Status == 2 || data.Status == 4);
 
                 TemperatureInfo = new TemperatureInfo(data.MaxTemperatureHighLow);
+
+                CurrentLeftTemperature = data.TemperatureReturnLeft;
+                CurrentRightTemperature = data.TemperatureReturnRight;
+
+                SetupLeftTemperature = data.TemperatureSettingLeft;
+                SetupRightTemperature = data.TemperatureSettingRight;
             });
         }
 

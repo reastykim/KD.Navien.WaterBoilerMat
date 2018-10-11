@@ -87,6 +87,34 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private TemperatureInfo _temperatureInfo;
 
+        public int CurrentLeftTemperature
+        {
+            get => _currentLeftTemperature;
+            protected set => SetProperty(ref _currentLeftTemperature, value);
+        }
+        private int _currentLeftTemperature;
+
+        public int CurrentRightTemperature
+        {
+            get => _currentRightTemperature;
+            protected set => SetProperty(ref _currentRightTemperature, value);
+        }
+        private int _currentRightTemperature;
+
+        public int SetupLeftTemperature
+        {
+            get => _setupLeftTemperature;
+            protected set => SetProperty(ref _setupLeftTemperature, value);
+        }
+        private int _setupLeftTemperature;
+
+        public int SetupRightTemperature
+        {
+            get => _setupRightTemperature;
+            protected set => SetProperty(ref _setupRightTemperature, value);
+        }
+        private int _setupRightTemperature;
+        
         #endregion
 
         #region Fields
@@ -157,13 +185,26 @@ namespace KD.Navien.WaterBoilerMat.Models
             {
                 _isReady = true;
 
-                BoilerGattCharacteristic1.ValueChanged += BoilerGattCharacteristic1_ValueChanged;
-                await BoilerGattCharacteristic1.SetNotifyAsync(true);
+                try
+                {
+                    BoilerGattCharacteristic1.ValueChanged += BoilerGattCharacteristic1_ValueChanged;
+                    await BoilerGattCharacteristic1.SetNotifyAsync(true);
 
-                BoilerGattCharacteristic2.ValueChanged += BoilerGattCharacteristic2_ValueChanged;
-                await BoilerGattCharacteristic2.SetNotifyAsync(true);
+                    BoilerGattCharacteristic2.ValueChanged += BoilerGattCharacteristic2_ValueChanged;
+                    await BoilerGattCharacteristic2.SetNotifyAsync(true);
 
-                await RequestMacRegisterAsync(_uniqueID);
+                    await RequestMacRegisterAsync(_uniqueID);
+                }
+                catch (Exception e)
+                {
+                    _logger.Log($"RaiseServicesUpdated. Exception=[{e.Message}]", Category.Exception, Priority.High);
+
+                    BoilerGattCharacteristic1.ValueChanged -= BoilerGattCharacteristic1_ValueChanged;
+                    BoilerGattCharacteristic2.ValueChanged -= BoilerGattCharacteristic2_ValueChanged;
+                    _isReady = false;
+
+                    _connectTcs.TrySetException(e);
+                }
             }
         }
 
