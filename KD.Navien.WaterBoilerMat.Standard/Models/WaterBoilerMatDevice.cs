@@ -87,6 +87,34 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private TemperatureInfo _temperatureInfo;
 
+        public int CurrentLeftTemperature
+        {
+            get => _currentLeftTemperature;
+            protected set => SetProperty(ref _currentLeftTemperature, value);
+        }
+        private int _currentLeftTemperature;
+
+        public int CurrentRightTemperature
+        {
+            get => _currentRightTemperature;
+            protected set => SetProperty(ref _currentRightTemperature, value);
+        }
+        private int _currentRightTemperature;
+
+        public int? SetupLeftTemperature
+        {
+            get => _setupLeftTemperature;
+            set => SetProperty(ref _setupLeftTemperature, value);
+        }
+        private int? _setupLeftTemperature;
+
+        public int? SetupRightTemperature
+        {
+            get => _setupRightTemperature;
+            set => SetProperty(ref _setupRightTemperature, value);
+        }
+        private int? _setupRightTemperature;
+
         #endregion
 
         #region Fields
