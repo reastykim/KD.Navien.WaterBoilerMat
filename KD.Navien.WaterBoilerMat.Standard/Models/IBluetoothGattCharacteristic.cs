@@ -18,6 +18,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
 		Task<bool> WriteValueAsync(byte[] data);
 
+        Task<byte[]> ReadValueAsync();
+
         event EventHandler<byte[]> ValueChanged;
 	}
 }

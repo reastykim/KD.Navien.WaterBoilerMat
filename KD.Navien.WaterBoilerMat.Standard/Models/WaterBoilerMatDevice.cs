@@ -151,7 +151,6 @@ namespace KD.Navien.WaterBoilerMat.Models
                     _isReady = false;
                     _uniqueID = null;
                     _response = null;
-                    BoilerGattCharacteristic2.ValueChanged -= BoilerGattCharacteristic2_ValueChanged;
                     BoilerGattCharacteristic1.ValueChanged -= BoilerGattCharacteristic1_ValueChanged;
 
                     Disconnect();
@@ -183,15 +182,43 @@ namespace KD.Navien.WaterBoilerMat.Models
 		{
             if (BoilerGattCharacteristic1 != null && BoilerGattCharacteristic2 != null && _isReady == false)
             {
-                _isReady = true;
+                try
+                {
+                    _isReady = true;
 
-                BoilerGattCharacteristic1.ValueChanged += BoilerGattCharacteristic1_ValueChanged;
-                await BoilerGattCharacteristic1.SetNotifyAsync(true);
+                    await RequestMacRegisterAsync(_uniqueID);
+                    var value = await BoilerGattCharacteristic2.ReadValueAsync();
+                    KDResponse response = new KDResponse();
+                    if (response.SetValue(value))
+                    {// Connect & MAC_REGISTER Success.
+                        _logger.Log($"RECV KDResponse.\t{response.Data}", Category.Info, Priority.High);
 
-                BoilerGattCharacteristic2.ValueChanged += BoilerGattCharacteristic2_ValueChanged;
-                await BoilerGattCharacteristic2.SetNotifyAsync(true);
+                        if (String.IsNullOrWhiteSpace(response.Data.UniqueID) != true)
+                        {
+                            _uniqueID = response.Data.UniqueID;
+                        }
+                        _logger.Log($"Set UniqueID = [{_uniqueID}]", Category.Info, Priority.High);
 
-                await RequestMacRegisterAsync(_uniqueID);
+                        BoilerGattCharacteristic1.ValueChanged += BoilerGattCharacteristic1_ValueChanged;
+                        await BoilerGattCharacteristic1.SetNotifyAsync(true);
+
+                        // Write a dummy packet. This is the end of connecting step.
+                        await BoilerGattCharacteristic1.WriteValueAsync(new byte[0]);
+                        _logger.Log($"SEND KDRequest. \t[0]", Category.Info, Priority.High);
+                    }
+                    else
+                    {
+                        _logger.Log($"Connect fail. Raw=[{response.Data.DEBUGCode}]", Category.Debug, Priority.High);
+                        throw new ApplicationException($"KDResponse.SetValue() fail.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.Log($"RaiseServicesUpdated. Exception=[{e.Message}]", Category.Exception, Priority.High);
+
+                    _isReady = false;
+                    _connectTcs.TrySetException(e);
+                }
             }
         }
 
@@ -207,46 +234,10 @@ namespace KD.Navien.WaterBoilerMat.Models
                     _logger.Log($"RECV KDResponse. {response.Data}", Category.Info, Priority.High);
                     _response = response;
                     
-
                     // Update
                     UpdateDeviceStatus(response.Data);
 
                     _connectTcs.TrySetResult(_uniqueID);
-                }
-                else
-                {
-                    _logger.Log($"Connect fail. Raw=[{response.Data.DEBUGCode}]", Category.Debug, Priority.High);
-                    throw new ApplicationException($"KDResponse.SetValue() fail.");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.Log($"BoilerGattCharacteristic2_ValueChanged. Exception=[{ex.Message}], Response = [{dataValue}]", Category.Exception, Priority.High);
-
-                _connectTcs.TrySetException(ex);
-            }
-        }
-
-        private async void BoilerGattCharacteristic2_ValueChanged(object sender, byte[] value)
-        {
-            var dataValue = value.ToString("X02");
-
-            try
-            {
-                KDResponse response = new KDResponse();
-                if (response.SetValue(value))
-                {// Connect & MAC_REGISTER Success.
-                    _logger.Log($"RECV KDResponse.\t{response.Data}", Category.Info, Priority.High);
-
-                    if (String.IsNullOrWhiteSpace(response.Data.UniqueID) != true)
-                    {
-                        _uniqueID = response.Data.UniqueID;
-                    }
-                    _logger.Log($"Set UniqueID = [{_uniqueID}]", Category.Info, Priority.High);
-
-                    // Write a dummy packet. This is the end of connecting step.
-                    await BoilerGattCharacteristic1.WriteValueAsync(new byte[0]);
-                    _logger.Log($"SEND KDRequest. \t[0]", Category.Info, Priority.High);
                 }
                 else
                 {

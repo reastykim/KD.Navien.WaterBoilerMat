@@ -78,5 +78,18 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 		{
 			return gattCharacteristics.WriteValueAsync(data);
 		}
+
+        public async Task<byte[]> ReadValueAsync()
+        {
+            var result = await gattCharacteristics.Characteristic.ReadValueAsync();
+            if (result.Status == GattCommunicationStatus.Success)
+            {
+                return result.Value.ToBytes();
+            }
+            else
+            {
+                throw new Exception($"ReadValueAsync Exception=[{result.Status}]");
+            }
+        }
 	}
 }

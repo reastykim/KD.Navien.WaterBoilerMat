@@ -125,8 +125,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 TemperatureInfo = new TemperatureInfo(data.MaxTemperatureHighLow);
                 CurrentLeftTemperature = data.TemperatureReturnLeft;
                 CurrentRightTemperature = data.TemperatureReturnRight;
-                SetupLeftTemperature = SetupLeftTemperature ?? data.TemperatureSettingLeft;
-                SetupRightTemperature = SetupRightTemperature ?? data.TemperatureSettingRight;
+                SetupLeftTemperature = data.TemperatureSettingLeft;
+                SetupRightTemperature = data.TemperatureSettingRight;
             });
         }
 
