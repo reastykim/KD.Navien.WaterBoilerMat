@@ -127,7 +127,7 @@
                                 IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
                                 Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
                                 Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
-                                Value="{Binding Device.SetupLeftTemperature, Mode=TwoWay}"/>
+                                Value="{Binding SetupLeftTemperature, Mode=TwoWay}"/>
 
                         <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 
@@ -150,7 +150,7 @@
                                 IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
                                 Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
                                 Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
-                                Value="{Binding Device.SetupRightTemperature, Mode=TwoWay}"/>
+                                Value="{Binding SetupRightTemperature, Mode=TwoWay}"/>
 
                         <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 

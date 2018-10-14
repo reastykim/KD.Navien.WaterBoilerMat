@@ -101,19 +101,19 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private int _currentRightTemperature;
 
-        public int? SetupLeftTemperature
+        public int SetupLeftTemperature
         {
             get => _setupLeftTemperature;
             set => SetProperty(ref _setupLeftTemperature, value);
         }
-        private int? _setupLeftTemperature;
+        private int _setupLeftTemperature;
 
-        public int? SetupRightTemperature
+        public int SetupRightTemperature
         {
             get => _setupRightTemperature;
             set => SetProperty(ref _setupRightTemperature, value);
         }
-        private int? _setupRightTemperature;
+        private int _setupRightTemperature;
 
         #endregion
 

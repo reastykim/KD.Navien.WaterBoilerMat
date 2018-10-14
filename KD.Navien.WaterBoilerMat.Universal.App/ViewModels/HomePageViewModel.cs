@@ -28,6 +28,20 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         }
         private IWaterBoilerMatDevice _device;
 
+        public int SetupLeftTemperature
+        {
+            get => _setupLeftTemperature;
+            set => SetProperty(ref _setupLeftTemperature, value);
+        }
+        private int _setupLeftTemperature;
+
+        public int SetupRightTemperature
+        {
+            get => _setupRightTemperature;
+            set => SetProperty(ref _setupRightTemperature, value);
+        }
+        private int _setupRightTemperature;
+
         #endregion
 
         #region Commands
@@ -145,6 +159,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             if (e.Parameter is IWaterBoilerMatDevice device)
             {
                 _device = device;
+                SetupLeftTemperature = _device.SetupLeftTemperature;
+                SetupRightTemperature = _device.SetupRightTemperature;
             }
         }
 

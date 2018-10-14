@@ -25,8 +25,8 @@ namespace KD.Navien.WaterBoilerMat.Models
         int CurrentLeftTemperature { get; }
         int CurrentRightTemperature { get; }
 
-        int? SetupLeftTemperature { get; set; }
-        int? SetupRightTemperature { get; set; }
+        int SetupLeftTemperature { get; set; }
+        int SetupRightTemperature { get; set; }
 
         Task<string> ConnectAsync(string uniqueID);
         void Disconnect();
