@@ -134,7 +134,7 @@
                                                           Text="{Binding Device.CurrentLeftTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º'}" 
                                                           Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도"
-                                                          Text="{Binding Device.SetupLeftTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º'}" 
+                                                          Text="{Binding SetupLeftTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º'}" 
                                                           Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" Text="가능" Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
                         </StackPanel>
@@ -157,7 +157,7 @@
                                                           Text="{Binding Device.CurrentRightTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º'}" 
                                                           Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도" 
-                                                          Text="{Binding Device.SetupRightTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º'}" 
+                                                          Text="{Binding SetupRightTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º'}" 
                                                           Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" Text="가능" Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
                         </StackPanel>
@@ -166,8 +166,9 @@
                     <Grid Grid.Column="1" Width="100" Margin="10"/>
                 </Grid>
 
-				<Button Grid.Row="2" Margin="20" HorizontalAlignment="Center" 
-						Content="저장"/>
+				<Button Grid.Row="2" Width="200" Margin="20" HorizontalAlignment="Center" 
+						Content="저장"
+                        Command="{Binding SetTemperatureCommand}"/>
 			</Grid>
 		</Grid>
 	</Grid>

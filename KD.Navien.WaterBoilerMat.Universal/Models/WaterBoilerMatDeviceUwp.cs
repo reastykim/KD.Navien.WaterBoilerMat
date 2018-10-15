@@ -117,11 +117,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
         {
             await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
             {
-                IsPowerOn = Convert.ToBoolean(data.Power);
-                IsLock = Convert.ToBoolean(data.KeyLock);
-                IsLeftPartsPowerOn = (data.Status == 2 || data.Status == 3);
-                IsRightPartsPowerOn = (data.Status == 2 || data.Status == 4);
-
                 TemperatureInfo = new TemperatureInfo(data.MaxTemperatureHighLow);
 
                 CurrentLeftTemperature = data.TemperatureReturnLeft;
@@ -129,6 +124,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
                 SetupLeftTemperature = data.TemperatureSettingLeft;
                 SetupRightTemperature = data.TemperatureSettingRight;
+
+                IsLeftPartsPowerOn = (data.Status == 2 || data.Status == 3);
+                IsRightPartsPowerOn = (data.Status == 2 || data.Status == 4);
+
+                IsLock = Convert.ToBoolean(data.KeyLock);
+                IsPowerOn = Convert.ToBoolean(data.Power);
             });
         }
 

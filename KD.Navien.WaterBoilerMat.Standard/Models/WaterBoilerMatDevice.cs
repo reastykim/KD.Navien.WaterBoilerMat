@@ -501,6 +501,47 @@ namespace KD.Navien.WaterBoilerMat.Models
             }
         }
 
+        public async Task RequestSetupTemperatureChangeAsync(int leftTemperature, int rightTemperature)
+        {
+            if (_response == null)
+                return;
+
+            if (_response.Data.Mode == 4)
+            {
+                //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_cleanmode_fail), 0).show();
+                return;
+            }
+            if (_response.Data.Mode == 7)
+            {
+                //Toast.makeText(MainFragment.this.getActivity(), MainFragment.this.getResources().getString(R.string.message_wateroutmode_fail), 0).show();
+                return;
+            }
+
+            KDRequest request = new KDRequest();
+            request.Data = _response.Data;
+            request.Data.MessageType = KDMessageType.STATUS_CHANGE;
+            request.Data.TemperatureSupplySetting = _response.Data.MattType == 1 ? leftTemperature : _response.Data.TemperatureSupplySetting;
+            
+            if (_response.Data.Status == 4)
+            {
+                leftTemperature = 0;
+            }
+            request.Data.TemperatureSettingLeft = leftTemperature;
+
+            if (_response.Data.Status == 3)
+            {
+                rightTemperature = 0;
+            }
+            request.Data.TemperatureSettingRight = rightTemperature;
+            request.Data.SleepStartButtonEnable = 0;
+            request.Data.SleepStopButtonEnable = 1;
+
+            var requestDataValue = request.GetValue();
+            byte[] bytes = requestDataValue.HexStringToByteArray();
+            await BoilerGattCharacteristic1.WriteValueAsync(bytes);
+            _logger.Log($"SEND KDRequest. \t{request.Data}", Category.Info, Priority.High);
+        }
+
         #endregion
 
         #region Static Methods

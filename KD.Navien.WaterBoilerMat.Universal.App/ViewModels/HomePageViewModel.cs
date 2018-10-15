@@ -140,6 +140,33 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             }
         }
 
+        public DelegateCommand SetTemperatureCommand
+        {
+            get
+            {
+                return _setTemperatureCommand ?? (_setTemperatureCommand = new DelegateCommand(ExecuteSetTemperature).ObservesCanExecute(() => Device.IsPowerOn));
+            }
+        }
+        private DelegateCommand _setTemperatureCommand;
+        private async void ExecuteSetTemperature()
+        {
+            try
+            {
+                await _device.RequestSetupTemperatureChangeAsync(SetupLeftTemperature, SetupRightTemperature);
+
+                Logger.Log($"SetupLeftTemperature=[{Device.SetupLeftTemperature}], SetupRightTemperature=[{Device.SetupRightTemperature}]", Category.Info, Priority.None);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"SetTemperatureCommand execute fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+
+                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                {
+                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice SetTemperature command execute fail.", "Error");
+                });
+            }
+        }
+
         #endregion
 
         #region Fields
@@ -158,15 +185,28 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             if (e.Parameter is IWaterBoilerMatDevice device)
             {
-                _device = device;
-                SetupLeftTemperature = _device.SetupLeftTemperature;
-                SetupRightTemperature = _device.SetupRightTemperature;
+                Device = device;
+                SetupLeftTemperature = Device.SetupLeftTemperature;
+                SetupRightTemperature = Device.SetupRightTemperature;
+
+                Device.PropertyChanged += OnDevice_PropertyChanged;
             }
         }
 
         public void OnNavigatedFrom(NavigationEventArgs e)
         {
+            Device.PropertyChanged -= OnDevice_PropertyChanged;
+        }
 
+        private void OnDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(Device.IsPowerOn):
+                    SetupLeftTemperature = Device.SetupLeftTemperature;
+                    SetupRightTemperature = Device.SetupRightTemperature;
+                    break;
+            }
         }
     }
 }

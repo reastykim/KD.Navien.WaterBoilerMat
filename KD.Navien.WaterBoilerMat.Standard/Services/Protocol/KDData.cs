@@ -45,7 +45,9 @@ namespace KD.Navien.WaterBoilerMat.Services.Protocol
 
         public override string ToString()
         {
-            return $"KD.Navien.WaterBoilerMat.Services.Protocol.KDData, MessageType=[{MessageType}], Mode=[{Mode}], Status=[{Status}], DEBUGCode=[{DEBUGCode}]";
+            return $"KD.Navien.WaterBoilerMat.Services.Protocol.KDData, MessageType=[{MessageType}], Mode=[{Mode}], Status=[{Status}], " +
+                $"TemperatureSettingLeft=[{TemperatureSettingLeft}], TemperatureSettingRight=[{TemperatureSettingRight}], " +
+                $"DEBUGCode=[{DEBUGCode}]";
         }
 
         public class KDMessageType

@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public interface IWaterBoilerMatDevice : IDisposable
+    public interface IWaterBoilerMatDevice : INotifyPropertyChanged, IDisposable
     {
         IBluetoothGattService BoilerGattService { get; }
 
@@ -37,5 +38,7 @@ namespace KD.Navien.WaterBoilerMat.Models
         Task RequestLeftPartsPowerOnOffAsync();
 
         Task RequestRightPartsPowerOnOffAsync();
+
+        Task RequestSetupTemperatureChangeAsync(int leftTemperature, int rightTemperature);
     }
 }
