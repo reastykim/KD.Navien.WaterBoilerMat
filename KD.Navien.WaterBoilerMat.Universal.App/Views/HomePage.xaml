@@ -7,15 +7,17 @@
 							   xmlns:prismMvvm="using:Prism.Windows.Mvvm"
 							   xmlns:controls="using:KD.Navien.WaterBoilerMat.Universal.App.Controls"
                                xmlns:tkcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-							   xmlns:converters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+							   xmlns:tkconverters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+                               xmlns:converters="using:KD.Navien.WaterBoilerMat.Universal.Converters"
 							   xmlns:uviews="using:KD.Navien.WaterBoilerMat.Universal.Views"
 							   mc:Ignorable="d"
 							   prismMvvm:ViewModelLocator.AutoWireViewModel="True"
 							   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
 	<uviews:NavigationViewItemPage.Resources>
-		<converters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
-        <converters:StringFormatConverter x:Key="StringFormatConverter" />
+        <tkconverters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
+        <tkconverters:StringFormatConverter x:Key="StringFormatConverter" />
+        <converters:VolumeLevelToVolumeFontIconConverter x:Key="VolumeLevelToVolumeFontIconConverter"/>
         <Style x:Key="LeftAlignmentTextBlockStyle" TargetType="TextBlock">
             <Style.Setters>
                 <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -169,7 +171,23 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid Grid.Column="1" Width="100" Margin="10"/>
+                    <Grid Grid.Column="1" Width="100" Margin="10">
+                        <StackPanel HorizontalAlignment="Center">
+                            <tkcontrols:HeaderedContentControl Header="물용량" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
+                                
+                            </tkcontrols:HeaderedContentControl>
+                            <tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
+                                <FontIcon Margin="5" FontSize="32"
+                                          Glyph="&#xE823;"/>
+                            </tkcontrols:HeaderedContentControl>
+                            <tkcontrols:HeaderedContentControl Header="음량" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
+                                <FontIcon Margin="5" FontSize="32"
+                                          Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}"/>
+                            </tkcontrols:HeaderedContentControl>
+                                                  
+                            
+                        </StackPanel>
+                    </Grid>
                 </Grid>
 
 				<Button Grid.Row="2" Width="200" Margin="20" HorizontalAlignment="Center" 

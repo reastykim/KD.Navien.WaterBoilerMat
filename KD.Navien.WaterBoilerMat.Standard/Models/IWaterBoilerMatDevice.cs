@@ -17,6 +17,8 @@ namespace KD.Navien.WaterBoilerMat.Models
         bool IsPowerOn { get; }
         bool IsLock { get; }
 
+        int VolumeLevel { get; }
+
         bool IsLeftPartsPowerOn { get; }
 
         bool IsRightPartsPowerOn { get; }
@@ -26,8 +28,8 @@ namespace KD.Navien.WaterBoilerMat.Models
         int CurrentLeftTemperature { get; }
         int CurrentRightTemperature { get; }
 
-        int SetupLeftTemperature { get; set; }
-        int SetupRightTemperature { get; set; }
+        int SetupLeftTemperature { get; }
+        int SetupRightTemperature { get; }
 
         Task<string> ConnectAsync(string uniqueID);
         void Disconnect();

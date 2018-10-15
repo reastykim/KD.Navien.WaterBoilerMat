@@ -65,6 +65,13 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private bool _isLock;
 
+        public int VolumeLevel
+        {
+            get => _volumeLevel;
+            protected set => SetProperty(ref _volumeLevel, value);
+        }
+        private int _volumeLevel;
+
         public bool IsLeftPartsPowerOn
         {
             get => _isLeftPartsPowerOn;
@@ -104,14 +111,14 @@ namespace KD.Navien.WaterBoilerMat.Models
         public int SetupLeftTemperature
         {
             get => _setupLeftTemperature;
-            set => SetProperty(ref _setupLeftTemperature, value);
+            protected set => SetProperty(ref _setupLeftTemperature, value);
         }
         private int _setupLeftTemperature;
 
         public int SetupRightTemperature
         {
             get => _setupRightTemperature;
-            set => SetProperty(ref _setupRightTemperature, value);
+            protected set => SetProperty(ref _setupRightTemperature, value);
         }
         private int _setupRightTemperature;
 

@@ -110,6 +110,7 @@
     <Compile Include="Behaviors\NavigationViewHelper.cs" />
     <Compile Include="Common\DeviceFamilyTrigger.cs" />
     <Compile Include="Common\INavigationViewItemPageAware.cs" />
+    <Compile Include="Converters\VolumeLevelToVolumeFontIconConverter.cs" />
     <Compile Include="Converters\ItemClickEventArgsConverter.cs" />
     <Compile Include="Extensions\BluetoothExtensions.cs" />
     <Compile Include="Extensions\DataExtensions.cs" />
