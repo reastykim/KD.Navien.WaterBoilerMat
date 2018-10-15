@@ -31,16 +31,35 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         public int SetupLeftTemperature
         {
             get => _setupLeftTemperature;
-            set => SetProperty(ref _setupLeftTemperature, value);
+            set
+            {
+                if (SetProperty(ref _setupLeftTemperature, value) && SetChangeAllTemperatures)
+                {
+                    SetupRightTemperature = value;
+                }
+            }
         }
         private int _setupLeftTemperature;
 
         public int SetupRightTemperature
         {
             get => _setupRightTemperature;
-            set => SetProperty(ref _setupRightTemperature, value);
+            set
+            {
+                if (SetProperty(ref _setupRightTemperature, value) && SetChangeAllTemperatures)
+                {
+                    SetupLeftTemperature = value;
+                }
+            }
         }
         private int _setupRightTemperature;
+
+        public bool SetChangeAllTemperatures
+        {
+            get => _setChangeAllTemperatures;
+            set => SetProperty(ref _setChangeAllTemperatures, value);
+        }
+        private bool _setChangeAllTemperatures;
 
         #endregion
 
