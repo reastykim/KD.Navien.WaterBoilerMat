@@ -34,7 +34,7 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0" Text="NAVIEN MATE" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" 
+		<TextBlock Grid.Row="0" Text="{StaticResource AppName}" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" 
 				   Style="{StaticResource HeaderTextBlockStyle}"/>
 
 		<Grid Grid.Row="1">

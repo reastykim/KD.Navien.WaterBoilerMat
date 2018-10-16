@@ -7,9 +7,18 @@
 
 	<prismUnity:PrismUnityApplication.Resources>
 		<ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Styles/_Colors.xaml"/>
+                <ResourceDictionary Source="/Styles/_FontSizes.xaml"/>
+                <ResourceDictionary Source="/Styles/_Thickness.xaml"/>
+
+                <ResourceDictionary Source="/Styles/TextBlock.xaml"/>
+                <ResourceDictionary Source="/Styles/Page.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            
 			<x:Double x:Key="Breakpoint640Plus">641</x:Double>
 			<x:String x:Key="AppName">NAVIEN MATE</x:String>
 			<x:Double x:Key="TitleBarFontSize">42</x:Double>
 		</ResourceDictionary>
-	</prismUnity:PrismUnityApplication.Resources>
+    </prismUnity:PrismUnityApplication.Resources>
 </prismUnity:PrismUnityApplication>

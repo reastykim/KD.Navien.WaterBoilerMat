@@ -5,18 +5,14 @@
 	  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 	  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	  xmlns:prismMvvm="using:Prism.Windows.Mvvm"
-	  xmlns:behaviors="using:KD.Navien.WaterBoilerMat.Universal.Behaviors"
-	  xmlns:models="using:KD.Navien.WaterBoilerMat.Universal.Models"
-	  xmlns:views="using:KD.Navien.WaterBoilerMat.Universal.App.Views"
 	  mc:Ignorable="d"
 	  xmlns:i="using:Microsoft.Xaml.Interactivity"
 	  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-	  xmlns:tkconverters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+      xmlns:behaviors="using:KD.Navien.WaterBoilerMat.Universal.App.Behaviors"
+      xmlns:views="using:KD.Navien.WaterBoilerMat.Universal.App.Views"
+      xmlns:controls="using:KD.Navien.WaterBoilerMat.Universal.App.Controls"
 	  prismMvvm:ViewModelLocator.AutoWireViewModel="True"
 	  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-	<Page.Resources>
-		<tkconverters:StringFormatConverter x:Key="StringFormatConverter"/>
-	</Page.Resources>
 
 	<i:Interaction.Behaviors>
 		<core:EventTriggerBehavior EventName="Loaded">
@@ -24,30 +20,49 @@
 		</core:EventTriggerBehavior>
 	</i:Interaction.Behaviors>
 
-	<NavigationView x:Name="nav" Header=" " AlwaysShowHeader="False" 
-					MenuItemsSource="{Binding NavigationViewItemDataCollection}"
-					SelectedItem="{Binding SelectedNavigationViewItemData}">
-		<i:Interaction.Behaviors>
-			<behaviors:NavigationViewHelper Frame="{Binding ElementName=contentFrame}"
-											SettingsPageType="views:SettingsPage"/>
-		</i:Interaction.Behaviors>
+    <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
+        <!--<TextBlock Grid.Row="0" Text="" Style="{StaticResource PageTitleStyle}" />-->
 
-		<NavigationView.MenuItemTemplate>
-			<DataTemplate x:DataType="models:NavigationViewItemData">
-				<Grid Height="40" Margin="-16,0,0,0" HorizontalAlignment="Left">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="48" />
-						<ColumnDefinition Width="*" />
-					</Grid.ColumnDefinitions>
-					<Viewbox Grid.Column="0" Margin="16,12">
-						<FontIcon FontFamily="Segoe MDL2 Assets" Glyph="{Binding TextIcon}"
-								  ToolTipService.ToolTip="{Binding Name}"/>
-					</Viewbox>
-					<ContentPresenter Grid.Column="1" Content="{Binding Name}" VerticalAlignment="Center"/>
-				</Grid>
-			</DataTemplate>
-		</NavigationView.MenuItemTemplate>
+        <Pivot Grid.Row="1" Title="{StaticResource AppName}">
+            <i:Interaction.Behaviors>
+                <behaviors:PivotNavigationBehavior NavigationParameter="{Binding Device}"/>
+            </i:Interaction.Behaviors>
 
-		<Frame x:Name="contentFrame" />
-	</NavigationView>
+            <Pivot.RightHeader>
+                <CommandBar x:Name="topCommandBar" Background="Transparent" Margin="0,0,12,0"
+							DefaultLabelPosition="Right" OverflowButtonVisibility="Collapsed">
+                    <AppBarToggleButton Label="UnLock" Command="{Binding LockCommand}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon x:Name="LockIcon" Glyph="&#xE785;"/>
+                            <!--<FontIcon x:Name="LockIcon" Glyph="&#xE72E;" Margin="0,-2,0,0"/>-->
+
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
+                    <AppBarToggleButton Label="Power" Command="{Binding PowerCommand}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;"/>
+                        </AppBarToggleButton.Icon>
+                    </AppBarToggleButton>
+                </CommandBar>
+            </Pivot.RightHeader>
+
+            <PivotItem Header="{Binding Path=DataContext.Title, ElementName=homePage}">
+                <Frame>
+                    <views:HomePage x:Name="homePage" />
+                </Frame>
+            </PivotItem>
+
+            <PivotItem Header="{Binding Path=DataContext.Title, ElementName=sleepPage}">
+                <Frame>
+                    <views:SleepPage x:Name="sleepPage" />
+                </Frame>
+            </PivotItem>
+
+            <PivotItem Header="{Binding Path=DataContext.Title, ElementName=helpPage}">
+                <Frame>
+                    <views:HelpPage x:Name="helpPage" />
+                </Frame>
+            </PivotItem>
+        </Pivot>
+    </Grid>
 </Page>

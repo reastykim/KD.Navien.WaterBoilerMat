@@ -51,6 +51,13 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         }
         private NavigationViewItemData _selectedNavigationViewItemData;
 
+        public WaterBoilerMatDevice Device
+        {
+            get => _device;
+            private set => SetProperty(ref _device, value);
+        }
+        private WaterBoilerMatDevice _device;
+
         #endregion
 
         #region Commands
@@ -58,6 +65,50 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         protected override void ExecuteLoaded()
         {
             SelectedNavigationViewItemData = NavigationViewItemDataCollection.Single(I => I.TargetPageType == typeof(HomePage));
+        }
+
+        public DelegateCommand PowerCommand
+        {
+            get { return _powerCommand ?? (_powerCommand = new DelegateCommand(ExecutePower)); }
+        }
+        private DelegateCommand _powerCommand;
+        private async void ExecutePower()
+        {
+            try
+            {
+                await Device.RequestPowerOnOffAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"PowerCommand execute fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+
+                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                {
+                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice Power command execute fail.", "Error");
+                });
+            }
+        }
+
+        public DelegateCommand LockCommand
+        {
+            get { return _lockCommand ?? (_lockCommand = new DelegateCommand(ExecuteLock)); }
+        }
+        private DelegateCommand _lockCommand;
+        private async void ExecuteLock()
+        {
+            try
+            {
+                await Device.RequestLockOnOffAsync();
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"PowerCommand execute fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+
+                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                {
+                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice Power command execute fail.", "Error");
+                });
+            }
         }
 
         public DelegateCommand DebugCommand
@@ -76,8 +127,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         private readonly IAlertMessageService _alertMessageService;
 
-        private WaterBoilerMatDevice _connectedDevice;
-
         #endregion
 
         #region Constructors & Initialize
@@ -86,6 +135,13 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             : base(navigationService, logger)
         {
             _alertMessageService = alertMessageService;
+
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+            Title = "Home";
         }
 
         #endregion
@@ -96,21 +152,16 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             if (e.Parameter is WaterBoilerMatDevice connectedDevice)
             {
-                _connectedDevice = connectedDevice;
-
-                foreach (var itemData in NavigationViewItemDataCollection)
-                {
-                    itemData.Tag = _connectedDevice;
-                }
+                Device = connectedDevice;
             }
         }
 
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
-            if (_connectedDevice.IsConnected == true)
+            if (Device?.IsConnected == true)
             {
-                _connectedDevice.Disconnect();
-                _connectedDevice.Dispose();
+                Device.Disconnect();
+                Device.Dispose();
             }
         }
 

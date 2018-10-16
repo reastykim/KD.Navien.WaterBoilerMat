@@ -107,17 +107,17 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Behaviors\NavigationViewHelper.cs" />
     <Compile Include="Behaviors\HideParentFlyoutAction.cs" />
+    <Compile Include="Behaviors\PivotBehavior.cs" />
     <Compile Include="Behaviors\ShowAttachedFlyoutAction.cs" />
     <Compile Include="Common\DeviceFamilyTrigger.cs" />
-    <Compile Include="Common\INavigationViewItemPageAware.cs" />
     <Compile Include="Converters\DebugConverter.cs" />
     <Compile Include="Converters\VolumeLevelToVolumeFontIconConverter.cs" />
     <Compile Include="Converters\ItemClickEventArgsConverter.cs" />
     <Compile Include="Converters\WaterCapacityToFontIconConverter.cs" />
     <Compile Include="Extensions\BluetoothExtensions.cs" />
     <Compile Include="Extensions\DataExtensions.cs" />
+    <Compile Include="Extensions\PivotItemExtensions.cs" />
     <Compile Include="Models\BluetoothGattCharacteristicUwp.cs" />
     <Compile Include="Models\BluetoothGattServiceUwp.cs" />
     <Compile Include="Models\NavigationViewItemData.cs" />
@@ -127,7 +127,7 @@
     <Compile Include="Services\AlertMessageService.cs" />
     <Compile Include="Services\BluetoothLEService.cs" />
     <Compile Include="Services\IAlertMessageService.cs" />
-    <Compile Include="Views\NavigationViewItemPage.cs" />
+    <Compile Include="Views\IPivotPage.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
