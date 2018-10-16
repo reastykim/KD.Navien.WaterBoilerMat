@@ -155,7 +155,8 @@
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="&#xE823;"/>
                             </tkcontrols:HeaderedContentControl>
-                            <tkcontrols:HeaderedContentControl Header="음량" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
+                            <tkcontrols:HeaderedContentControl Header="음량" HorizontalAlignment="Center" HorizontalContentAlignment="Center"
+															   IsEnabled="{Binding Device.IsPowerOn}">
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}">
                                     <FlyoutBase.AttachedFlyout>
