@@ -65,12 +65,12 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private bool _isLock;
 
-        public int VolumeLevel
+        public VolumeLevels VolumeLevel
         {
             get => _volumeLevel;
             protected set => SetProperty(ref _volumeLevel, value);
         }
-        private int _volumeLevel;
+        private VolumeLevels _volumeLevel;
 
         public bool IsLeftPartsPowerOn
         {
@@ -540,6 +540,42 @@ namespace KD.Navien.WaterBoilerMat.Models
                 rightTemperature = 0;
             }
             request.Data.TemperatureSettingRight = rightTemperature;
+            request.Data.SleepStartButtonEnable = 0;
+            request.Data.SleepStopButtonEnable = 1;
+
+            var requestDataValue = request.GetValue();
+            byte[] bytes = requestDataValue.HexStringToByteArray();
+            await BoilerGattCharacteristic1.WriteValueAsync(bytes);
+            _logger.Log($"SEND KDRequest. \t{request.Data}", Category.Info, Priority.High);
+        }
+
+        public async Task RequestVolumeChangeAsync(VolumeLevels value)
+        {
+            if (_response == null)
+                return;
+
+            KDRequest request = new KDRequest();
+            request.Data = _response.Data;
+            request.Data.MessageType = KDMessageType.STATUS_CHANGE;
+            request.Data.Volume = (int)value;
+
+            if (_response.Data.Status == 4)
+            {
+                request.Data.TemperatureSettingLeft = 0;
+            }
+
+            if (_response.Data.Status == 3)
+            {
+                request.Data.TemperatureSettingRight = 0;
+            }
+
+            if (_response.Data.Mode == 3)
+            {
+                //request.Data.SleepSupplySettingTime = _response.Data.SleepSupplySettingTime;
+                //request.Data.SleepLeftSettingTime = _response.Data.SleepLeftSettingTime;
+                //request.Data.SleepRightSettingTime = _response.Data.SleepRightSettingTime;
+                //request.Data.SleepStartButtonEnable = _response.Data.SleepStartButtonEnable;
+            }
             request.Data.SleepStartButtonEnable = 0;
             request.Data.SleepStopButtonEnable = 1;
 

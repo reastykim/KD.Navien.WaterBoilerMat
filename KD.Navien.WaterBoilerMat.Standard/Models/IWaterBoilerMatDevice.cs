@@ -17,7 +17,7 @@ namespace KD.Navien.WaterBoilerMat.Models
         bool IsPowerOn { get; }
         bool IsLock { get; }
 
-        int VolumeLevel { get; }
+        VolumeLevels VolumeLevel { get; }
 
         bool IsLeftPartsPowerOn { get; }
 
@@ -42,5 +42,7 @@ namespace KD.Navien.WaterBoilerMat.Models
         Task RequestRightPartsPowerOnOffAsync();
 
         Task RequestSetupTemperatureChangeAsync(int leftTemperature, int rightTemperature);
+
+        Task RequestVolumeChangeAsync(VolumeLevels value);
     }
 }

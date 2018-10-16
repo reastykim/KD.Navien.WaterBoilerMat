@@ -8,8 +8,12 @@
 							   xmlns:controls="using:KD.Navien.WaterBoilerMat.Universal.App.Controls"
                                xmlns:tkcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
 							   xmlns:tkconverters="using:Microsoft.Toolkit.Uwp.UI.Converters"
-                               xmlns:converters="using:KD.Navien.WaterBoilerMat.Universal.Converters"
+                               xmlns:uconverters="using:KD.Navien.WaterBoilerMat.Universal.Converters"
 							   xmlns:uviews="using:KD.Navien.WaterBoilerMat.Universal.Views"
+                               xmlns:models="using:KD.Navien.WaterBoilerMat.Models"
+                               xmlns:i="using:Microsoft.Xaml.Interactivity"
+                               xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+                               xmlns:ubehaviors="using:KD.Navien.WaterBoilerMat.Universal.Behaviors"
 							   mc:Ignorable="d"
 							   prismMvvm:ViewModelLocator.AutoWireViewModel="True"
 							   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -17,7 +21,8 @@
 	<uviews:NavigationViewItemPage.Resources>
         <tkconverters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <tkconverters:StringFormatConverter x:Key="StringFormatConverter" />
-        <converters:VolumeLevelToVolumeFontIconConverter x:Key="VolumeLevelToVolumeFontIconConverter"/>
+        <uconverters:VolumeLevelToVolumeFontIconConverter x:Key="VolumeLevelToVolumeFontIconConverter"/>
+        <uconverters:DebugConverter x:Key="DebugConverter"/>
         <Style x:Key="LeftAlignmentTextBlockStyle" TargetType="TextBlock">
             <Style.Setters>
                 <Setter Property="HorizontalAlignment" Value="Left"/>
@@ -182,10 +187,38 @@
                             </tkcontrols:HeaderedContentControl>
                             <tkcontrols:HeaderedContentControl Header="음량" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
                                 <FontIcon Margin="5" FontSize="32"
-                                          Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}"/>
+                                          Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}">
+                                    <FlyoutBase.AttachedFlyout>
+                                        <Flyout Placement="Bottom">
+                                            <ListBox x:Name="volumeLevelsListBox" ItemsSource="{Binding VolumeLevels}" 
+                                                      SelectedItem="{Binding SelectedVolumeLevel, Mode=TwoWay}">
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding ElementName=volumeLevelsListBox}">
+                                                        <ubehaviors:HideParentFlyoutAction />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+
+                                                <ListBox.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <StackPanel Orientation="Horizontal"/>
+                                                    </ItemsPanelTemplate>
+                                                </ListBox.ItemsPanel>
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <FontIcon Margin="2" FontSize="20" Glyph="{Binding Converter={StaticResource VolumeLevelToVolumeFontIconConverter}}"/>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                        </Flyout>
+                                    </FlyoutBase.AttachedFlyout>
+                                    
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <ubehaviors:ShowAttachedFlyoutAction />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </FontIcon>
                             </tkcontrols:HeaderedContentControl>
-                                                  
-                            
                         </StackPanel>
                     </Grid>
                 </Grid>

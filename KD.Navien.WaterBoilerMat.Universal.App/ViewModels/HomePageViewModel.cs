@@ -61,6 +61,21 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         }
         private bool _setChangeAllTemperatures;
 
+        public IEnumerable<VolumeLevels> VolumeLevels => Enum.GetValues(typeof(VolumeLevels)).OfType<VolumeLevels>();
+
+        public VolumeLevels SelectedVolumeLevel
+        {
+            get => _selectedVolumeLevel;
+            set
+            {
+                if (SetProperty(ref _selectedVolumeLevel, value))
+                {
+                    Device.RequestVolumeChangeAsync(value);
+                }
+            }
+        }
+        private VolumeLevels _selectedVolumeLevel;
+
         #endregion
 
         #region Commands
@@ -74,7 +89,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await _device.RequestPowerOnOffAsync();
+                await Device.RequestPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -96,7 +111,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await _device.RequestLockOnOffAsync();
+                await Device.RequestLockOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -121,7 +136,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await _device.RequestLeftPartsPowerOnOffAsync();
+                await Device.RequestLeftPartsPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -146,7 +161,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await _device.RequestRightPartsPowerOnOffAsync();
+                await Device.RequestRightPartsPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -171,7 +186,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await _device.RequestSetupTemperatureChangeAsync(SetupLeftTemperature, SetupRightTemperature);
+                await Device.RequestSetupTemperatureChangeAsync(SetupLeftTemperature, SetupRightTemperature);
 
                 Logger.Log($"SetupLeftTemperature=[{Device.SetupLeftTemperature}], SetupRightTemperature=[{Device.SetupRightTemperature}]", Category.Info, Priority.None);
             }
@@ -182,6 +197,33 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                 await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
                 {
                     await _alertMessageService.ShowAsync("WaterBoilerMatDevice SetTemperature command execute fail.", "Error");
+                });
+            }
+        }
+
+        public DelegateCommand<Object> SetVolumeLevelCommand
+        {
+            get
+            {
+                return _setVolumeLevelCommand ?? (_setVolumeLevelCommand = new DelegateCommand<Object>(ExecuteSetVolumeLevel).ObservesCanExecute(() => Device.IsPowerOn));
+            }
+        }
+        private DelegateCommand<Object> _setVolumeLevelCommand;
+        private async void ExecuteSetVolumeLevel(Object args)
+        {
+            try
+            {
+                await Device.RequestVolumeChangeAsync(SelectedVolumeLevel);
+
+                Logger.Log($"VolumeLevel=[{Device.VolumeLevel}]", Category.Info, Priority.None);
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"SetVolumeLevelCommand execute fail. Exception=[{ex.Message}]", Category.Exception, Priority.High);
+
+                await DispatcherHelper.ExecuteOnUIThreadAsync(async () =>
+                {
+                    await _alertMessageService.ShowAsync("WaterBoilerMatDevice SetVolumeLevel command execute fail.", "Error");
                 });
             }
         }
@@ -207,6 +249,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                 Device = device;
                 SetupLeftTemperature = Device.SetupLeftTemperature;
                 SetupRightTemperature = Device.SetupRightTemperature;
+                SelectedVolumeLevel = Device.VolumeLevel;
 
                 Device.PropertyChanged += OnDevice_PropertyChanged;
             }
