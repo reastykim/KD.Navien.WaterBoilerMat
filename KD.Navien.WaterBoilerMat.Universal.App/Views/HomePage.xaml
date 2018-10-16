@@ -21,6 +21,7 @@
 	<uviews:NavigationViewItemPage.Resources>
         <tkconverters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <tkconverters:StringFormatConverter x:Key="StringFormatConverter" />
+        <uconverters:WaterCapacityToFontIconConverter x:Key="WaterCapacityToFontIconConverter"/>
         <uconverters:VolumeLevelToVolumeFontIconConverter x:Key="VolumeLevelToVolumeFontIconConverter"/>
         <uconverters:DebugConverter x:Key="DebugConverter"/>
         <Style x:Key="LeftAlignmentTextBlockStyle" TargetType="TextBlock">
@@ -179,7 +180,8 @@
                     <Grid Grid.Column="1" Width="100" Margin="10">
                         <StackPanel HorizontalAlignment="Center">
                             <tkcontrols:HeaderedContentControl Header="물용량" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
-                                
+                                <FontIcon Margin="5" FontSize="32"
+                                          Glyph="{Binding Device.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F4;}"/>
                             </tkcontrols:HeaderedContentControl>
                             <tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
                                 <FontIcon Margin="5" FontSize="32"

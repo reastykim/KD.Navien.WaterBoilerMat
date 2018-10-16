@@ -65,6 +65,13 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private bool _isLock;
 
+        public WaterCapacities WaterCapacity
+        {
+            get => _waterCapacity;
+            protected set => SetProperty(ref _waterCapacity, value);
+        }
+        private WaterCapacities _waterCapacity;
+
         public VolumeLevels VolumeLevel
         {
             get => _volumeLevel;

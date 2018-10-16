@@ -17,6 +17,8 @@ namespace KD.Navien.WaterBoilerMat.Models
         bool IsPowerOn { get; }
         bool IsLock { get; }
 
+        WaterCapacities WaterCapacity { get; }
+
         VolumeLevels VolumeLevel { get; }
 
         bool IsLeftPartsPowerOn { get; }

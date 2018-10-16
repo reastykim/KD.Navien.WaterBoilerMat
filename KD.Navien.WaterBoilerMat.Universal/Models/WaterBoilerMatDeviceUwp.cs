@@ -129,7 +129,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 IsRightPartsPowerOn = (data.Status == 2 || data.Status == 4);
 
                 VolumeLevel = (VolumeLevels)data.Volume;
-
+                WaterCapacity = (WaterCapacities)data.WaterCapacity;
                 IsLock = Convert.ToBoolean(data.KeyLock);
                 IsPowerOn = Convert.ToBoolean(data.Power);
             });

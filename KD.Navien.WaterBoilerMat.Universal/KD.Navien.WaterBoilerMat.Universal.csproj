@@ -115,6 +115,7 @@
     <Compile Include="Converters\DebugConverter.cs" />
     <Compile Include="Converters\VolumeLevelToVolumeFontIconConverter.cs" />
     <Compile Include="Converters\ItemClickEventArgsConverter.cs" />
+    <Compile Include="Converters\WaterCapacityToFontIconConverter.cs" />
     <Compile Include="Extensions\BluetoothExtensions.cs" />
     <Compile Include="Extensions\DataExtensions.cs" />
     <Compile Include="Models\BluetoothGattCharacteristicUwp.cs" />
