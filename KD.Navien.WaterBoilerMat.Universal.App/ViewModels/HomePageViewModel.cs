@@ -217,7 +217,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
                 Device = device;
                 SetupLeftTemperature = Device.SetupLeftTemperature;
                 SetupRightTemperature = Device.SetupRightTemperature;
-                SelectedVolumeLevel = Device.VolumeLevel;
+                _selectedVolumeLevel = Device.VolumeLevel;
 
                 Device.PropertyChanged += OnDevice_PropertyChanged;
             }
@@ -235,6 +235,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             switch (e.PropertyName)
             {
                 case nameof(Device.IsPowerOn):
+                case nameof(Device.SetupLeftTemperature):
+                case nameof(Device.SetupRightTemperature):
                     SetupLeftTemperature = Device.SetupLeftTemperature;
                     SetupRightTemperature = Device.SetupRightTemperature;
                     break;
