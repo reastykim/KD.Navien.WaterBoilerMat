@@ -18,7 +18,7 @@
 							   prismMvvm:ViewModelLocator.AutoWireViewModel="True"
 							   Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-	<Page.Resources>
+    <Page.Resources>
         <tkconverters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <tkconverters:StringFormatConverter x:Key="StringFormatConverter" />
         <uconverters:WaterCapacityToFontIconConverter x:Key="WaterCapacityToFontIconConverter"/>
@@ -41,66 +41,75 @@
             </Style.Setters>
         </Style>
         <Style x:Key="RightAlignmentHeaderedBlockStyle" TargetType="tkcontrols:HeaderedTextBlock">
-            <Style.Setters>
-                <Setter Property="HorizontalAlignment" Value="Right"/>
-                <Setter Property="TextStyle" Value="{StaticResource RightAlignmentTextBlockStyle}"/>
-            </Style.Setters>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="TextStyle" Value="{StaticResource RightAlignmentTextBlockStyle}"/>
+        </Style>
+        <Style x:Key="CenterAlignmentHeaderedContentControlStyle" TargetType="tkcontrols:HeaderedContentControl">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" HorizontalAlignment="Center"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
     </Page.Resources>
 
     <Grid>
-		<Grid x:Name="content">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="50"/>
-				<RowDefinition />
-			</Grid.RowDefinitions>
+        <Grid x:Name="content">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-			<Border Grid.Row="0" Margin="0,10" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
-				<Border.Background>
-					<SolidColorBrush Color="{ThemeResource SystemColorInactiveCaptionColor}"/>
-				</Border.Background>
-				<TextBlock Text="POWER OFF" HorizontalAlignment="Center" VerticalAlignment="Center"
+            <Border Grid.Row="0" Margin="0,10" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
+                <Border.Background>
+                    <SolidColorBrush Color="{ThemeResource SystemColorInactiveCaptionColor}"/>
+                </Border.Background>
+                <TextBlock Text="POWER OFF" HorizontalAlignment="Center" VerticalAlignment="Center"
 						   Style="{StaticResource BaseTextBlockStyle}"/>
-			</Border>
+            </Border>
 
-			<Grid Grid.Row="1" HorizontalAlignment="Center">
-				<Grid.RowDefinitions>
-					<RowDefinition Height="Auto"/>
-					<RowDefinition />
-					<RowDefinition Height="Auto"/>
-				</Grid.RowDefinitions>
+            <Grid Grid.Row="1" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition />
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-				<Grid Grid.Row="0">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition />
-						<ColumnDefinition />
-						<ColumnDefinition />
-					</Grid.ColumnDefinitions>
+                <Grid Grid.Row="0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
 
-					<ToggleButton Grid.Column="0" Margin="5,10" Content="좌측난방"
+                    <ToggleButton Grid.Column="0" Margin="5,10" Content="좌측난방"
                                   IsChecked="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
                                   Command="{Binding LeftPartsPowerCommand}"/>
-					<ToggleButton Grid.Column="1" Margin="5,10" Content="전체온도변경"
+                    <ToggleButton Grid.Column="1" Margin="5,10" Content="전체온도변경"
                                   IsEnabled="{Binding Device.IsPowerOn}"
                                   IsChecked="{Binding SetChangeAllTemperatures, Mode=TwoWay}"/>
                     <ToggleButton Grid.Column="2" Margin="5,10" Content="우측난방"
                                   IsChecked="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
                                   Command="{Binding RightPartsPowerCommand}"/>
-				</Grid>
+                </Grid>
 
-				<Grid Grid.Row="1">
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="1*"/>
-						<ColumnDefinition Width="2*"/>
-						<ColumnDefinition Width="1*"/>
-					</Grid.ColumnDefinitions>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                    <Grid Grid.Column="0" Margin="10">
+                    <Grid Grid.Column="0" Margin="0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition />
                         </Grid.ColumnDefinitions>
-                        
+
                         <Slider Grid.Column="0" HorizontalAlignment="Left" Orientation="Vertical"
                                 IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
                                 Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
@@ -120,7 +129,7 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid Grid.Column="2" Margin="10">
+                    <Grid Grid.Column="2" Margin="0,10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition />
                             <ColumnDefinition Width="Auto"/>
@@ -145,18 +154,23 @@
                         </StackPanel>
                     </Grid>
 
-                    <Grid Grid.Column="1" Width="100" Margin="10">
-                        <StackPanel HorizontalAlignment="Center">
-                            <tkcontrols:HeaderedContentControl Header="물용량" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
+                    <Grid Grid.Column="1" Margin="10">
+                        <StackPanel>
+                            <tkcontrols:HeaderedContentControl Header="물용량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
                                 <FontIcon Margin="5" FontSize="32"
-                                          Glyph="{Binding Device.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F4;}"/>
+                                          Glyph="{Binding Device.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F2;}"/>
                             </tkcontrols:HeaderedContentControl>
-                            <tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" HorizontalAlignment="Center" HorizontalContentAlignment="Center">
+                            <tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="&#xE823;"/>
                             </tkcontrols:HeaderedContentControl>
-                            <tkcontrols:HeaderedContentControl Header="음량" HorizontalAlignment="Center" HorizontalContentAlignment="Center"
+                            <tkcontrols:HeaderedContentControl Header="음량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}"
 															   IsEnabled="{Binding Device.IsPowerOn}">
+                                <tkcontrols:HeaderedContentControl.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding}" HorizontalAlignment="Center"/>
+                                    </DataTemplate>
+                                </tkcontrols:HeaderedContentControl.HeaderTemplate>
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}">
                                     <FlyoutBase.AttachedFlyout>
@@ -182,7 +196,7 @@
                                             </ListBox>
                                         </Flyout>
                                     </FlyoutBase.AttachedFlyout>
-                                    
+
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
                                             <ubehaviors:ShowAttachedFlyoutAction />
@@ -194,10 +208,10 @@
                     </Grid>
                 </Grid>
 
-				<Button Grid.Row="2" Width="200" Margin="20" HorizontalAlignment="Center" 
+                <Button Grid.Row="2" Width="200" Margin="20" HorizontalAlignment="Center" 
 						Content="저장"
                         Command="{Binding SetTemperatureCommand}"/>
-			</Grid>
-		</Grid>
-	</Grid>
+            </Grid>
+        </Grid>
+    </Grid>
 </Page>
