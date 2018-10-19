@@ -26,31 +26,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
     {
         #region Properties
 
-        public ObservableCollection<NavigationViewItemData> NavigationViewItemDataCollection
-        {
-            get
-            {
-                if (_navigationViewItemDataCollection == null)
-                {
-                    _navigationViewItemDataCollection = new ObservableCollection<NavigationViewItemData>();
-                    _navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Home", TextIcon = "\uE80F", TargetPageType = typeof(HomePage) });
-                    _navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Sleep", TextIcon = "\uE708", TargetPageType = typeof(SleepPage) }); // uEC46
-                    _navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Help", TextIcon = "\uE946", TargetPageType = typeof(HelpPage) }); // uE897 uE946 uE82D
-                    //_navigationViewItemDataCollection.Add(new NavigationViewItemData { Name = "Settings", TextIcon = "\uE713", TargetPageType = typeof(SettingsPage) });
-                }
-
-                return _navigationViewItemDataCollection;
-            }
-        }
-        private ObservableCollection<NavigationViewItemData> _navigationViewItemDataCollection;
-
-        public NavigationViewItemData SelectedNavigationViewItemData
-        {
-            get => _selectedNavigationViewItemData;
-            set => SetProperty(ref _selectedNavigationViewItemData, value);
-        }
-        private NavigationViewItemData _selectedNavigationViewItemData;
-
         public WaterBoilerMatDevice Device
         {
             get => _device;
@@ -61,11 +36,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         #endregion
 
         #region Commands
-
-        protected override void ExecuteLoaded()
-        {
-            SelectedNavigationViewItemData = NavigationViewItemDataCollection.Single(I => I.TargetPageType == typeof(HomePage));
-        }
 
         public DelegateCommand PowerCommand
         {

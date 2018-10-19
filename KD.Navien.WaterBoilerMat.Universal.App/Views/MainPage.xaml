@@ -14,12 +14,6 @@
 	  prismMvvm:ViewModelLocator.AutoWireViewModel="True"
 	  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-	<i:Interaction.Behaviors>
-		<core:EventTriggerBehavior EventName="Loaded">
-			<core:InvokeCommandAction Command="{Binding LoadedCommand}" />
-		</core:EventTriggerBehavior>
-	</i:Interaction.Behaviors>
-
     <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
         <!--<TextBlock Grid.Row="0" Text="" Style="{StaticResource PageTitleStyle}" />-->
 
@@ -58,9 +52,9 @@
                 </Frame>
             </PivotItem>
 
-            <PivotItem Header="{Binding Path=DataContext.Title, ElementName=helpPage}">
+            <PivotItem Header="{Binding Path=DataContext.Title, ElementName=settingsPage}">
                 <Frame>
-                    <views:HelpPage x:Name="helpPage" />
+                    <views:SettingsPage x:Name="settingsPage" />
                 </Frame>
             </PivotItem>
         </Pivot>
