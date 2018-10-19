@@ -19,6 +19,9 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 {
     public class HomePageViewModel : ViewModelBase
     {
+        const int MinimumSleepModeTemperature = 30;
+        const int MaximumSleepModeTemperature = 35;
+
         #region Properties
 
         public IWaterBoilerMatDevice Device
@@ -33,9 +36,14 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             get => _setupLeftTemperature;
             set
             {
-                if (SetProperty(ref _setupLeftTemperature, value) && SetChangeAllTemperatures)
+                if (SetProperty(ref _setupLeftTemperature, value))
                 {
-                    SetupRightTemperature = value;
+                    CanSleepModeLeft = value >= MinimumSleepModeTemperature && value <= MaximumSleepModeTemperature;
+
+                    if (SetChangeAllTemperatures)
+                    {
+                        SetupRightTemperature = value;
+                    }
                 }
             }
         }
@@ -46,13 +54,32 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
             get => _setupRightTemperature;
             set
             {
-                if (SetProperty(ref _setupRightTemperature, value) && SetChangeAllTemperatures)
+                if (SetProperty(ref _setupRightTemperature, value))
                 {
-                    SetupLeftTemperature = value;
+                    CanSleepModeRight = value >= MinimumSleepModeTemperature && value <= MaximumSleepModeTemperature;
+
+                    if (SetChangeAllTemperatures)
+                    {
+                        SetupLeftTemperature = value;
+                    }
                 }
             }
         }
         private int _setupRightTemperature;
+
+        public bool CanSleepModeLeft
+        {
+            get => _canSleepModeLeft;
+            private set => SetProperty(ref _canSleepModeLeft, value);
+        }
+        private bool _canSleepModeLeft;
+
+        public bool CanSleepModeRight
+        {
+            get => _canSleepModeRight;
+            private set => SetProperty(ref _canSleepModeRight, value);
+        }
+        private bool _canSleepModeRight;
 
         public bool SetChangeAllTemperatures
         {

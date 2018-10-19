@@ -111,6 +111,7 @@
     <Compile Include="Behaviors\PivotBehavior.cs" />
     <Compile Include="Behaviors\ShowAttachedFlyoutAction.cs" />
     <Compile Include="Common\DeviceFamilyTrigger.cs" />
+    <Compile Include="Converters\BooleanToPossibleTextConverter.cs" />
     <Compile Include="Converters\DebugConverter.cs" />
     <Compile Include="Converters\VolumeLevelToVolumeFontIconConverter.cs" />
     <Compile Include="Converters\ItemClickEventArgsConverter.cs" />

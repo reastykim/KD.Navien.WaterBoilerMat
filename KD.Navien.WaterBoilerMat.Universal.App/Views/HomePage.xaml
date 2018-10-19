@@ -23,6 +23,7 @@
         <tkconverters:StringFormatConverter x:Key="StringFormatConverter" />
         <uconverters:WaterCapacityToFontIconConverter x:Key="WaterCapacityToFontIconConverter"/>
         <uconverters:VolumeLevelToVolumeFontIconConverter x:Key="VolumeLevelToVolumeFontIconConverter"/>
+        <uconverters:BooleanToPossibleTextConverter x:Key="BooleanToPossibleTextConverter"/>
         <uconverters:DebugConverter x:Key="DebugConverter"/>
         <Style x:Key="LeftAlignmentTextBlockStyle" TargetType="TextBlock">
             <Style.Setters>
@@ -124,7 +125,7 @@
                                                           Text="{Binding SetupLeftTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
                                                           Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" 
-                                                          Text="가능" 
+                                                          Text="{Binding CanSleepModeLeft, Converter={StaticResource BooleanToPossibleTextConverter}, FallbackValue=불가능}" 
                                                           Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
                         </StackPanel>
                     </Grid>
@@ -149,7 +150,7 @@
                                                           Text="{Binding SetupRightTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
                                                           Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" 
-                                                          Text="가능" 
+                                                          Text="{Binding CanSleepModeRight, Converter={StaticResource BooleanToPossibleTextConverter}, FallbackValue=불가능}" 
                                                           Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
                         </StackPanel>
                     </Grid>
@@ -160,10 +161,10 @@
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="{Binding Device.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F2;}"/>
                             </tkcontrols:HeaderedContentControl>
-                            <tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
+                            <!--<tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="&#xE823;"/>
-                            </tkcontrols:HeaderedContentControl>
+                            </tkcontrols:HeaderedContentControl>-->
                             <tkcontrols:HeaderedContentControl Header="음량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}"
 															   IsEnabled="{Binding Device.IsPowerOn}">
                                 <tkcontrols:HeaderedContentControl.HeaderTemplate>
