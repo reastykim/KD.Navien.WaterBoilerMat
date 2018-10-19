@@ -59,6 +59,8 @@ namespace KD.Navien.WaterBoilerMat.Services.Protocol
         }
 
         const int MODE_NORMAL = 1;
+        const int MODE_RESERVE = 2;
+        const int MODE_SLEEP = 3;
         const int MODE_OFF = 6;
 
         enum eStatus : byte

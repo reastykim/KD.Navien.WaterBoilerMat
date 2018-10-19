@@ -4,12 +4,142 @@
       xmlns:local="using:KD.Navien.WaterBoilerMat.Universal.App.Views"
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      mc:Ignorable="d"
       xmlns:prismMvvm="using:Prism.Windows.Mvvm"
+      xmlns:controls="using:KD.Navien.WaterBoilerMat.Universal.App.Controls"
+      xmlns:tkcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:tkconverters="using:Microsoft.Toolkit.Uwp.UI.Converters"
+      xmlns:uconverters="using:KD.Navien.WaterBoilerMat.Universal.Converters"
+      xmlns:uviews="using:KD.Navien.WaterBoilerMat.Universal.Views"
+      xmlns:models="using:KD.Navien.WaterBoilerMat.Models"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:ubehaviors="using:KD.Navien.WaterBoilerMat.Universal.Behaviors"
+      mc:Ignorable="d"
       prismMvvm:ViewModelLocator.AutoWireViewModel="True"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <tkconverters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
+        <tkconverters:StringFormatConverter x:Key="StringFormatConverter" />
+        <uconverters:WaterCapacityToFontIconConverter x:Key="WaterCapacityToFontIconConverter"/>
+        <uconverters:VolumeLevelToVolumeFontIconConverter x:Key="VolumeLevelToVolumeFontIconConverter"/>
+        <uconverters:BooleanToPossibleTextConverter x:Key="BooleanToPossibleTextConverter"/>
+        <uconverters:DebugConverter x:Key="DebugConverter"/>
+        <Style x:Key="LeftAlignmentTextBlockStyle" TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+            </Style.Setters>
+        </Style>
+        <Style x:Key="RightAlignmentTextBlockStyle" TargetType="TextBlock">
+            <Style.Setters>
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+            </Style.Setters>
+        </Style>
+        <Style x:Key="LeftAlignmentHeaderedBlockStyle" TargetType="tkcontrols:HeaderedTextBlock">
+            <Style.Setters>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
+                <Setter Property="TextStyle" Value="{StaticResource LeftAlignmentTextBlockStyle}"/>
+            </Style.Setters>
+        </Style>
+        <Style x:Key="RightAlignmentHeaderedBlockStyle" TargetType="tkcontrols:HeaderedTextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="TextStyle" Value="{StaticResource RightAlignmentTextBlockStyle}"/>
+        </Style>
+        <Style x:Key="CenterAlignmentHeaderedContentControlStyle" TargetType="tkcontrols:HeaderedContentControl">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="HeaderTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding}" HorizontalAlignment="Center"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Page.Resources>
+
     <Grid>
-		<TextBlock Text="Sleep"/>
-	</Grid>
+        <Grid x:Name="content">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="50"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0" Margin="0,10" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
+                <Border.Background>
+                    <SolidColorBrush Color="{ThemeResource SystemColorInactiveCaptionColor}"/>
+                </Border.Background>
+                <TextBlock Text="POWER OFF" HorizontalAlignment="Center" VerticalAlignment="Center"
+						   Style="{StaticResource BaseTextBlockStyle}"/>
+            </Border>
+
+            <Grid Grid.Row="1" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="1*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Row="0" Grid.Column="0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0" IsHitTestVisible="False" Style="{ThemeResource AccentButtonStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="좌측 수면시간 예약"/>
+                            <TextBlock Grid.Row="1" Text="5 시간" HorizontalAlignment="Center" FontSize="20"/>
+                        </Grid>
+                    </Button>
+
+                    <StackPanel Grid.Row="1">
+                        <Button Content="+" Height="60" HorizontalAlignment="Stretch" Style="{ThemeResource ButtonRevealStyle}"/>
+                        <Button Content="-" Height="60" HorizontalAlignment="Stretch" Style="{ThemeResource ButtonRevealStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Grid Grid.Row="0" Grid.Column="2">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition />
+                    </Grid.RowDefinitions>
+
+                    <Button Grid.Row="0" IsHitTestVisible="False" Style="{StaticResource AccentButtonStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition />
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0" Text="우측 수면시간 예약"/>
+                            <TextBlock Grid.Row="1" Text="5 시간" HorizontalAlignment="Center" FontSize="20"/>
+                        </Grid>
+                    </Button>
+
+                    <StackPanel Grid.Row="1">
+                        <Button Content="+" Height="60" HorizontalAlignment="Stretch" Style="{ThemeResource ButtonRevealStyle}"/>
+                        <Button Content="-" Height="60" HorizontalAlignment="Stretch" Style="{ThemeResource ButtonRevealStyle}"/>
+                    </StackPanel>
+                </Grid>
+
+                <Button Grid.Row="2" Grid.Column="0" Margin="0,20" HorizontalAlignment="Stretch" 
+						Content="시작"
+                        Command="{Binding SetTemperatureCommand}" Style="{StaticResource AccentButtonStyle}"/>
+                <Button Grid.Row="2" Grid.Column="2" Margin="0,20" HorizontalAlignment="Stretch" 
+						Content="중지"
+                        Command="{Binding SetTemperatureCommand}"/>
+            </Grid>
+        </Grid>
+    </Grid>
 </Page>

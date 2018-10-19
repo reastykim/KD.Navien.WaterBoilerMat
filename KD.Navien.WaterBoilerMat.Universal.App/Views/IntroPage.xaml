@@ -43,17 +43,17 @@
 				<RowDefinition />
 			</Grid.RowDefinitions>
 
-			<TextBlock Grid.Row="0" Text="연결 가능한 온수 매트" Margin="0,20" HorizontalAlignment="Center" VerticalAlignment="Center" 
-					   Style="{StaticResource SubheaderTextBlockStyle}"/>
+			<TextBlock Grid.Row="0" Text="연결 가능한 온수 매트" HorizontalAlignment="Center" VerticalAlignment="Center" 
+					   Style="{StaticResource TitleTextBlockStyle}"/>
 
-			<Grid Grid.Row="1" Margin="20" MinWidth="300" HorizontalAlignment="Center">
+			<Grid Grid.Row="1" Margin="20,10" MinWidth="300" HorizontalAlignment="Center">
 				<Grid.RowDefinitions>
 					<RowDefinition />
 					<RowDefinition Height="10"/>
 				</Grid.RowDefinitions>
 				
 				<ListView Grid.Row="0" Padding="10"  BorderThickness="1"
-					  ItemsSource="{Binding Devices}" IsItemClickEnabled="True" SelectionMode="None">
+                          ItemsSource="{Binding Devices}" IsItemClickEnabled="True" SelectionMode="None">
 					<i:Interaction.Behaviors>
 						<core:EventTriggerBehavior EventName="ItemClick">
 							<core:InvokeCommandAction Command="{Binding ConnectCommand}" 
