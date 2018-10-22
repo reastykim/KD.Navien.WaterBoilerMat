@@ -46,11 +46,11 @@
                 </Frame>
             </PivotItem>
 
-            <PivotItem Header="{Binding Path=DataContext.Title, ElementName=sleepPage}">
+            <!--<PivotItem Header="{Binding Path=DataContext.Title, ElementName=sleepPage}">
                 <Frame>
                     <views:SleepPage x:Name="sleepPage" />
                 </Frame>
-            </PivotItem>
+            </PivotItem>-->
 
             <PivotItem Header="{Binding Path=DataContext.Title, ElementName=settingsPage}">
                 <Frame>

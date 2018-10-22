@@ -14,7 +14,7 @@
         <StackPanel>
             <TextBlock Text="설정" Style="{StaticResource SubtitleTextBlockStyle}" />
 
-            <StackPanel Margin="{StaticResource SettingsSubheaderMargin}">
+            <!--<StackPanel Margin="{StaticResource SettingsSubheaderMargin}">
                 <TextBlock Text="푸쉬 알림 설정" Style="{StaticResource BodyTextStyle}" />
 
                 <StackPanel Margin="{StaticResource EightTopMargin}">
@@ -32,9 +32,9 @@
                     <ComboBox />
                     <ComboBox />
                 </StackPanel>
-            </StackPanel>
+            </StackPanel>-->
 
-            <TextBlock Text="앱" Style="{StaticResource SubtitleTextBlockStyle}"/>
+            <!--<TextBlock Text="앱" Style="{StaticResource SubtitleTextBlockStyle}"/>-->
             <StackPanel Margin="{StaticResource SettingsSubheaderMargin}">
                 <TextBlock Text="프로그램 정보" Style="{StaticResource BodyTextStyle}" />
                 <TextBlock Text="{Binding VersionDescriptions, FallbackValue='NAVIEN MATE - 1.0.0'}" Margin="0,5" />
