@@ -4,7 +4,6 @@
              x:Class="KD.Navien.WaterBoilerMat.Views.IntroPage"
              xmlns:models="clr-namespace:KD.Navien.WaterBoilerMat.Models;assembly=KD.Navien.WaterBoilerMat.Standard"
              xmlns:behaviors="clr-namespace:Prism.Behaviors;assembly=Prism.Forms"
-             xmlns:converters="clr-namespace:KD.Navien.WaterBoilerMat.Converters"
              Title="{Binding Title}">
 
     <Grid>

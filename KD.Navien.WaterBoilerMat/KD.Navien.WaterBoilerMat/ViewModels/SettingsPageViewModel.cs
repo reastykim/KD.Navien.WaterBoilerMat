@@ -34,7 +34,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
         {
             try
             {
-                await _device.RequestPowerOnOffAsync(!_device.IsPowerOn);
+                await _device.RequestPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -54,7 +54,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
         {
             try
             {
-                await _device.RequestLockOnOffAsync(!_device.IsLock);
+                await _device.RequestLockOnOffAsync();
             }
             catch (Exception ex)
             {
