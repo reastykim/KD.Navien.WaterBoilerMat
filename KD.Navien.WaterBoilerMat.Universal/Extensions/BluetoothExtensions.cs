@@ -44,20 +44,9 @@ namespace KD.Navien.WaterBoilerMat.Universal.Extensions
                                            });
         }
 
-        public static Task<bool> WriteValueAsync(this ObservableGattCharacteristics characteristics, byte[] data)
-		{
-            return characteristics.Characteristic.WriteValueAsync(data.ToBuffer()).AsTask()
-                                                 .ContinueWith(T =>
-                                                 {
-                                                     if (T.Exception != null)
-                                                     {
-                                                         return false;
-                                                     }
-                                                     else
-                                                     {
-                                                         return T.Result == GattCommunicationStatus.Success; 
-                                                     }
-                                                 });
-		}
+        public static async Task<bool> WriteValueAsync(this ObservableGattCharacteristics characteristics, byte[] data)
+        {
+            return await characteristics.Characteristic.WriteValueAsync(data.ToBuffer()) == GattCommunicationStatus.Success;
+        }
     }
 }
