@@ -21,6 +21,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         VolumeLevels VolumeLevel { get; }
 
+        DeviceStatus Status { get; }
+
         bool IsLeftPartsPowerOn { get; }
 
         bool IsRightPartsPowerOn { get; }

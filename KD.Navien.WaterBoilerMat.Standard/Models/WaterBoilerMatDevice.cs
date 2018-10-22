@@ -79,6 +79,13 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
         private VolumeLevels _volumeLevel;
 
+        public DeviceStatus Status
+        {
+            get => _deviceStatus;
+            protected set => SetProperty(ref _deviceStatus, value);
+        }
+        private DeviceStatus _deviceStatus;
+
         public bool IsLeftPartsPowerOn
         {
             get => _isLeftPartsPowerOn;
