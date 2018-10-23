@@ -98,21 +98,13 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 
         #endregion
 
-        public override void OnNavigatingTo(NavigationParameters parameters)
+        public override void OnNavigatingTo(INavigationParameters parameters)
         {
             if (HasInitialized) return;
 
             HasInitialized = true;
 
             // Implement your implementation logic here...
-        }
-
-        public override void OnNavigatedTo(NavigationParameters parameters)
-        {
-            //if (e.Parameter is IWaterBoilerMatDevice device)
-            //{
-            //    _device = device;
-            //}
         }
 
         private void HandleIsActiveTrue(object sender, EventArgs args)

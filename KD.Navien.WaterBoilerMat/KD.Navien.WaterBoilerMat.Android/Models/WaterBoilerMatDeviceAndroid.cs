@@ -12,6 +12,7 @@ using Android.Views;
 using Android.Widget;
 using KD.Navien.WaterBoilerMat.Droid.Services.LE;
 using KD.Navien.WaterBoilerMat.Models;
+using KD.Navien.WaterBoilerMat.Services.Protocol;
 
 namespace KD.Navien.WaterBoilerMat.Droid.Models
 {
@@ -54,7 +55,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 			RaiseServicesUpdated();
 		}
 
-		public override Task ConnectAsync()
+		protected override Task ConnectAsync()
 		{
 			if (bluetoothAdapter == null)
 			{
@@ -176,6 +177,11 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
         public override Task<T> GetNativeBluetoothLEDeviceObjectAsync<T>()
         {
             return Task.FromResult(bluetoothGatt?.Device as T);
+        }
+
+        protected override void UpdateDeviceStatus(KDData data)
+        {
+
         }
     }
 }

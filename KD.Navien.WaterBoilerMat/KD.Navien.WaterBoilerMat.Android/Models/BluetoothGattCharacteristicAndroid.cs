@@ -17,7 +17,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 {
 	public class BluetoothGattCharacteristicAndroid : BindableBase, IBluetoothGattCharacteristic
 	{
-        public event EventHandler<string> ValueChanged;
+        public event EventHandler<byte[]> ValueChanged;
 
         public string UUID => gattCharacteristics.Uuid.ToString();
 
@@ -35,7 +35,7 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 			this.gattCharacteristics = gattCharacteristics;
 		}
 
-		public Task<bool> SetNotifyAsync(bool isEnable)
+        public Task<bool> SetNotifyAsync(bool isEnable)
 		{
 			var result = GattService.WaterBoilerMatDevice.SetCharacteristicNotification(gattCharacteristics, isEnable);
 			return Task.FromResult(result);
@@ -47,5 +47,10 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 			result = GattService.WaterBoilerMatDevice.WriteCharacteristic(gattCharacteristics);
 			return Task.FromResult(result);
 		}
-	}
+
+        public Task<byte[]> ReadValueAsync()
+        {
+            return Task.FromResult(gattCharacteristics.GetValue());
+        }
+    }
 }

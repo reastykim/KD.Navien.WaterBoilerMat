@@ -51,5 +51,10 @@ namespace KD.Navien.WaterBoilerMat.Droid.Models
 			GattCharacteristics.AddRange(gattService.Characteristics.Select(C => new BluetoothGattCharacteristicAndroid(this, C)));
 			GattCharacteristicsUpdated?.Invoke(this, EventArgs.Empty);
 		}
-	}
+
+        public void Dispose()
+        {
+
+        }
+    }
 }

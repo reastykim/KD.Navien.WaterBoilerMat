@@ -162,7 +162,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 
         #region Event Handlers
 
-        public override void OnNavigatedTo(NavigationParameters parameters)
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
             base.OnNavigatedTo(parameters);
             if (ScanCommand.CanExecute())
