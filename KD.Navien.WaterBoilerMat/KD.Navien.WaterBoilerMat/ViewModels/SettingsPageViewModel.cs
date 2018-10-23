@@ -87,7 +87,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
             IsActiveChanged += HandleIsActiveTrue;
             IsActiveChanged += HandleIsActiveFalse;
 
-            Title = "설정";
+            Title = "Settings";
         }
 
         public override void Destroy()

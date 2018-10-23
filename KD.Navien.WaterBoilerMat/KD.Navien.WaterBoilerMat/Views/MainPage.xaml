@@ -6,7 +6,7 @@
             Title="{Binding Title}">
 
     <views:HomePage />
-    <views:SleepPage />
-    <views:HelpPage />
+    <!--<views:SleepPage />
+    <views:HelpPage />-->
     <views:SettingsPage />
 </TabbedPage>

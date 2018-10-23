@@ -3,14 +3,116 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="KD.Navien.WaterBoilerMat.Views.HomePage"
              xmlns:views="clr-namespace:KD.Navien.WaterBoilerMat.Views"
+             xmlns:controls="clr-namespace:KD.Navien.WaterBoilerMat.Controls"
+             xmlns:converters="clr-namespace:KD.Navien.WaterBoilerMat.Converters"
              Title="{Binding Title}">
+    <ContentPage.Resources>
+        <converters:BoolNegationConverter x:Key="BoolNegationConverter"/>
+        <converters:IntToDoubleConverter x:Key="IntToDoubleConverter"/>
+    </ContentPage.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="50"/>
             <RowDefinition />
         </Grid.RowDefinitions>
-        
-        <Label Text="Home"/>
+
+        <Grid Grid.Row="0" Margin="0,10" BackgroundColor="Accent" Opacity="0.7">
+            <Label Text="POWER OFF" HorizontalOptions="Center" VerticalOptions="Center" 
+                   IsVisible="{Binding Device.IsPowerOn, Converter={StaticResource BoolNegationConverter}}"/>
+        </Grid>
+
+        <Grid Grid.Row="1" HorizontalOptions="Center">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <controls:ToggleButton Grid.Column="0" Margin="5,10" Text="좌측난방"
+                                           IsToggled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
+                                           Command="{Binding LeftPartsPowerCommand}"/>
+                <controls:ToggleButton Grid.Column="1" Margin="5,10" Text="전체온도변경"
+                                           IsEnabled="{Binding Device.IsPowerOn}"
+                                           IsToggled="{Binding SetChangeAllTemperatures, Mode=TwoWay}"/>
+                <controls:ToggleButton Grid.Column="2" Margin="5,10" Text="우측난방"
+                                           IsToggled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
+                                           Command="{Binding RightPartsPowerCommand}"/>
+            </Grid>
+
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <Slider Grid.Column="0" HorizontalOptions="Start" 
+                            IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
+                            Minimum="{Binding Device.TemperatureInfo.MinimumTemperature, Mode=OneWay, Converter={StaticResource IntToDoubleConverter}}"
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature, Mode=OneWay, Converter={StaticResource IntToDoubleConverter}}"
+                            Value="{Binding SetupLeftTemperature, Mode=TwoWay, Converter={StaticResource IntToDoubleConverter}}"/>
+
+                    <StackLayout Grid.Column="1" HorizontalOptions="End">
+                        <controls:HeaderedLabel Margin="0,30" Header="현재온도"
+                                                Text="{Binding Device.CurrentLeftTemperature}" 
+                                                />
+                        <controls:HeaderedLabel Margin="0,30" Header="설정온도"
+                                                Text="{Binding SetupLeftTemperature}" 
+                                                />
+                        <controls:HeaderedLabel Margin="0,30" Header="수면온도구간" 
+                                                Text="{Binding CanSleepModeLeft}" 
+                                                />
+                    </StackLayout>
+                </Grid>
+
+                <Grid Grid.Column="2" Margin="0,10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Slider Grid.Column="1" HorizontalOptions="End"
+                            IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
+                            Minimum="{Binding Device.TemperatureInfo.MinimumTemperature, Mode=OneWay, Converter={StaticResource IntToDoubleConverter}}"
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature, Mode=OneWay, Converter={StaticResource IntToDoubleConverter}}"
+                            Value="{Binding SetupRightTemperature, Mode=TwoWay, Converter={StaticResource IntToDoubleConverter}}"/>
+
+                    <StackLayout Grid.Column="0" HorizontalOptions="Start">
+                        <controls:HeaderedLabel Margin="0,30" Header="현재온도" 
+                                                Text="{Binding Device.CurrentRightTemperature}" 
+                                                />
+                        <controls:HeaderedLabel Margin="0,30" Header="설정온도" 
+                                                Text="{Binding SetupRightTemperature}" 
+                                                />
+                        <controls:HeaderedLabel Margin="0,30" Header="수면온도구간" 
+                                                Text="{Binding CanSleepModeRight}" 
+                                                />
+                    </StackLayout>
+                </Grid>
+
+                <Grid Grid.Column="1" Margin="10">
+                    <StackLayout>
+                    </StackLayout>
+                </Grid>
+            </Grid>
+
+            <Button Grid.Row="2" Margin="20" HorizontalOptions="Center"
+						Text="저장" 
+                        Command="{Binding SetTemperatureCommand}"/>
+        </Grid>
     </Grid>
-    
 </ContentPage>

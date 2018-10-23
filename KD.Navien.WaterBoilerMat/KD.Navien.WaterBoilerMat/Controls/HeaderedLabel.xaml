@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentView xmlns="http://xamarin.com/schemas/2014/forms" 
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KD.Navien.WaterBoilerMat.Controls.HeaderedLabel">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <ContentPresenter Grid.Row="0" Content="{x:Binding Header}"/>
+        <Label Grid.Row="1" Text="{x:Binding Text}"/>
+    </Grid>
+</ContentView>

@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Text;
+using Unity;
 
 namespace KD.Navien.WaterBoilerMat.ViewModels
 {
@@ -103,6 +104,8 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 
                 Logger.Log($"Connected to Device. Address=[{device.Address}] UniqueID=[]", Category.Info, Priority.High);
 
+                _container.RegisterInstance<IWaterBoilerMatDevice>(device);
+
                 // Navigate to MainPage
                 var navigationParameters = new NavigationParameters();
                 navigationParameters.Add("DEVICE", device);
@@ -131,6 +134,7 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
         private readonly IBluetoothLEService<WaterBoilerMatDevice> _bluetoothLEService;
         private readonly IPageDialogService _dialogService;
         private readonly IPairingList _pairingList;
+        private readonly IUnityContainer _container;
 
         #endregion
 
@@ -138,12 +142,13 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 
         public IntroPageViewModel(IBluetoothLEService<WaterBoilerMatDevice> bluetoothLEService, 
             IPairingList pairingList, IPageDialogService dialogService,
-            INavigationService navigationService, ILoggerFacade logger)
+            INavigationService navigationService, ILoggerFacade logger, IUnityContainer container)
             : base(navigationService, logger)
         {
             _bluetoothLEService = bluetoothLEService;
             _dialogService = dialogService;
             _pairingList = pairingList;
+            _container = container;
 
             Initialize();
         }
