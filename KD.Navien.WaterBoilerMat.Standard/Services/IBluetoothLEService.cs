@@ -11,5 +11,7 @@ namespace KD.Navien.WaterBoilerMat.Services
 		bool IsScanning { get; }
 
 		Task<IEnumerable<T>> ScanAsync(int timeoutMilliseconds);
+
+        Task<IEnumerable<ulong>> ScanWaterBoilerMatDeviceAddressAsync(int timeoutMilliseconds);
     }
 }

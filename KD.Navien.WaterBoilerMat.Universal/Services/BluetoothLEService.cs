@@ -97,5 +97,60 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
 
             return tcs.Task;
         }
+
+        private object _locker = new object();
+        public Task<IEnumerable<ulong>> ScanWaterBoilerMatDeviceAddressAsync(int timeoutMilliseconds)
+        {
+            _logger.Log($"Start ScanAsync2()", Category.Info, Priority.None);
+            var tcs = new TaskCompletionSource<IEnumerable<ulong>>();
+
+            try
+            {
+                var foundAddresses = new List<ulong>();
+                var bleAdvWatcher = new BluetoothLEAdvertisementWatcher();
+                bleAdvWatcher.ScanningMode = BluetoothLEScanningMode.Active;
+
+                bleAdvWatcher.Received += (s, e) =>
+                {
+                    try
+                    {
+                        lock (foundAddresses)
+                        {
+                            if (foundAddresses.Any(A => A == e.BluetoothAddress) != true)
+                            {
+                                lock (foundAddresses)
+                                {
+                                    foundAddresses.Add(e.BluetoothAddress);
+                                }
+                            }
+                        }
+                    }
+                    catch (Exception error)
+                    {
+                        _logger.Log(error.Message, Category.Exception, Priority.Medium);
+                    }
+                };
+                bleAdvWatcher.Stopped += (s, e) =>
+                {
+                    tcs.SetResult(foundAddresses.Where(A => WaterBoilerMatDevice.IsNavienDevice(A)));
+                };
+
+                Timer timer = null;
+                timer = new Timer(delegate
+                {
+                    timer.Dispose();
+                    bleAdvWatcher.Stop();
+
+                }, null, timeoutMilliseconds, Timeout.Infinite);
+
+                bleAdvWatcher.Start();
+            }
+            catch (Exception e)
+            {
+                tcs.SetException(e);
+            }
+
+            return tcs.Task;
+        }
     }
 }
