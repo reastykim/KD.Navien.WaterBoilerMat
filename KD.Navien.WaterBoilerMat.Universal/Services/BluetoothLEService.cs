@@ -3,7 +3,6 @@ using KD.Navien.WaterBoilerMat.Services;
 using KD.Navien.WaterBoilerMat.Universal.Extensions;
 using KD.Navien.WaterBoilerMat.Universal.Models;
 using KD.Navien.WaterBoilerMat.Universal.Services;
-using Microsoft.Toolkit.Uwp.Connectivity;
 using Prism.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -15,6 +14,7 @@ using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.Advertisement;
+using Windows.Devices.Enumeration;
 using Windows.Foundation;
 using Windows.UI.Core;
 
@@ -24,14 +24,16 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
     {
         #region Properties
 
-        public bool IsScanning => _bluetoothLEHelper.IsEnumerating;
+        public bool IsScanning => _bluetoothLEAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Started ||
+                                  _bluetoothLEAdvertisementWatcher.Status == BluetoothLEAdvertisementWatcherStatus.Stopping;
 
         #endregion
 
         #region Fields
 
-        private ILoggerFacade _logger;
-        private BluetoothLEHelper _bluetoothLEHelper;
+        private readonly ILoggerFacade _logger;
+        private readonly BluetoothLEAdvertisementWatcher _bluetoothLEAdvertisementWatcher;
+        private readonly ReaderWriterLockSlim _readerWriterLockSlim = new ReaderWriterLockSlim();
 
         #endregion
 
@@ -39,60 +41,79 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
 
         public BluetoothLEService(ILoggerFacade logger)
         {
-            this._logger = logger;
+            _logger = logger;
+            _bluetoothLEAdvertisementWatcher = new BluetoothLEAdvertisementWatcher();
 
             Initialize();
         }
 
         private void Initialize()
         {
-            // Get a local copy of the context for easier reading
-            _bluetoothLEHelper = BluetoothLEHelper.Context;
+
         }
 
         #endregion
 
         public Task<IEnumerable<WaterBoilerMatDevice>> ScanAsync(int timeoutMilliseconds)
         {
-            _logger.Log($"Call ScanAsync({timeoutMilliseconds})", Category.Debug, Priority.Medium);
-            var tcs = new TaskCompletionSource<IEnumerable<WaterBoilerMatDevice>>();
+            _logger.Log($"Call ScanAsync({timeoutMilliseconds})", Category.Debug, Priority.None);
 
-            // check if BluetoothLE APIs are available
-            if (BluetoothLEHelper.IsBluetoothLESupported != true)
+            if (IsScanning)
             {
-                _logger.Log($"BluetoothLE APIs are not available", Category.Warn, Priority.High);
+                _logger.Log($"BluetoothLEAdvertisementWatcher is already scanning. Status=[{_bluetoothLEAdvertisementWatcher.Status}]", Category.Warn, Priority.None);
                 return Task.FromResult(Enumerable.Empty<WaterBoilerMatDevice>());
             }
 
-            // Start the Enumeration
-            EventHandler<EventArgs> onEnumerationCompleted = null;
-            onEnumerationCompleted = new EventHandler<EventArgs>((s, e) =>
+            var tcs = new TaskCompletionSource<IEnumerable<WaterBoilerMatDevice>>();
+            var bluetoothAddresses = new List<ulong>();
+
+            // Start the Advertisement packet capture
+            TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs> OnAdvertisementPacketReceived = null;
+            OnAdvertisementPacketReceived = new TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementReceivedEventArgs>((s, e) =>
             {
-                _bluetoothLEHelper.EnumerationCompleted -= onEnumerationCompleted;
-                _logger.Log($"Stop the BluetoothLE device Enumeration. Found {_bluetoothLEHelper.BluetoothLeDevices.Count} devices", Category.Info, Priority.High);
+                if (_readerWriterLockSlim.TryEnterReadLock(TimeSpan.FromSeconds(1)))
+                {
+                    if (bluetoothAddresses.Contains(e.BluetoothAddress) != true && WaterBoilerMatDevice.IsNavienDevice(e.BluetoothAddress))
+                    {
+                        bluetoothAddresses.Add(e.BluetoothAddress);
+                    }
 
-                tcs.SetResult(_bluetoothLEHelper.BluetoothLeDevices.Where(d => WaterBoilerMatDevice.IsNavienDevice(d.BluetoothAddressAsString))
-                                                                  .Select(d => new WaterBoilerMatDeviceUwp(d, _logger)));
+                    _readerWriterLockSlim.ExitReadLock();
+                }
             });
-            _bluetoothLEHelper.EnumerationCompleted += onEnumerationCompleted;
-            _bluetoothLEHelper.StartEnumeration();
-            _logger.Log($"Start the BluetoothLE device Enumeration", Category.Info, Priority.High);
+            TypedEventHandler<BluetoothLEAdvertisementWatcher, BluetoothLEAdvertisementWatcherStoppedEventArgs> OnAdvertisementWatcherStopped = null;
+            OnAdvertisementWatcherStopped = async (s, e) =>
+            {
+                _bluetoothLEAdvertisementWatcher.Received -= OnAdvertisementPacketReceived;
+                _bluetoothLEAdvertisementWatcher.Stopped -= OnAdvertisementWatcherStopped;
+                _logger.Log($"Stopped the BluetoothLEAdvertisementWatcher", Category.Info, Priority.None);
 
+                var bluetoothLEDevices = new List<WaterBoilerMatDeviceUwp>();
+                foreach (var bluetoothAddress in bluetoothAddresses)
+                {
+                    var bluetoothLEDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(bluetoothAddress);
+                    bluetoothLEDevices.Add(new WaterBoilerMatDeviceUwp(bluetoothLEDevice, _logger));
+                }
+
+                tcs.SetResult(bluetoothLEDevices);
+            };
+            _bluetoothLEAdvertisementWatcher.Received += OnAdvertisementPacketReceived;
+            _bluetoothLEAdvertisementWatcher.Stopped += OnAdvertisementWatcherStopped;
+            _bluetoothLEAdvertisementWatcher.Start();
+            _logger.Log($"Started the BluetoothLEAdvertisementWatcher", Category.Info, Priority.None);
+
+            // Start a timer
             Timer timer = null;
             timer = new Timer(delegate
             {
                 timer.Dispose();
+                _logger.Log($"The timer is expired. TaskStatus=[{tcs.Task.Status}]", Category.Info, Priority.None);
 
-                if (_bluetoothLEHelper.IsEnumerating && tcs.Task.Status != TaskStatus.RanToCompletion)
+                if (IsScanning && tcs.Task.Status != TaskStatus.RanToCompletion)
                 {
-                    // Stop the Enumeration
-                    _bluetoothLEHelper.StopEnumeration();
-                    _logger.Log($"Stop the BluetoothLE device Enumeration. Found {_bluetoothLEHelper.BluetoothLeDevices.Count} devices.", Category.Info, Priority.High);
-
-                    tcs.SetResult(_bluetoothLEHelper.BluetoothLeDevices.Where(d => WaterBoilerMatDevice.IsNavienDevice(d.BluetoothAddressAsString))
-                                                                       .Select(d => new WaterBoilerMatDeviceUwp(d, _logger)));
+                    // Stop the Advertisement packet capture
+                    _bluetoothLEAdvertisementWatcher?.Stop();
                 }
-
             }, null, timeoutMilliseconds, Timeout.Infinite);
 
             return tcs.Task;
