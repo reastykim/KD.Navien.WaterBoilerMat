@@ -110,6 +110,7 @@
     <Compile Include="Behaviors\HideParentFlyoutAction.cs" />
     <Compile Include="Behaviors\PivotBehavior.cs" />
     <Compile Include="Behaviors\ShowAttachedFlyoutAction.cs" />
+    <Compile Include="Common\AppServiceCommands.cs" />
     <Compile Include="Common\DeviceFamilyTrigger.cs" />
     <Compile Include="Converters\BooleanToPossibleTextConverter.cs" />
     <Compile Include="Converters\DebugConverter.cs" />

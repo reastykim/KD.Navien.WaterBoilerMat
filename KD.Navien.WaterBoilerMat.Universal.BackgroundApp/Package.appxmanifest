@@ -23,8 +23,6 @@
       <Extensions>
         <Extension Category="windows.backgroundTasks" EntryPoint="KD.Navien.WaterBoilerMat.Universal.BackgroundApp.StartupTask">
           <BackgroundTasks>
-            <Task Type="systemEvent" />
-            <Task Type="timer" />
             <Task Type="deviceUse" />
             <Task Type="deviceConnectionChange" />
             <Task Type="bluetooth" />
@@ -38,8 +36,6 @@
     </Application>
   </Applications>
   <Capabilities>
-    <Capability Name="internetClient" />
-    <Capability Name="internetClientServer" />
     <DeviceCapability Name="bluetooth" />
   </Capabilities>
 </Package>

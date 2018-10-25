@@ -18,6 +18,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 	{
         #region Properties
 
+        public override string Id => _device.DeviceId;
         public override string Name => _device.Name;
 		public override string Address => _device.BluetoothAddress.ToMacAddress().ToUpper();
         public override bool IsConnected => _device.ConnectionStatus == BluetoothConnectionStatus.Connected;
@@ -46,19 +47,25 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
             {
                 _logger.Log($"ConnectionStatusChanged. ConnectionStatus=[{_device.ConnectionStatus}]", Category.Debug, Priority.High);
 
-                DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                if (IsBackgroundRunning == false)
                 {
-                    RaisePropertyChanged(nameof(IsConnected));
-                });
+                    DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                    {
+                        RaisePropertyChanged(nameof(IsConnected));
+                    });
+                }
             };
             _device.NameChanged += (s, e) =>
             {
                 _logger.Log($"NameChanged. Name=[{_device.Name}]", Category.Debug, Priority.High);
 
-                DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                if (IsBackgroundRunning == false)
                 {
-                    RaisePropertyChanged(nameof(Name));
-                });
+                    DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                    {
+                        RaisePropertyChanged(nameof(Name));
+                    });
+                }
             };
 		}
 
@@ -116,7 +123,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         protected async override void UpdateDeviceStatus(KDData data)
         {
-            await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+            if (IsBackgroundRunning)
             {
                 TemperatureInfo = new TemperatureInfo(data.MaxTemperatureHighLow);
 
@@ -134,7 +141,29 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 WaterCapacity = (WaterCapacities)data.WaterCapacity;
                 IsLock = Convert.ToBoolean(data.KeyLock);
                 IsPowerOn = Convert.ToBoolean(data.Power);
-            });
+            }
+            else
+            {
+                await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                {
+                    TemperatureInfo = new TemperatureInfo(data.MaxTemperatureHighLow);
+
+                    CurrentLeftTemperature = data.TemperatureReturnLeft;
+                    CurrentRightTemperature = data.TemperatureReturnRight;
+
+                    SetupLeftTemperature = data.TemperatureSettingLeft;
+                    SetupRightTemperature = data.TemperatureSettingRight;
+
+                    IsLeftPartsPowerOn = (data.Status == 2 || data.Status == 3);
+                    IsRightPartsPowerOn = (data.Status == 2 || data.Status == 4);
+
+                    Status = (DeviceStatus)data.Status;
+                    VolumeLevel = (VolumeLevels)data.Volume;
+                    WaterCapacity = (WaterCapacities)data.WaterCapacity;
+                    IsLock = Convert.ToBoolean(data.KeyLock);
+                    IsPowerOn = Convert.ToBoolean(data.Power);
+                });
+            }
         }
 
         public override void Disconnect()
@@ -160,6 +189,11 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
         private void Service_GattCharacteristicsUpdated(object sender, EventArgs e)
         {
             RaiseServicesUpdated();
+        }
+
+        private static bool IsBackgroundRunning
+        {
+            get { return Windows.ApplicationModel.Core.CoreApplication.Views.Count == 0; }
         }
     }
 }

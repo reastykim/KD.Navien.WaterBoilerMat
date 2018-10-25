@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public interface IWaterBoilerMatDevice : INotifyPropertyChanged, IDisposable
+    public interface IWaterBoilerMatDevice : IBluetoothLEDevice, INotifyPropertyChanged, IDisposable
     {
+        event EventHandler DeviceStatusUpdated;
+
         IBluetoothGattService BoilerGattService { get; }
 
         IBluetoothGattCharacteristic BoilerGattCharacteristic1 { get; }

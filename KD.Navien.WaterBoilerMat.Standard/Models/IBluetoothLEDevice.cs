@@ -7,6 +7,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 {
     public interface IBluetoothLEDevice : IDisposable
     {
+        string Id { get; }
+
 		string Name { get; }
 
 		string Address { get; }

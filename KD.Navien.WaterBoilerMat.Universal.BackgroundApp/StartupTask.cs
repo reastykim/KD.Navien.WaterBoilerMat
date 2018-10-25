@@ -12,14 +12,16 @@ using KD.Navien.WaterBoilerMat.Services;
 using Windows.Devices.Bluetooth.Advertisement;
 using System.Threading.Tasks;
 using System.Threading;
+using static KD.Navien.WaterBoilerMat.Standard.Services.AppServiceCommands;
 
 namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
 {
-    public sealed class StartupTask : IBackgroundTask
+    public sealed partial class StartupTask : IBackgroundTask
     {
         private BackgroundTaskDeferral _deferral;
         private AppServiceConnection _connection;
-        private Random _randomNumberGenerator;
+        
+
         private static ILoggerFacade _logger;
         private static IBluetoothLEService<WaterBoilerMatDevice> _bluetoothLEService;
 
@@ -41,6 +43,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
         {
             if (_deferral != null)
             {
+                CleanUp();
+
+                _connection.RequestReceived -= OnRequestReceived;
+                _connection.Dispose();
+                _connection = null;
+
                 //Complete the service deferral
                 _deferral.Complete();
                 _deferral = null;
@@ -53,7 +61,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
             _bluetoothLEService = _bluetoothLEService ?? new BluetoothLEService(_logger);
         }
 
-
         private async void OnRequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
             //Get a deferral so we can use an awaitable API to respond to the message
@@ -61,31 +68,22 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
 
             try
             {
+                AppServiceResponseStatus responseStatus;
                 var message = args.Request.Message;
-                string command = message["Command"] as string;
+                string command = message[Commands.Command].ToString();
 
                 switch (command)
                 {
-                    case "Scan":
-                        {
-                            var timeout = (int)message["timeout"];
-                            var devices = await _bluetoothLEService.ScanWaterBoilerMatDeviceAddressAsync(timeout);
-
-
-
-                            string json = Newtonsoft.Json.JsonConvert.SerializeObject(devices, Newtonsoft.Json.Formatting.Indented);
-
-
-
-                            var result = new ValueSet();
-                            result.Add("devices", json);
-
-                            await args.Request.SendResponseAsync(result);
-                        }
+                    case Commands.Scan:
+                        var timeoutMilliseconds = (int)message[Parameters.TimeoutMilliseconds];
+                        responseStatus = await ScanAsync(timeoutMilliseconds, args.Request);
                         break;
-
+                    case Commands.Connect:
+                        var deviceId = message[Parameters.DeviceID].ToString();
+                        var uniqueId = message[Parameters.UniqueID].ToString();
+                        responseStatus = await ConnectAsync(deviceId, uniqueId, args.Request);
+                        break;
                     //Other commands
-
                     default:
                         return;
                 }
@@ -95,11 +93,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
                 //Complete the message deferral so the operating system knows we're done responding
                 messageDeferral.Complete();
             }
-        }
-
-        private void AdvertisementWatcher_Received(BluetoothLEAdvertisementWatcher sender, BluetoothLEAdvertisementReceivedEventArgs args)
-        {
-
         }
     }
 }

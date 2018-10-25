@@ -15,14 +15,18 @@ using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public abstract class WaterBoilerMatDevice : BindableBase, IBluetoothLEDevice, IWaterBoilerMatDevice
+    public abstract class WaterBoilerMatDevice : BindableBase, IWaterBoilerMatDevice
     {
 		protected const string NavienDeviceMacPrefix = "2C:E2:A8";
 		public const string BoilerGattServiceUuid = "00001c0d-d102-11e1-9b23-2ce2a80000dd";
 		public const string BoilerGattCharacteristic1Uuid = "00001c0d-d102-11e1-9b23-2ce2a80100dd";
 		public const string BoilerGattCharacteristic2Uuid = "00001c0d-d102-11e1-9b23-2ce2a80200dd";
 
+        public event EventHandler DeviceStatusUpdated;
+
         #region Properties
+
+        public abstract string Id { get; }
 
         public abstract string Name { get; }
 
@@ -30,6 +34,7 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         public abstract bool IsConnected { get; }
 
+        [IgnoreDataMember]
         public List<IBluetoothGattService> Services
 		{
 			get => _services;
@@ -37,16 +42,19 @@ namespace KD.Navien.WaterBoilerMat.Models
 		}
 		private List<IBluetoothGattService> _services = new List<IBluetoothGattService>();
 
+        [IgnoreDataMember]
         public IBluetoothGattService BoilerGattService
         {
             get => Services.FirstOrDefault(S => S.UUID == BoilerGattServiceUuid);
         }
 
+        [IgnoreDataMember]
         public IBluetoothGattCharacteristic BoilerGattCharacteristic1
         {
             get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic1Uuid);
         }
 
+        [IgnoreDataMember]
         public IBluetoothGattCharacteristic BoilerGattCharacteristic2
         {
             get => BoilerGattService?.GattCharacteristics.FirstOrDefault(C => C.UUID == BoilerGattCharacteristic2Uuid);
@@ -258,6 +266,7 @@ namespace KD.Navien.WaterBoilerMat.Models
                     
                     // Update
                     UpdateDeviceStatus(response.Data);
+                    DeviceStatusUpdated?.Invoke(this, EventArgs.Empty);
 
                     _connectTcs.TrySetResult(_uniqueID);
                 }
@@ -601,29 +610,6 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
 
         #endregion
-
-        [OnSerializing]
-        internal void OnSerializingMethod(StreamingContext context)
-        {
-        }
-
-        [OnSerialized]
-        internal void OnSerializedMethod(StreamingContext context)
-        {
-
-        }
-
-        [OnDeserializing]
-        internal void OnDeserializingMethod(StreamingContext context)
-        {
-
-        }
-
-        [OnDeserialized]
-        internal void OnDeserializedMethod(StreamingContext context)
-        {
-
-        }
 
         #region Static Methods
 
