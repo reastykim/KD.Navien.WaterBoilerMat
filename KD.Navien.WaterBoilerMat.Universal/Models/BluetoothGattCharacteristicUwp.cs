@@ -1,6 +1,5 @@
 ﻿using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Universal.Extensions;
-using Microsoft.Toolkit.Uwp.Connectivity;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -22,11 +21,11 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         #region Properties
 
-        public string UUID => gattCharacteristics.UUID;
+        public string UUID => _gattCharacteristics.Uuid.ToString();
 
-		public string Name => gattCharacteristics.Name;
+        public string Name => _gattCharacteristics.UserDescription;
 
-		public string Value => gattCharacteristics.Value;
+        public string Value => null;
 
 		public List<IBluetoothGattDescriptor> GattDescriptor
 		{
@@ -39,56 +38,60 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         #region Fields
 
-        private ObservableGattCharacteristics gattCharacteristics;
+        private readonly GattCharacteristic _gattCharacteristics;
 
         #endregion
 
-        public BluetoothGattCharacteristicUwp(ObservableGattCharacteristics gattCharacteristics)
+		public BluetoothGattCharacteristicUwp(GattCharacteristic gattCharacteristics)
 		{
-			this.gattCharacteristics = gattCharacteristics;
+            _gattCharacteristics = gattCharacteristics;
 
-			Initialize();
-		}
-
-		public BluetoothGattCharacteristicUwp(GattCharacteristic gattCharacteristics, ObservableGattDeviceService parent)
-			:this(new ObservableGattCharacteristics(gattCharacteristics, parent))
-		{
-
-		}
+            Initialize();
+        }
 
 		private void Initialize()
 		{
-            gattCharacteristics.Characteristic.ValueChanged += (s, e) => ValueChanged?.Invoke(this, e.CharacteristicValue.ToBytes());
-            gattCharacteristics.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
+            _gattCharacteristics.ValueChanged += (s, e) => ValueChanged?.Invoke(this, e.CharacteristicValue.ToBytes());
 		}
 
-		public Task<bool> SetNotifyAsync(bool isEnable)
+		public async Task<bool> SetNotifyAsync(bool isEnable)
 		{
+            GattCommunicationStatus result;
             if (isEnable)
             {
-                return gattCharacteristics.SetNotifyAsync();
+                result = await _gattCharacteristics.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
             }
 			else
             {
-                return gattCharacteristics.StopNotifyAsync();
+                result = await _gattCharacteristics.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
             }
-		}
 
-		public Task<bool> WriteValueAsync(byte[] data)
+            return result == GattCommunicationStatus.Success;
+        }
+
+		public async Task<bool> WriteValueAsync(byte[] data)
 		{
-			return gattCharacteristics.WriteValueAsync(data);
+            var result = await _gattCharacteristics.WriteValueAsync(data.ToBuffer());
+            return result == GattCommunicationStatus.Success;
 		}
 
         public async Task<byte[]> ReadValueAsync()
         {
-            var result = await gattCharacteristics.Characteristic.ReadValueAsync();
+            var result = await _gattCharacteristics.ReadValueAsync();
             if (result.Status == GattCommunicationStatus.Success)
             {
                 return result.Value.ToBytes();
             }
             else
             {
-                throw new Exception($"ReadValueAsync Exception=[{result.Status}]");
+                if (result.ProtocolError != null)
+                {
+                    throw new Exception($"ReadValueAsync Exception=[{result.ProtocolError.GetErrorString()}]");
+                }
+                else
+                {
+                    throw new Exception($"ReadValueAsync Exception=[{result.Status}]");
+                }
             }
         }
 	}

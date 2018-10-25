@@ -1,35 +1,38 @@
-﻿using KD.Navien.WaterBoilerMat.Models;
+﻿using KD.Navien.WaterBoilerMat.Universal.Extensions;
+using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services.Protocol;
-using Microsoft.Toolkit.Uwp.Connectivity;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Prism.Logging;
 using System;
 using System.Collections.Specialized;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth;
+using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Devices.Enumeration;
 
 namespace KD.Navien.WaterBoilerMat.Universal.Models
 {
 	public sealed class WaterBoilerMatDeviceUwp : WaterBoilerMatDevice
 	{
-		#region Properties
+        #region Properties
 
-		public override string Name => _device?.Name;
-		public override string Address => _device?.BluetoothAddressAsString?.ToUpper();
-        public override bool IsConnected => _device?.IsConnected == true;
+        public override string Name => _device.Name;
+		public override string Address => _device.BluetoothAddress.ToMacAddress().ToUpper();
+        public override bool IsConnected => _device.ConnectionStatus == BluetoothConnectionStatus.Connected;
 
         #endregion
 
         #region Fields
 
-        private ObservableBluetoothLEDevice _device;
+        private readonly BluetoothLEDevice _device;
 
         #endregion
 
         #region Constructors & Initialize & Dispose
 
-        public WaterBoilerMatDeviceUwp(ObservableBluetoothLEDevice device, ILoggerFacade logger)
+        public WaterBoilerMatDeviceUwp(BluetoothLEDevice device, ILoggerFacade logger)
         {
             _device = device;
             _logger = logger;
@@ -39,18 +42,24 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         private void Initialize()
 		{
-            _device.PropertyChanged += (s, e) =>
+            _device.ConnectionStatusChanged += (s, e) =>
             {
-                if (_device != null)
-                {
-                    RaisePropertyChanged(e.PropertyName);
-                    Type type = typeof(ObservableBluetoothLEDevice);
-                    var value = type.GetProperty(e.PropertyName).GetValue(_device);
-                    _logger.Log($"WaterBoilerMatDeviceUwp.PropertyChanged. [{e.PropertyName}]=[{value}]", Category.Debug, Priority.High);
-                }
-            };
+                _logger.Log($"ConnectionStatusChanged. ConnectionStatus=[{_device.ConnectionStatus}]", Category.Debug, Priority.High);
 
-            _device.Services.CollectionChanged += Services_CollectionChanged;
+                DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                {
+                    RaisePropertyChanged(nameof(IsConnected));
+                });
+            };
+            _device.NameChanged += (s, e) =>
+            {
+                _logger.Log($"NameChanged. Name=[{_device.Name}]", Category.Debug, Priority.High);
+
+                DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                {
+                    RaisePropertyChanged(nameof(Name));
+                });
+            };
 		}
 
         protected override void Dispose(bool disposing)
@@ -60,7 +69,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
             {
                 if (disposing)
                 {
-                    _device.Services.CollectionChanged -= Services_CollectionChanged;
                     Disconnect();
                 }
             }
@@ -72,44 +80,37 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         #endregion
 
-        private void Services_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        protected override async Task ConnectAsync()
         {
-            switch (e.Action)
+            if (IsConnected)
+                return;
+
+            // Get all the services for this device
+            var getGattServicesAsyncTokenSource = new CancellationTokenSource(5000);
+            var getGattServicesAsyncTask = await Task.Run(() => _device.GetGattServicesAsync(BluetoothCacheMode.Uncached), getGattServicesAsyncTokenSource.Token);
+            var gattDeviceServiceResult = await getGattServicesAsyncTask;
+
+            if (gattDeviceServiceResult.Status == GattCommunicationStatus.Success)
             {
-                case NotifyCollectionChangedAction.Reset:
-                    foreach (var service in Services)
-                    {
-                        service.GattCharacteristicsUpdated -= Service_GattCharacteristicsUpdated;
-                    }
-                    Services.Clear();
-                    break;
-                case NotifyCollectionChangedAction.Add:
-                    var addedServices = e.NewItems.OfType<ObservableGattDeviceService>().Select(S => new BluetoothGattServiceUwp(S)).ToList<IBluetoothGattService>();
-                    foreach (var service in addedServices)
-                    {
-                        service.GattCharacteristicsUpdated += Service_GattCharacteristicsUpdated;
-                        Services.Add(service);
-                    }
-                    break;
-            }
+                // In case we connected before, clear the service list and recreate it
+                Services.Clear();
 
-            RaiseServicesUpdated();
-        }
+                foreach (var gattDeviceService in gattDeviceServiceResult.Services)
+                {
+                    var bluetoothGattServiceUwp = new BluetoothGattServiceUwp(gattDeviceService);
+                    bluetoothGattServiceUwp.GattCharacteristicsUpdated += Service_GattCharacteristicsUpdated;
 
-        private void Service_GattCharacteristicsUpdated(object sender, EventArgs e)
-        {
-            RaiseServicesUpdated();
-        }
+                    Services.Add(bluetoothGattServiceUwp);
+                }
 
-        protected override Task ConnectAsync()
-        {
-            if (_device.IsConnected)
-            {
-                return Task.CompletedTask;
+                RaiseServicesUpdated();
             }
             else
             {
-                return _device.ConnectAsync();
+                if (gattDeviceServiceResult.ProtocolError != null)
+                {
+                    throw new Exception(gattDeviceServiceResult.ProtocolError.GetErrorString());
+                }
             }
         }
 
@@ -138,7 +139,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         public override void Disconnect()
         {
-            if (_device.IsConnected)
+            if (IsConnected)
             {
                 foreach (var service in Services)
                 {
@@ -147,21 +148,18 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 }
                 Services.Clear();
 
-                _device.BluetoothLEDevice.Dispose();
+                _device.Dispose();
             }
         }
 
-        public override async Task<T> GetNativeBluetoothLEDeviceObjectAsync<T>()
+        public override Task<T> GetNativeBluetoothLEDeviceObjectAsync<T>()
         {
-            if (_device.BluetoothLEDevice != null)
-            {
-                return _device.BluetoothLEDevice as T;
-            }
-            else
-            {
-                var bleDevice = await BluetoothLEDevice.FromBluetoothAddressAsync(_device.BluetoothAddressAsUlong);
-                return bleDevice as T;
-            }
+            return Task.FromResult(_device as T);
+        }
+
+        private void Service_GattCharacteristicsUpdated(object sender, EventArgs e)
+        {
+            RaiseServicesUpdated();
         }
     }
 }

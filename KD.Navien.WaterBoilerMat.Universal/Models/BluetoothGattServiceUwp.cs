@@ -1,5 +1,4 @@
 ﻿using KD.Navien.WaterBoilerMat.Models;
-using Microsoft.Toolkit.Uwp.Connectivity;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -9,7 +8,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Devices.Bluetooth;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using System.Threading;
 
 namespace KD.Navien.WaterBoilerMat.Universal.Models
 {
@@ -17,52 +18,89 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 	{
 		public event EventHandler GattCharacteristicsUpdated;
 
-		public string UUID => gattDeviceService.UUID;
+		public string UUID => _gattDeviceService.Uuid.ToString();
 
-		public string Name => gattDeviceService.Name;
+        public string Name => Utils.ConvertUuidToName(_gattDeviceService.Uuid);
 
-		public List<IBluetoothGattCharacteristic> GattCharacteristics
+        public List<IBluetoothGattCharacteristic> GattCharacteristics
 		{
 			get => gattCharacteristics;
 			private set => SetProperty(ref gattCharacteristics, value);
 		}
 		private List<IBluetoothGattCharacteristic> gattCharacteristics = new List<IBluetoothGattCharacteristic>();
 
-		private ObservableGattDeviceService gattDeviceService;
+        #region Fields
 
+        private bool _disposed;
+        private readonly GattDeviceService _gattDeviceService;
 
-		public BluetoothGattServiceUwp(ObservableGattDeviceService gattDeviceService)
+        #endregion
+
+        #region Constructors & Initialize & Dispose, Destructors
+
+        public BluetoothGattServiceUwp(GattDeviceService gattDeviceService)
 		{
-			this.gattDeviceService = gattDeviceService;
+            _gattDeviceService = gattDeviceService;
 
-			Initialize();
-		}
-		public BluetoothGattServiceUwp(GattDeviceService gattDeviceService) : this(new ObservableGattDeviceService(gattDeviceService))
+            Initialize();
+        }
+		private Task Initialize()
 		{
+            return GetAllCharacteristics();
+        }
 
-		}
-		private void Initialize()
-		{
-            gattDeviceService.PropertyChanged += (s, e) => RaisePropertyChanged(e.PropertyName);
-			gattDeviceService.Characteristics.CollectionChanged += Characteristics_CollectionChanged;
-		}
+        ~BluetoothGattServiceUwp()
+        {
+            Dispose(false);
+        }
 
         public void Dispose()
         {
-            gattDeviceService.Characteristics.CollectionChanged -= Characteristics_CollectionChanged;
-            gattDeviceService.Service.Dispose();
-            gattDeviceService = null;
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
-
-        private void Session_SessionStatusChanged(GattSession sender, GattSessionStatusChangedEventArgs args)
+        protected virtual void Dispose(bool disposing)
         {
-            Debug.WriteLine($"SessionStatusChanged. Status=[{args.Status}]");
+            if (_disposed) return;
+            try
+            {
+                if (disposing)
+                {/* You need to clean up external resources managed by the .NET Framework at here. */
+                    _gattDeviceService.Dispose();
+                }
+
+                try { /* You need to clean up external resources didn't managed by the .NET Framework at here. */ }
+                catch { }
+                finally
+                {
+                    _disposed = true;
+                }
+            }
+            finally { }
         }
 
-        private void Characteristics_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-		{
-			GattCharacteristics = gattDeviceService.Characteristics.Select(C => new BluetoothGattCharacteristicUwp(C)).ToList<IBluetoothGattCharacteristic>();
-			GattCharacteristicsUpdated?.Invoke(this, EventArgs.Empty);
-		}
+        #endregion
+
+        /// <summary>
+        /// Gets all the characteristics of this service
+        /// </summary>
+        /// <returns>The status of the communication with the GATT device.</returns>
+        private async Task<GattCommunicationStatus> GetAllCharacteristics()
+        {
+            var tokenSource = new CancellationTokenSource(5000);
+            var getCharacteristicsTask = await Task.Run(() => _gattDeviceService.GetCharacteristicsAsync(BluetoothCacheMode.Uncached), tokenSource.Token);
+
+            GattCharacteristicsResult result = null;
+            result = await getCharacteristicsTask;
+
+            if (result.Status == GattCommunicationStatus.Success)
+            {
+                GattCharacteristics.AddRange(result.Characteristics.Select(C => new BluetoothGattCharacteristicUwp(C)));
+            }
+
+            GattCharacteristicsUpdated?.Invoke(this, EventArgs.Empty);
+
+            return result.Status;
+        }
     }
 }
