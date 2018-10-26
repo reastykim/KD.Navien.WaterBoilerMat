@@ -110,7 +110,6 @@
     <Compile Include="Behaviors\HideParentFlyoutAction.cs" />
     <Compile Include="Behaviors\PivotBehavior.cs" />
     <Compile Include="Behaviors\ShowAttachedFlyoutAction.cs" />
-    <Compile Include="Common\AppServiceCommands.cs" />
     <Compile Include="Common\DeviceFamilyTrigger.cs" />
     <Compile Include="Converters\BooleanToPossibleTextConverter.cs" />
     <Compile Include="Converters\DebugConverter.cs" />
@@ -126,8 +125,10 @@
     <Compile Include="Models\WaterBoilerMatDeviceUwp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Services\AlertMessageService.cs" />
+    <Compile Include="Services\AppServiceClient.cs" />
     <Compile Include="Services\BluetoothLEService.cs" />
     <Compile Include="Services\IAlertMessageService.cs" />
+    <Compile Include="Services\IAppServiceClient.cs" />
     <Compile Include="Views\IPivotPage.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -138,9 +139,6 @@
       <Version>4.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
-      <Version>4.0.0</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Toolkit.Uwp.DeveloperTools">
       <Version>4.0.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI">

@@ -2,7 +2,7 @@
 using KD.Navien.WaterBoilerMat.Models;
 using KD.Navien.WaterBoilerMat.Services;
 using KD.Navien.WaterBoilerMat.Services.Protocol;
-using KD.Navien.WaterBoilerMat.Universal.App.Views;
+using KD.Navien.WaterBoilerMat.Universal.RemoteApp.Views;
 using KD.Navien.WaterBoilerMat.Universal.Extensions;
 using KD.Navien.WaterBoilerMat.Universal.Models;
 using KD.Navien.WaterBoilerMat.Universal.Services;
@@ -20,18 +20,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
+namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
 {
     public class MainPageViewModel : ViewModelBase
     {
         #region Properties
 
-        public WaterBoilerMatDevice Device
+        public IBluetoothLEDevice Device
         {
             get => _device;
             private set => SetProperty(ref _device, value);
         }
-        private WaterBoilerMatDevice _device;
+        private IBluetoothLEDevice _device;
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await Device.RequestPowerOnOffAsync();
+                await _appServiceClient.RequestPowerOnOffAsync(Device.Id);
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         {
             try
             {
-                await Device.RequestLockOnOffAsync();
+                //await _appServiceClient.RequestLockOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -96,14 +96,16 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
         #region Fields
 
         private readonly IAlertMessageService _alertMessageService;
+        private readonly IAppServiceClient _appServiceClient;
 
         #endregion
 
         #region Constructors & Initialize
 
-        public MainPageViewModel(INavigationService navigationService, IAlertMessageService alertMessageService, ILoggerFacade logger)
+        public MainPageViewModel(IAppServiceClient appServiceClient, INavigationService navigationService, IAlertMessageService alertMessageService, ILoggerFacade logger)
             : base(navigationService, logger)
         {
+            _appServiceClient = appServiceClient;
             _alertMessageService = alertMessageService;
 
             Initialize();
@@ -120,7 +122,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            if (e.Parameter is WaterBoilerMatDevice connectedDevice)
+            if (e.Parameter is IBluetoothLEDevice connectedDevice)
             {
                 Device = connectedDevice;
             }
@@ -128,11 +130,15 @@ namespace KD.Navien.WaterBoilerMat.Universal.App.ViewModels
 
         public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
-            if (Device?.IsConnected == true)
+            if (_appServiceClient.IsOpened)
             {
-                await Device.DisconnectAsync();
-                Device.Dispose();
+                await _appServiceClient.CloseAsync();
             }
+            //if (Device?.IsConnected == true)
+            //{
+            //    Device.Disconnect();
+            //    Device.Dispose();
+            //}
         }
 
         #endregion

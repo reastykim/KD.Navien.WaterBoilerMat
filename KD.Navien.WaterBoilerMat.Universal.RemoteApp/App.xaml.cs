@@ -27,8 +27,11 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-namespace KD.Navien.WaterBoilerMat.Universal.App
+namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp
 {
+    /// <summary>
+    /// Provides application-specific behavior to supplement the default Application class.
+    /// </summary>
     /// <summary>
     /// This class uses the MvvmAppBase class to bootstrap this Windows Store App with Mvvm support
     /// http://go.microsoft.com/fwlink/?LinkID=288809&clcid=0x409
@@ -36,7 +39,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.App
     public sealed partial class App : PrismUnityApplication
     {
         public new IEventAggregator EventAggregator { get; set; }
-                
+
         // Documentation on navigation between pages is at http://go.microsoft.com/fwlink/?LinkID=288815&clcid=0x409
         protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
         {
@@ -64,32 +67,10 @@ namespace KD.Navien.WaterBoilerMat.Universal.App
             Container.RegisterInstance<ISessionStateService>(SessionStateService);
             Container.RegisterInstance<IEventAggregator>(EventAggregator);
             //Container.RegisterInstance<IResourceLoader>(new ResourceLoaderAdapter(new ResourceLoader()));
-            Container.RegisterType<IBluetoothLEService<WaterBoilerMatDevice>, BluetoothLEService>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<IAppServiceClient, AppServiceClient>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IAlertMessageService, AlertMessageService>(new ContainerControlledLifetimeManager());
 
             Container.RegisterType<IPairingList, PairingList>(new ContainerControlledLifetimeManager());
-
-
-
-            //// Register child view models
-            //Container.RegisterType<IShippingAddressUserControlViewModel, ShippingAddressUserControlViewModel>();
-            //Container.RegisterType<IBillingAddressUserControlViewModel, BillingAddressUserControlViewModel>();
-            //Container.RegisterType<IPaymentMethodUserControlViewModel, PaymentMethodUserControlViewModel>();
-            //Container.RegisterType<ISignInUserControlViewModel, SignInUserControlViewModel>();
-
-            //ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver((viewType) =>
-            //{
-            //    var viewModelTypeName = string.Format(CultureInfo.InvariantCulture, "AdventureWorks.UILogic.ViewModels.{0}ViewModel, AdventureWorks.UILogic, Version=1.1.0.0, Culture=neutral", viewType.Name);
-            //    var viewModelType = Type.GetType(viewModelTypeName);
-            //    if (viewModelType == null)
-            //    {
-            //        viewModelTypeName = string.Format(CultureInfo.InvariantCulture, "AdventureWorks.UILogic.ViewModels.{0}ViewModel, AdventureWorks.UILogic.Windows, Version=1.0.0.0, Culture=neutral", viewType.Name);
-            //        viewModelType = Type.GetType(viewModelTypeName);
-            //    }
-
-            //    return viewModelType;
-            //});
-            //var resourceLoader = Container.Resolve<IResourceLoader>();
 
             this.UnhandledException += App_UnhandledException;
 

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Bluetooth.GenericAttributeProfile;
+using Windows.Foundation.Collections;
 using Windows.Storage.Streams;
 
 namespace KD.Navien.WaterBoilerMat.Universal.Extensions
@@ -142,6 +143,11 @@ namespace KD.Navien.WaterBoilerMat.Universal.Extensions
             }
 
             return errorString;
+        }
+
+        public static string ToValueSetString(this ValueSet valueSet)
+        {
+            return string.Join(", ", valueSet.Select(KV => $"{{ {KV.Key}, {KV.Value} }}"));
         }
     }
 }

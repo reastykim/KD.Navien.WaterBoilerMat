@@ -69,14 +69,14 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
             };
 		}
 
-        protected override void Dispose(bool disposing)
+        protected override async void Dispose(bool disposing)
         {
             if (_disposed) return;
             try
             {
                 if (disposing)
                 {
-                    Disconnect();
+                    await DisconnectAsync();
                 }
             }
             finally
@@ -166,8 +166,10 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
             }
         }
 
-        public override void Disconnect()
+        public override async Task DisconnectAsync()
         {
+            await base.DisconnectAsync();
+
             if (IsConnected)
             {
                 foreach (var service in Services)

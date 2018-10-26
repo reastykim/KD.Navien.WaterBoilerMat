@@ -49,11 +49,11 @@ namespace KD.Navien.WaterBoilerMat.ViewModels
 
         #region Event Handlers
         
-        public override void OnNavigatedFrom(INavigationParameters parameters)
+        public override async void OnNavigatedFrom(INavigationParameters parameters)
         {
             Logger.Log("MainPageViewModel.OnNavigatedFrom", Category.Debug, Priority.High);
 
-            Device.Disconnect();
+            await Device.DisconnectAsync();
             Device.Dispose();
         }
 

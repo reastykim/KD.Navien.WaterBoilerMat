@@ -31,5 +31,9 @@ namespace KD.Navien.WaterBoilerMat.Universal.Converters
 
     public class ItemClickEventArgsToWaterBoilerMatDeviceConverter : ItemClickEventArgsConverter<WaterBoilerMatDevice>
     {
-    }    
+    }
+
+    public class ItemClickEventArgsToIBluetoothLEDeviceConverter : ItemClickEventArgsConverter<IBluetoothLEDevice>
+    {
+    }
 }

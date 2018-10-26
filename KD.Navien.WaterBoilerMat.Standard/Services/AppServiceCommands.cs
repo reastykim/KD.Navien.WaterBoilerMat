@@ -13,6 +13,7 @@ namespace KD.Navien.WaterBoilerMat.Standard.Services
             public const string Command = "Command";
             public const string Scan = "ScanCommand";
             public const string Connect = "ConnectCommand";
+            public const string RequestPowerOnOff = "RequestPowerOnOffCommand";
         }
 
         public class Parameters

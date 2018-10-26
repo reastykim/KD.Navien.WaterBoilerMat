@@ -15,7 +15,7 @@ using static KD.Navien.WaterBoilerMat.Services.Protocol.KDData;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public abstract class WaterBoilerMatDevice : BindableBase, IWaterBoilerMatDevice
+    public abstract class WaterBoilerMatDevice : BindableBase, IWaterBoilerMatDevice, IBluetoothLEDevice, IDisposable
     {
 		protected const string NavienDeviceMacPrefix = "2C:E2:A8";
 		public const string BoilerGattServiceUuid = "00001c0d-d102-11e1-9b23-2ce2a80000dd";
@@ -181,9 +181,8 @@ namespace KD.Navien.WaterBoilerMat.Models
                     _isReady = false;
                     _uniqueID = null;
                     _response = null;
-                    BoilerGattCharacteristic1.ValueChanged -= BoilerGattCharacteristic1_ValueChanged;
 
-                    Disconnect();
+                    DisconnectAsync();
                 }
 
                 try { /* You need to clean up external resources didn't managed by the .NET Framework at here. */ }
@@ -310,8 +309,18 @@ namespace KD.Navien.WaterBoilerMat.Models
         }
 
         protected abstract Task ConnectAsync();
-
-        public abstract void Disconnect();
+        
+        public virtual async Task DisconnectAsync()
+        {
+            if (IsConnected)
+            {
+                if (BoilerGattCharacteristic1 != null)
+                {
+                    BoilerGattCharacteristic1.ValueChanged -= BoilerGattCharacteristic1_ValueChanged;
+                    await BoilerGattCharacteristic1.SetNotifyAsync(false);
+                }
+            }
+        }
 
         protected abstract void UpdateDeviceStatus(KDData data);
 

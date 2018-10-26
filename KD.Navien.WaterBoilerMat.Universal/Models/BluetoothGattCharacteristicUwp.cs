@@ -52,16 +52,16 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 		private void Initialize()
 		{
             _gattCharacteristics.ValueChanged += (s, e) => ValueChanged?.Invoke(this, e.CharacteristicValue.ToBytes());
-		}
+        }
 
-		public async Task<bool> SetNotifyAsync(bool isEnable)
+        public async Task<bool> SetNotifyAsync(bool isEnable)
 		{
             GattCommunicationStatus result;
             if (isEnable)
             {
                 result = await _gattCharacteristics.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.Notify);
             }
-			else
+            else
             {
                 result = await _gattCharacteristics.WriteClientCharacteristicConfigurationDescriptorAsync(GattClientCharacteristicConfigurationDescriptorValue.None);
             }
@@ -94,5 +94,5 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
                 }
             }
         }
-	}
+    }
 }

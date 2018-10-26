@@ -101,7 +101,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="StartupTask.cs"/>
+    <Compile Include="StartupTask.cs" />
     <Compile Include="StartupTask.CommandActions.cs">
       <DependentUpon>StartupTask.cs</DependentUpon>
     </Compile>
@@ -145,9 +145,6 @@
       <Version>11.0.2</Version>
     </PackageReference>
     <PackageReference Include="Prism.Core">
-      <Version>7.1.0.431</Version>
-    </PackageReference>
-    <PackageReference Include="Prism.Unity">
       <Version>7.1.0.431</Version>
     </PackageReference>
   </ItemGroup>

@@ -79,8 +79,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
                         responseStatus = await ScanAsync(timeoutMilliseconds, args.Request);
                         break;
                     case Commands.Connect:
-                        var deviceId = message[Parameters.DeviceID].ToString();
-                        var uniqueId = message[Parameters.UniqueID].ToString();
+                        var deviceId = (string)message[Parameters.DeviceID];
+                        var uniqueId = (string)message[Parameters.UniqueID];
                         responseStatus = await ConnectAsync(deviceId, uniqueId, args.Request);
                         break;
                     //Other commands

@@ -53,10 +53,17 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
                 return await request.SendResponseAsync(new ValueSet()
                 {
                     { Parameters.Result, true },
+                    { Parameters.Details, JsonConvert.SerializeObject(device, Formatting.Indented) },
+                    { Parameters.UniqueID, uniqueId },
                 });
             }
             catch (Exception e)
             {
+                if (device.IsConnected)
+                {
+                    device.DisconnectAsync();
+                }
+
                 return await request.SendResponseAsync(new ValueSet()
                 {
                     { Parameters.Result, false },
@@ -84,7 +91,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
             if (_connectedDevice != null)
             {
                 _connectedDevice.DeviceStatusUpdated -= OnDeviceStatusUpdated;
-                _connectedDevice.Disconnect();
+                _connectedDevice.DisconnectAsync();
                 _connectedDevice.Dispose();
                 _connectedDevice = null;
             }

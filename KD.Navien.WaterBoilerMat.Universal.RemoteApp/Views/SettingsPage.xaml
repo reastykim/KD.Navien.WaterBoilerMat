@@ -1,0 +1,46 @@
+﻿<Page x:Class="KD.Navien.WaterBoilerMat.Universal.RemoteApp.Views.SettingsPage" 
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:KD.Navien.WaterBoilerMat.Universal.RemoteApp.Views"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      xmlns:prismMvvm="using:Prism.Windows.Mvvm"
+      xmlns:tkcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      mc:Ignorable="d"
+      prismMvvm:ViewModelLocator.AutoWireViewModel="True"
+      Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <ScrollViewer>
+        <StackPanel>
+            <TextBlock Text="설정" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+            <!--<StackPanel Margin="{StaticResource SettingsSubheaderMargin}">
+                <TextBlock Text="푸쉬 알림 설정" Style="{StaticResource BodyTextStyle}" />
+
+                <StackPanel Margin="{StaticResource EightTopMargin}">
+                    <CheckBox Content="에러정보 알림" />
+                    <CheckBox Content="날씨정보 알림" />
+                    <CheckBox Content="켜짐 예약 알림"/>
+                    <CheckBox Content="공지사항 알림"/>
+                </StackPanel>
+            </StackPanel>
+
+            <StackPanel Margin="{StaticResource SettingsSubheaderMargin}">
+                <TextBlock Text="지역 설정" Style="{StaticResource BodyTextStyle}" />
+
+                <StackPanel Orientation="Horizontal">
+                    <ComboBox />
+                    <ComboBox />
+                </StackPanel>
+            </StackPanel>-->
+
+            <!--<TextBlock Text="앱" Style="{StaticResource SubtitleTextBlockStyle}"/>-->
+            <StackPanel Margin="{StaticResource SettingsSubheaderMargin}">
+                <TextBlock Text="프로그램 정보" Style="{StaticResource BodyTextStyle}" />
+                <TextBlock Text="{Binding VersionDescriptions, FallbackValue='NAVIEN MATE - 1.0.0'}" Margin="0,5" />
+                <HyperlinkButton Content="도움말" NavigateUri="http://m.kdnavien.co.kr/guide/catalog?lang=KO"/>                
+                <HyperlinkButton Content="Privacy Statement" />
+            </StackPanel>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KD.Navien.WaterBoilerMat.Models
 {
-    public interface IWaterBoilerMatDevice : IBluetoothLEDevice, INotifyPropertyChanged, IDisposable
+    public interface IWaterBoilerMatDevice : IWaterBoilerMatDeviceInformation, IDisposable
     {
         event EventHandler DeviceStatusUpdated;
 
@@ -16,29 +16,8 @@ namespace KD.Navien.WaterBoilerMat.Models
 
         IBluetoothGattCharacteristic BoilerGattCharacteristic2 { get; }
 
-        bool IsPowerOn { get; }
-        bool IsLock { get; }
-
-        WaterCapacities WaterCapacity { get; }
-
-        VolumeLevels VolumeLevel { get; }
-
-        DeviceStatus Status { get; }
-
-        bool IsLeftPartsPowerOn { get; }
-
-        bool IsRightPartsPowerOn { get; }
-
-        TemperatureInfo TemperatureInfo { get; }
-
-        int CurrentLeftTemperature { get; }
-        int CurrentRightTemperature { get; }
-
-        int SetupLeftTemperature { get; }
-        int SetupRightTemperature { get; }
-
         Task<string> ConnectAsync(string uniqueID);
-        void Disconnect();
+        Task DisconnectAsync();
 
         Task RequestPowerOnOffAsync();
         Task RequestLockOnOffAsync();
