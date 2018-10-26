@@ -19,7 +19,7 @@
 
         <Pivot Grid.Row="1" Title="{StaticResource AppName}">
             <i:Interaction.Behaviors>
-                <behaviors:PivotNavigationBehavior NavigationParameter="{Binding Device}"/>
+                <behaviors:PivotNavigationBehavior NavigationParameter="{Binding DeviceInformation}"/>
             </i:Interaction.Behaviors>
 
             <Pivot.RightHeader>

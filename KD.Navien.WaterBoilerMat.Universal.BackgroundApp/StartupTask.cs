@@ -75,13 +75,61 @@ namespace KD.Navien.WaterBoilerMat.Universal.BackgroundApp
                 switch (command)
                 {
                     case Commands.Scan:
-                        var timeoutMilliseconds = (int)message[Parameters.TimeoutMilliseconds];
-                        responseStatus = await ScanAsync(timeoutMilliseconds, args.Request);
+                        {
+                            var timeoutMilliseconds = (int)message[Parameters.TimeoutMilliseconds];
+                            responseStatus = await ScanAsync(timeoutMilliseconds, args.Request);
+                        }
                         break;
                     case Commands.Connect:
-                        var deviceId = (string)message[Parameters.DeviceID];
-                        var uniqueId = (string)message[Parameters.UniqueID];
-                        responseStatus = await ConnectAsync(deviceId, uniqueId, args.Request);
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            var uniqueID = (string)message[Parameters.UniqueID];
+                            responseStatus = await ConnectAsync(deviceID, uniqueID, args.Request);
+                        }
+                        break;
+                    case Commands.Disconnect:
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            responseStatus = await DisconnectAsync(deviceID, args.Request);
+                        }
+                        break;
+                    case Commands.RequestPowerOnOff:
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            responseStatus = await RequestPowerOnOffAsync(deviceID, args.Request);
+                        }
+                        break;
+                    case Commands.RequestLockOnOff:
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            responseStatus = await RequestLockOnOffAsync(deviceID, args.Request);
+                        }
+                        break;
+                    case Commands.RequestLeftPartsPowerOnOff:
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            responseStatus = await RequestLeftPartsPowerOnOffAsync(deviceID, args.Request);
+                        }
+                        break;
+                    case Commands.RequestRightPartsPowerOnOff:
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            responseStatus = await RequestRightPartsPowerOnOffAsync(deviceID, args.Request);
+                        }
+                        break;
+                    case Commands.RequestVolumeChange:
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            var value = (VolumeLevels)message[Parameters.Value];
+                            responseStatus = await RequestVolumeChangeAsync(deviceID, value, args.Request);
+                        }
+                        break;
+                    case Commands.RequestSetupTemperatureChange:
+                        {
+                            var deviceID = (string)message[Parameters.DeviceID];
+                            var value = (int[])message[Parameters.Value];
+                            responseStatus = await RequestSetupTemperatureChangeAsync(deviceID, value[0], value[1], args.Request);
+                        }
                         break;
                     //Other commands
                     default:

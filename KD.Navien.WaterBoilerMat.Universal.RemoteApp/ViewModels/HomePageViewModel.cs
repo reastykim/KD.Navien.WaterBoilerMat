@@ -24,12 +24,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
 
         #region Properties
 
-        public IWaterBoilerMatDevice Device
+        public IWaterBoilerMatDeviceInformation DeviceInformation
         {
-            get => _device;
-            private set => SetProperty(ref _device, value);
+            get => _deviceInformation;
+            private set => SetProperty(ref _deviceInformation, value);
         }
-        private IWaterBoilerMatDevice _device;
+        private IWaterBoilerMatDeviceInformation _deviceInformation;
 
         public int SetupLeftTemperature
         {
@@ -97,7 +97,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
             {
                 if (SetProperty(ref _selectedVolumeLevel, value))
                 {
-                    Device.RequestVolumeChangeAsync(value);
+                    _appServiceClient.RequestVolumeChangeAsync(value);
                 }
             }
         }
@@ -111,7 +111,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             get
             {
-                return _leftPartsPowerCommand ?? (_leftPartsPowerCommand = new DelegateCommand(ExecuteLeftPartsPower).ObservesCanExecute(() => Device.IsPowerOn));
+                return _leftPartsPowerCommand ?? (_leftPartsPowerCommand = new DelegateCommand(ExecuteLeftPartsPower).ObservesCanExecute(() => DeviceInformation.IsPowerOn));
             }
         }
         private DelegateCommand _leftPartsPowerCommand;
@@ -119,7 +119,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             try
             {
-                await Device.RequestLeftPartsPowerOnOffAsync();
+                await _appServiceClient.RequestLeftPartsPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -136,7 +136,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             get
             {
-                return _rightPartsPowerCommand ?? (_rightPartsPowerCommand = new DelegateCommand(ExecuteRightPartsPower).ObservesCanExecute(() => Device.IsPowerOn));
+                return _rightPartsPowerCommand ?? (_rightPartsPowerCommand = new DelegateCommand(ExecuteRightPartsPower).ObservesCanExecute(() => DeviceInformation.IsPowerOn));
             }
         }
         private DelegateCommand _rightPartsPowerCommand;
@@ -144,7 +144,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             try
             {
-                await Device.RequestRightPartsPowerOnOffAsync();
+                await _appServiceClient.RequestRightPartsPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -161,7 +161,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             get
             {
-                return _setTemperatureCommand ?? (_setTemperatureCommand = new DelegateCommand(ExecuteSetTemperature).ObservesCanExecute(() => Device.IsPowerOn));
+                return _setTemperatureCommand ?? (_setTemperatureCommand = new DelegateCommand(ExecuteSetTemperature).ObservesCanExecute(() => DeviceInformation.IsPowerOn));
             }
         }
         private DelegateCommand _setTemperatureCommand;
@@ -169,9 +169,9 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             try
             {
-                await Device.RequestSetupTemperatureChangeAsync(SetupLeftTemperature, SetupRightTemperature);
+                await _appServiceClient.RequestSetupTemperatureChangeAsync(SetupLeftTemperature, SetupRightTemperature);
 
-                Logger.Log($"SetupLeftTemperature=[{Device.SetupLeftTemperature}], SetupRightTemperature=[{Device.SetupRightTemperature}]", Category.Info, Priority.None);
+                Logger.Log($"SetupLeftTemperature=[{DeviceInformation.SetupLeftTemperature}], SetupRightTemperature=[{DeviceInformation.SetupRightTemperature}]", Category.Info, Priority.None);
             }
             catch (Exception ex)
             {
@@ -188,7 +188,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             get
             {
-                return _setVolumeLevelCommand ?? (_setVolumeLevelCommand = new DelegateCommand<Object>(ExecuteSetVolumeLevel).ObservesCanExecute(() => Device.IsPowerOn));
+                return _setVolumeLevelCommand ?? (_setVolumeLevelCommand = new DelegateCommand<Object>(ExecuteSetVolumeLevel).ObservesCanExecute(() => DeviceInformation.IsPowerOn));
             }
         }
         private DelegateCommand<Object> _setVolumeLevelCommand;
@@ -196,9 +196,9 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             try
             {
-                await Device.RequestVolumeChangeAsync(SelectedVolumeLevel);
+                //await _appServiceClient.RequestVolumeChangeAsync(SelectedVolumeLevel);
 
-                Logger.Log($"VolumeLevel=[{Device.VolumeLevel}]", Category.Info, Priority.None);
+                //Logger.Log($"VolumeLevel=[{DeviceInformation.VolumeLevel}]", Category.Info, Priority.None);
             }
             catch (Exception ex)
             {
@@ -215,15 +215,17 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
 
         #region Fields
 
+        private readonly IAppServiceClient _appServiceClient;
         private readonly IAlertMessageService _alertMessageService;
 
         #endregion
 
         #region Constructors & Initialize
 
-        public HomePageViewModel(INavigationService navigationService, IAlertMessageService alertMessageService, ILoggerFacade logger)
+        public HomePageViewModel(IAppServiceClient appServiceClient, INavigationService navigationService, IAlertMessageService alertMessageService, ILoggerFacade logger)
             : base(navigationService, logger)
         {
+            _appServiceClient = appServiceClient;
             _alertMessageService = alertMessageService;
 
             Initialize();
@@ -238,36 +240,53 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            base.OnNavigatedTo(e, viewModelState);
-            if (e.Parameter is IWaterBoilerMatDevice device)
-            {
-                Device = device;
-                SetupLeftTemperature = Device.SetupLeftTemperature;
-                SetupRightTemperature = Device.SetupRightTemperature;
-                _selectedVolumeLevel = Device.VolumeLevel;
+            _appServiceClient.WaterBoilerMatDeviceInformationUpdated += OnWaterBoilerMatDeviceInformationUpdated;
 
-                Device.PropertyChanged += OnDevice_PropertyChanged;
-            }
+            base.OnNavigatedTo(e, viewModelState);
         }
 
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            _appServiceClient.WaterBoilerMatDeviceInformationUpdated -= OnWaterBoilerMatDeviceInformationUpdated;
 
-            Device.PropertyChanged -= OnDevice_PropertyChanged;
+            base.OnNavigatingFrom(e, viewModelState, suspending);
         }
 
         private void OnDevice_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             switch (e.PropertyName)
             {
-                case nameof(Device.IsPowerOn):
-                case nameof(Device.SetupLeftTemperature):
-                case nameof(Device.SetupRightTemperature):
-                    SetupLeftTemperature = Device.SetupLeftTemperature;
-                    SetupRightTemperature = Device.SetupRightTemperature;
+                case nameof(DeviceInformation.IsPowerOn):
+                case nameof(DeviceInformation.SetupLeftTemperature):
+                case nameof(DeviceInformation.SetupRightTemperature):
+                    SetupLeftTemperature = DeviceInformation.SetupLeftTemperature;
+                    SetupRightTemperature = DeviceInformation.SetupRightTemperature;
                     break;
             }
+        }
+
+        private void OnWaterBoilerMatDeviceInformationUpdated(object sender, WaterBoilerMatDeviceInformation e)
+        {
+            DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+            {
+                if (DeviceInformation == null)
+                {
+                    SetupLeftTemperature = e.SetupLeftTemperature;
+                    SetupRightTemperature = e.SetupRightTemperature;
+                }
+                else
+                {
+                    if (DeviceInformation.IsPowerOn != e.IsPowerOn ||
+                        DeviceInformation.SetupLeftTemperature != e.SetupLeftTemperature ||
+                        DeviceInformation.SetupRightTemperature != e.SetupRightTemperature)
+                    {
+                        SetupLeftTemperature = DeviceInformation.SetupLeftTemperature;
+                        SetupRightTemperature = DeviceInformation.SetupRightTemperature;
+                    }
+                }
+
+                DeviceInformation = e;
+            });
         }
     }
 }

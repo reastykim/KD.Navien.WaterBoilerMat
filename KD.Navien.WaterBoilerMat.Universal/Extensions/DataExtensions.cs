@@ -147,7 +147,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Extensions
 
         public static string ToValueSetString(this ValueSet valueSet)
         {
-            return string.Join(", ", valueSet.Select(KV => $"{{ {KV.Key}, {KV.Value} }}"));
+            return string.Join(", ", valueSet.Select(KV => $"{{ \"{KV.Key}\", {KV.Value} }}"));
         }
     }
 }

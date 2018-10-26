@@ -32,10 +32,15 @@ namespace KD.Navien.WaterBoilerMat.Models
             //{ TemperatureInfoType.Unknown, 25 }
         };
 
-        public int MaximumTemperature { get; }
-        public int MinimumTemperature { get; }
+        public int MaximumTemperature { get; set; }
+        public int MinimumTemperature { get; set; }
 
         public int OverHeatTemperature => 37;
+
+        public TemperatureInfo()
+        {
+
+        }
 
         public TemperatureInfo(int maxTemperatureHighLow)
         {

@@ -13,7 +13,16 @@ namespace KD.Navien.WaterBoilerMat.Standard.Services
             public const string Command = "Command";
             public const string Scan = "ScanCommand";
             public const string Connect = "ConnectCommand";
+            public const string Disconnect = "DisconnectCommand";
+
             public const string RequestPowerOnOff = "RequestPowerOnOffCommand";
+            public const string RequestLockOnOff = "RequestLockOnOffCommand";
+
+            public const string RequestLeftPartsPowerOnOff = "RequestLeftPartsPowerOnOffCommand";
+            public const string RequestRightPartsPowerOnOff = "RequestRightPartsPowerOnOffCommand";
+
+            public const string RequestVolumeChange = "RequestVolumeChangeCommand";
+            public const string RequestSetupTemperatureChange = "RequestSetupTemperatureChangeCommand";
         }
 
         public class Parameters
@@ -24,7 +33,8 @@ namespace KD.Navien.WaterBoilerMat.Standard.Services
             public const string UniqueID = "uniqueID";
             public const string Result = "result";
             public const string Details = "details";
-            public const string Device = "device";
+            public const string DeviceInformation = "deviceInformation";
+            public const string Value = "value";
         }
     }
 }

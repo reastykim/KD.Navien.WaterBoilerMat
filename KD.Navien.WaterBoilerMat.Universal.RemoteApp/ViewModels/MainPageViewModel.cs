@@ -26,12 +26,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
     {
         #region Properties
 
-        public IBluetoothLEDevice Device
+        public IWaterBoilerMatDeviceInformation DeviceInformation
         {
-            get => _device;
-            private set => SetProperty(ref _device, value);
+            get => _devicInformatione;
+            private set => SetProperty(ref _devicInformatione, value);
         }
-        private IBluetoothLEDevice _device;
+        private IWaterBoilerMatDeviceInformation _devicInformatione;
 
         #endregion
 
@@ -46,7 +46,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             try
             {
-                await _appServiceClient.RequestPowerOnOffAsync(Device.Id);
+                await _appServiceClient.RequestPowerOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -68,7 +68,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             try
             {
-                //await _appServiceClient.RequestLockOnOffAsync();
+                await _appServiceClient.RequestLockOnOffAsync();
             }
             catch (Exception ex)
             {
@@ -122,23 +122,29 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            if (e.Parameter is IBluetoothLEDevice connectedDevice)
-            {
-                Device = connectedDevice;
-            }
+            _appServiceClient.WaterBoilerMatDeviceInformationUpdated += OnWaterBoilerMatDeviceInformationUpdated;
+
+            base.OnNavigatedTo(e, viewModelState);
         }
 
         public override async void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
-            if (_appServiceClient.IsOpened)
+            _appServiceClient.WaterBoilerMatDeviceInformationUpdated -= OnWaterBoilerMatDeviceInformationUpdated;
+
+            if (_appServiceClient.ConnectedBluetoothLEDeviceInformation != null)
             {
-                await _appServiceClient.CloseAsync();
+                await _appServiceClient.DisconnectToDeviceAsync(_appServiceClient.ConnectedBluetoothLEDeviceInformation.Id);
             }
-            //if (Device?.IsConnected == true)
-            //{
-            //    Device.Disconnect();
-            //    Device.Dispose();
-            //}
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+
+        private void OnWaterBoilerMatDeviceInformationUpdated(object sender, WaterBoilerMatDeviceInformation e)
+        {
+            DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+            {
+                DeviceInformation = e;
+            });
         }
 
         #endregion

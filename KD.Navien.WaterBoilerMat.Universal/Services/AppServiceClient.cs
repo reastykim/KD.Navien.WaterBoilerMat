@@ -19,10 +19,12 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
         const string AppServiceName = "kd.navien.waterboilermat.service";
         const string PackageFamilyName = "KD.Navien.WaterBoilerMat.BackgroundApp-uwp_kkkr88vwcx6t6";
 
+        public event EventHandler<WaterBoilerMatDeviceInformation> WaterBoilerMatDeviceInformationUpdated;
+
         #region Properties
 
         public bool IsOpened { get; private set; }
-        public BluetoothLEDeviceInformation ConnectedBluetoothLEDeviceInformation { get; private set; }
+        public IBluetoothLEDevice ConnectedBluetoothLEDeviceInformation { get; private set; }
 
         #endregion
 
@@ -56,7 +58,28 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
 
         private void OnRequestReceived(AppServiceConnection sender, AppServiceRequestReceivedEventArgs args)
         {
+            var requestDeferral = args.GetDeferral();
 
+            _logger.Log($"AppServiceClient.OnRequestReceived() Message=[{args.Request.Message.ToValueSetString()}]", Category.Info, Priority.High);
+
+            try
+            {
+                if (args.Request.Message.ContainsKey(Parameters.DeviceInformation))
+                {
+                    var deviceInformationJsonText = (string)args.Request.Message[Parameters.DeviceInformation];
+                    var deviceInformation = JsonConvert.DeserializeObject<WaterBoilerMatDeviceInformation>(deviceInformationJsonText);
+
+                    WaterBoilerMatDeviceInformationUpdated?.Invoke(this, deviceInformation);
+                }
+            }
+            catch (Exception e)
+            {
+                _logger.Log($"AppServiceClient.OnRequestReceived. Exception=[{e.Message}]", Category.Info, Priority.High);
+            }
+            finally
+            {
+                requestDeferral.Complete();
+            }
         }
 
         private void OnServiceClosed(AppServiceConnection sender, AppServiceClosedEventArgs args)
@@ -90,11 +113,14 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
             }
 
             IsOpened = true;
-            //_appServiceConnection.RequestReceived += OnRequestReceived;
+            _appServiceConnection.RequestReceived += OnRequestReceived;
         }
 
         public Task CloseAsync()
         {
+            ConnectedBluetoothLEDeviceInformation = null;
+            IsOpened = false;
+
             _appServiceConnection.RequestReceived -= OnRequestReceived;
             _appServiceConnection.Dispose();
 
@@ -103,8 +129,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
 
         public void Dispose()
         {
-            ConnectedBluetoothLEDeviceInformation = null;
-
             CloseAsync();
         }
 
@@ -129,7 +153,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
             return devices.OfType<IBluetoothLEDevice>().ToList();
         }
 
-        public async Task<string> ConnectToDeviceAsync(string deviceID, string uniqueID)
+        public async Task<string> ConnectToDeviceAsync(string uniqueID, string deviceID)
         {
             //Send a message to the app service
             var message = new ValueSet();
@@ -162,8 +186,39 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
             return uniqueID;
         }
 
-        public async Task RequestPowerOnOffAsync(string deviceID)
+        public async Task DisconnectToDeviceAsync(string deviceID = null)
         {
+            deviceID = deviceID ?? ConnectedBluetoothLEDeviceInformation.Id;
+
+            //Send a message to the app service
+            var message = new ValueSet();
+            message.Add(Commands.Command, Commands.Disconnect);
+            message.Add(Parameters.DeviceID, deviceID);
+
+            var responseMessage = await SendMessageAsync(message);
+
+            // check the response message
+            if (responseMessage.ContainsKey(Parameters.Result) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Result}\"");
+            }
+            if (responseMessage.ContainsKey(Parameters.Details) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Details}\"");
+            }
+
+            var result = (bool)responseMessage[Parameters.Result];
+            var detail = (string)responseMessage[Parameters.Details];
+            if (result != true)
+            {
+                throw new Exception(detail);
+            }
+        }
+
+        public async Task RequestPowerOnOffAsync(string deviceID = null)
+        {
+            deviceID = deviceID ?? ConnectedBluetoothLEDeviceInformation.Id;
+
             //Send a message to the app service
             var message = new ValueSet();
             message.Add(Commands.Command, Commands.RequestPowerOnOff);
@@ -188,6 +243,154 @@ namespace KD.Navien.WaterBoilerMat.Universal.Services
                 throw new Exception(detail);
             }
         }
+
+        public async Task RequestLockOnOffAsync(string deviceID = null)
+        {
+            deviceID = deviceID ?? ConnectedBluetoothLEDeviceInformation.Id;
+
+            //Send a message to the app service
+            var message = new ValueSet();
+            message.Add(Commands.Command, Commands.RequestLockOnOff);
+            message.Add(Parameters.DeviceID, deviceID);
+
+            var responseMessage = await SendMessageAsync(message);
+
+            // check the response message
+            if (responseMessage.ContainsKey(Parameters.Result) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Result}\"");
+            }
+            if (responseMessage.ContainsKey(Parameters.Details) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Details}\"");
+            }
+
+            var result = (bool)responseMessage[Parameters.Result];
+            var detail = (string)responseMessage[Parameters.Details];
+            if (result != true)
+            {
+                throw new Exception(detail);
+            }
+        }
+
+        public async Task RequestLeftPartsPowerOnOffAsync(string deviceID = null)
+        {
+            deviceID = deviceID ?? ConnectedBluetoothLEDeviceInformation.Id;
+
+            //Send a message to the app service
+            var message = new ValueSet();
+            message.Add(Commands.Command, Commands.RequestLeftPartsPowerOnOff);
+            message.Add(Parameters.DeviceID, deviceID);
+
+            var responseMessage = await SendMessageAsync(message);
+
+            // check the response message
+            if (responseMessage.ContainsKey(Parameters.Result) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Result}\"");
+            }
+            if (responseMessage.ContainsKey(Parameters.Details) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Details}\"");
+            }
+
+            var result = (bool)responseMessage[Parameters.Result];
+            var detail = (string)responseMessage[Parameters.Details];
+            if (result != true)
+            {
+                throw new Exception(detail);
+            }
+        }
+
+        public async Task RequestRightPartsPowerOnOffAsync(string deviceID = null)
+        {
+            deviceID = deviceID ?? ConnectedBluetoothLEDeviceInformation.Id;
+
+            //Send a message to the app service
+            var message = new ValueSet();
+            message.Add(Commands.Command, Commands.RequestRightPartsPowerOnOff);
+            message.Add(Parameters.DeviceID, deviceID);
+
+            var responseMessage = await SendMessageAsync(message);
+
+            // check the response message
+            if (responseMessage.ContainsKey(Parameters.Result) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Result}\"");
+            }
+            if (responseMessage.ContainsKey(Parameters.Details) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Details}\"");
+            }
+
+            var result = (bool)responseMessage[Parameters.Result];
+            var detail = (string)responseMessage[Parameters.Details];
+            if (result != true)
+            {
+                throw new Exception(detail);
+            }
+        }
+
+        public async Task RequestVolumeChangeAsync(VolumeLevels value, string deviceID = null)
+        {
+            deviceID = deviceID ?? ConnectedBluetoothLEDeviceInformation.Id;
+
+            //Send a message to the app service
+            var message = new ValueSet();
+            message.Add(Commands.Command, Commands.RequestVolumeChange);
+            message.Add(Parameters.DeviceID, deviceID);
+            message.Add(Parameters.Value, (int)value);
+
+            var responseMessage = await SendMessageAsync(message);
+
+            // check the response message
+            if (responseMessage.ContainsKey(Parameters.Result) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Result}\"");
+            }
+            if (responseMessage.ContainsKey(Parameters.Details) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Details}\"");
+            }
+
+            var result = (bool)responseMessage[Parameters.Result];
+            var detail = (string)responseMessage[Parameters.Details];
+            if (result != true)
+            {
+                throw new Exception(detail);
+            }
+        }
+
+        public async Task RequestSetupTemperatureChangeAsync(int setupLeftTemperature, int setupRightTemperature, string deviceID = null)
+        {
+            deviceID = deviceID ?? ConnectedBluetoothLEDeviceInformation.Id;
+
+            //Send a message to the app service
+            var message = new ValueSet();
+            message.Add(Commands.Command, Commands.RequestSetupTemperatureChange);
+            message.Add(Parameters.DeviceID, deviceID);
+            message.Add(Parameters.Value, new int[] { setupLeftTemperature, setupRightTemperature });
+
+            var responseMessage = await SendMessageAsync(message);
+
+            // check the response message
+            if (responseMessage.ContainsKey(Parameters.Result) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Result}\"");
+            }
+            if (responseMessage.ContainsKey(Parameters.Details) != true)
+            {
+                throw new Exception($"The app service response message does not contain a key called \"{Parameters.Details}\"");
+            }
+
+            var result = (bool)responseMessage[Parameters.Result];
+            var detail = (string)responseMessage[Parameters.Details];
+            if (result != true)
+            {
+                throw new Exception(detail);
+            }
+        }
+
 
         private async Task<ValueSet> SendMessageAsync(ValueSet message)
         {

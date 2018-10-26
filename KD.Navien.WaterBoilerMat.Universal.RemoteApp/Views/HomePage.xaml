@@ -65,7 +65,7 @@
                 <RowDefinition />
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Margin="0,10" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
+            <Border Grid.Row="0" Margin="0,10" Visibility="{Binding DeviceInformation.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
                 <Border.Background>
                     <SolidColorBrush Color="{ThemeResource SystemColorInactiveCaptionColor}"/>
                 </Border.Background>
@@ -88,13 +88,13 @@
                     </Grid.ColumnDefinitions>
 
                     <ToggleButton Grid.Column="0" Margin="5,10" Content="좌측난방"
-                                  IsChecked="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
+                                  IsChecked="{Binding DeviceInformation.IsLeftPartsPowerOn, Mode=OneWay}"
                                   Command="{Binding LeftPartsPowerCommand}"/>
                     <ToggleButton Grid.Column="1" Margin="5,10" Content="전체온도변경"
-                                  IsEnabled="{Binding Device.IsPowerOn}"
+                                  IsEnabled="{Binding DeviceInformation.IsPowerOn}"
                                   IsChecked="{Binding SetChangeAllTemperatures, Mode=TwoWay}"/>
                     <ToggleButton Grid.Column="2" Margin="5,10" Content="우측난방"
-                                  IsChecked="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
+                                  IsChecked="{Binding DeviceInformation.IsRightPartsPowerOn, Mode=OneWay}"
                                   Command="{Binding RightPartsPowerCommand}"/>
                 </Grid>
 
@@ -112,14 +112,14 @@
                         </Grid.ColumnDefinitions>
 
                         <Slider Grid.Column="0" HorizontalAlignment="Left" Orientation="Vertical"
-                                IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
-                                Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
-                                Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
+                                IsEnabled="{Binding DeviceInformation.IsLeftPartsPowerOn, Mode=OneWay}"
+                                Minimum="{Binding DeviceInformation.TemperatureInfo.MinimumTemperature}"
+                                Maximum="{Binding DeviceInformation.TemperatureInfo.MaximumTemperature}"
                                 Value="{Binding SetupLeftTemperature, Mode=TwoWay}"/>
 
                         <StackPanel Grid.Column="1" HorizontalAlignment="Right">
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 
-                                                          Text="{Binding Device.CurrentLeftTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
+                                                          Text="{Binding DeviceInformation.CurrentLeftTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
                                                           Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도"
                                                           Text="{Binding SetupLeftTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
@@ -137,14 +137,14 @@
                         </Grid.ColumnDefinitions>
 
                         <Slider Grid.Column="1" HorizontalAlignment="Right" Orientation="Vertical" 
-                                IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
-                                Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
-                                Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
+                                IsEnabled="{Binding DeviceInformation.IsRightPartsPowerOn, Mode=OneWay}"
+                                Minimum="{Binding DeviceInformation.TemperatureInfo.MinimumTemperature}"
+                                Maximum="{Binding DeviceInformation.TemperatureInfo.MaximumTemperature}"
                                 Value="{Binding SetupRightTemperature, Mode=TwoWay}"/>
 
                         <StackPanel Grid.Column="0" HorizontalAlignment="Left">
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 
-                                                          Text="{Binding Device.CurrentRightTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
+                                                          Text="{Binding DeviceInformation.CurrentRightTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
                                                           Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
                             <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도" 
                                                           Text="{Binding SetupRightTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
@@ -159,21 +159,21 @@
                         <StackPanel>
                             <tkcontrols:HeaderedContentControl Header="물용량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
                                 <FontIcon Margin="5" FontSize="32"
-                                          Glyph="{Binding Device.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F2;}"/>
+                                          Glyph="{Binding DeviceInformation.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F2;}"/>
                             </tkcontrols:HeaderedContentControl>
                             <!--<tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="&#xE823;"/>
                             </tkcontrols:HeaderedContentControl>-->
                             <tkcontrols:HeaderedContentControl Header="음량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}"
-															   IsEnabled="{Binding Device.IsPowerOn}">
+															   IsEnabled="{Binding DeviceInformation.IsPowerOn}">
                                 <tkcontrols:HeaderedContentControl.HeaderTemplate>
                                     <DataTemplate>
                                         <TextBlock Text="{Binding}" HorizontalAlignment="Center"/>
                                     </DataTemplate>
                                 </tkcontrols:HeaderedContentControl.HeaderTemplate>
                                 <FontIcon Margin="5" FontSize="32"
-                                          Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}">
+                                          Glyph="{Binding DeviceInformation.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}">
                                     <FlyoutBase.AttachedFlyout>
                                         <Flyout Placement="Bottom">
                                             <ListBox x:Name="volumeLevelsListBox" ItemsSource="{Binding VolumeLevels}" 

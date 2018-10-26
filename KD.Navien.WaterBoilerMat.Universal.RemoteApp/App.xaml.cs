@@ -90,7 +90,6 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp
             }
 #endif
 
-
             Exit();
         }
     }

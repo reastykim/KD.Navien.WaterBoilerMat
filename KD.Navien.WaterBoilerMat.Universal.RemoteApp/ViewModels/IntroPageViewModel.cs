@@ -68,13 +68,13 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
         {
             try
             {
+                IsScanning = true;
+
                 // Deletes a list of previously discovered BluetoothLEDeviceInformation.
                 Devices.Clear();
 
                 // Scan
-                IsScanning = true;
                 var devices = await _appServiceClient.ScanAsync(ScanTimeout);
-                IsScanning = false;
 
                 // Add to list of 
                 foreach (var device in devices)
@@ -88,6 +88,10 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
                 Logger.Log($"AppServiceClient.ScanAsync() fail. Exception=[{e.Message}]", Category.Exception, Priority.High);
 
                 await _alertMessageService.ShowAsync("AppServiceClient scan fail.", "Error");
+            }
+            finally
+            {
+                IsScanning = false;
             }
         }
         private bool CanExecuteScan()
@@ -110,7 +114,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
 
                 Logger.Log($"Connecting to Device. Id=[{device.Id}] UniqueID=[{uniqueID}]", Category.Info, Priority.High);
 
-                uniqueID = await _appServiceClient.ConnectToDeviceAsync(device.Id, uniqueID);
+                uniqueID = await _appServiceClient.ConnectToDeviceAsync(uniqueID, device.Id);
                 _pairingList[device.Address] = uniqueID;
 
                 Logger.Log($"Connected to Device. Address=[{device.Address}] UniqueID=[{uniqueID}]", Category.Info, Priority.High);
@@ -118,7 +122,7 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
                 // Navigate to MainPage
                 await DispatcherHelper.ExecuteOnUIThreadAsync(() =>
                 {
-                    NavigationService.Navigate("Main", device);
+                    NavigationService.Navigate("Main", null);
                 });
             }
             catch (Exception e)
@@ -158,6 +162,13 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
             _appServiceClient = appServiceClient;
             _alertMessageService = alertMessageService;
             _pairingList = pairingList;
+
+            Initialize();
+        }
+
+        private void Initialize()
+        {
+
         }
 
         #endregion
@@ -166,25 +177,23 @@ namespace KD.Navien.WaterBoilerMat.Universal.RemoteApp.ViewModels
 
         public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            // When the IntroPage is newly navigated, it scan for WaterBoilerMatDevice.
-            if (e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.New)
-            {
-                try
-                {
-                    if (_appServiceClient.IsOpened != true)
-                    {
-                        await _appServiceClient.OpenAsync();
-                    }
+            base.OnNavigatedTo(e, viewModelState);
 
-                    if (ScanCommand.CanExecute())
-                    {
-                        ScanCommand.Execute();
-                    }
-                }
-                catch (Exception ex)
+            try
+            {
+                if (_appServiceClient.IsOpened != true)
                 {
-                    Logger.Log($"IntroPage.OnNavigatedTo() Exception=[{ex.Message}]", Category.Exception, Priority.High);
+                    await _appServiceClient.OpenAsync();
                 }
+
+                if (ScanCommand.CanExecute())
+                {
+                    ScanCommand.Execute();
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.Log($"IntroPage.OnNavigatedTo() Exception=[{ex.Message}]", Category.Exception, Priority.High);
             }
         }
 
