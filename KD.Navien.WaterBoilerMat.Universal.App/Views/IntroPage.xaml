@@ -34,19 +34,21 @@
 			<RowDefinition Height="Auto"/>
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0" Text="{StaticResource AppName}" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" 
-				   Style="{StaticResource HeaderTextBlockStyle}"/>
+        <Border Grid.Row="0" Height="48" Background="{ThemeResource AppBarBackgroundThemeBrush}" BorderBrush="{ThemeResource AppBarBorderThemeBrush}" >
+            <TextBlock Text="{StaticResource AppName}" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" 
+				   Style="{StaticResource TitleTextBlockStyle}"/>
+        </Border>
 
-		<Grid Grid.Row="1">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition />
-			</Grid.RowDefinitions>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-			<TextBlock Grid.Row="0" Text="연결 가능한 온수 매트" HorizontalAlignment="Center" VerticalAlignment="Center" 
-					   Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Grid.Row="0" Text="연결 가능한 온수 매트" Margin="10,10,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" 
+					   Style="{StaticResource BaseTextBlockStyle}"/>
 
-			<Grid Grid.Row="1" Margin="20,10" MinWidth="300" HorizontalAlignment="Center">
+            <Grid Grid.Row="1" Margin="20,10" MinWidth="300" HorizontalAlignment="Center">
 				<Grid.RowDefinitions>
 					<RowDefinition />
 					<RowDefinition Height="10"/>

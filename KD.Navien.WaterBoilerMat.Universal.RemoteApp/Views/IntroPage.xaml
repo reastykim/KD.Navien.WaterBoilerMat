@@ -16,82 +16,84 @@
 	  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
 	  prismMvvm:ViewModelLocator.AutoWireViewModel="True"
       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-	<Page.Resources>
+    <Page.Resources>
         <converters:ItemClickEventArgsToIBluetoothLEDeviceConverter x:Key="ItemClickEventArgsToIBluetoothLEDeviceConverter"/>
-		<tkconverters:BoolToVisibilityConverter x:Key="TrueToVisibilityConverter"/>
-	</Page.Resources>
+        <tkconverters:BoolToVisibilityConverter x:Key="TrueToVisibilityConverter"/>
+    </Page.Resources>
 
-	<i:Interaction.Behaviors>
-		<core:EventTriggerBehavior EventName="Loaded">
-			<core:InvokeCommandAction Command="{Binding LoadedCommand}"/>
-		</core:EventTriggerBehavior>
-	</i:Interaction.Behaviors>
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loaded">
+            <core:InvokeCommandAction Command="{Binding LoadedCommand}"/>
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
 
-	<Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="Auto"/>
-			<RowDefinition />
-			<RowDefinition Height="Auto"/>
-		</Grid.RowDefinitions>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
 
-		<TextBlock Grid.Row="0" Text="{StaticResource AppName}" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" 
-				   Style="{StaticResource HeaderTextBlockStyle}"/>
+        <Border Grid.Row="0" Height="48" Background="{ThemeResource AppBarBackgroundThemeBrush}" BorderBrush="{ThemeResource AppBarBorderThemeBrush}" >
+            <TextBlock Text="{StaticResource AppName}" Margin="10,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" 
+				   Style="{StaticResource TitleTextBlockStyle}"/>
+        </Border>
 
-		<Grid Grid.Row="1">
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto"/>
-				<RowDefinition />
-			</Grid.RowDefinitions>
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition />
+            </Grid.RowDefinitions>
 
-			<TextBlock Grid.Row="0" Text="연결 가능한 온수 매트" HorizontalAlignment="Center" VerticalAlignment="Center" 
-					   Style="{StaticResource TitleTextBlockStyle}"/>
+            <TextBlock Grid.Row="0" Text="연결 가능한 온수 매트" Margin="10,10,10,0" HorizontalAlignment="Center" VerticalAlignment="Center" 
+					   Style="{StaticResource BaseTextBlockStyle}"/>
 
-			<Grid Grid.Row="1" Margin="20,10" MinWidth="300" HorizontalAlignment="Center">
-				<Grid.RowDefinitions>
-					<RowDefinition />
-					<RowDefinition Height="10"/>
-				</Grid.RowDefinitions>
-				
-				<ListView Grid.Row="0" Padding="10"  BorderThickness="1"
+            <Grid Grid.Row="1" Margin="20,10" MinWidth="300" HorizontalAlignment="Center">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition Height="10"/>
+                </Grid.RowDefinitions>
+
+                <ListView Grid.Row="0" Padding="10" BorderThickness="1"
                           ItemsSource="{Binding Devices}" IsItemClickEnabled="True" SelectionMode="None">
-					<i:Interaction.Behaviors>
-						<core:EventTriggerBehavior EventName="ItemClick">
-							<core:InvokeCommandAction Command="{Binding ConnectCommand}" 
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="ItemClick">
+                            <core:InvokeCommandAction Command="{Binding ConnectCommand}" 
                                                       InputConverter="{StaticResource ItemClickEventArgsToIBluetoothLEDeviceConverter}"/>
-						</core:EventTriggerBehavior>
-					</i:Interaction.Behaviors>
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
 
-					<ListView.BorderBrush>
-						<SolidColorBrush Color="{ThemeResource SystemAccentColorLight3}"/>
-					</ListView.BorderBrush>
-					<ListView.ItemContainerStyle>
-						<Style TargetType="ListViewItem">
-							<Style.Setters>
-								<Setter Property="BorderThickness" Value="0,0,0,1"/>
-								<Setter Property="BorderBrush">
-									<Setter.Value>
-										<SolidColorBrush Color="{StaticResource SystemAccentColorLight1}"/>
-									</Setter.Value>
-								</Setter>
-							</Style.Setters>
-						</Style>
-					</ListView.ItemContainerStyle>
-					<ListView.ItemTemplate>
+                    <ListView.BorderBrush>
+                        <SolidColorBrush Color="{ThemeResource SystemAccentColorLight3}"/>
+                    </ListView.BorderBrush>
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Style.Setters>
+                                <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                                <Setter Property="BorderBrush">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="{StaticResource SystemAccentColorLight1}"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style.Setters>
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemTemplate>
                         <DataTemplate x:DataType="models:IBluetoothLEDevice">
-							<StackPanel>
-								<TextBlock Text="{Binding Name}"/>
-								<TextBlock Text="{Binding Address}"/>
-							</StackPanel>
-						</DataTemplate>
-					</ListView.ItemTemplate>
-				</ListView>
+                            <StackPanel>
+                                <TextBlock Text="{Binding Name}"/>
+                                <TextBlock Text="{Binding Address}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListView.ItemTemplate>
+                </ListView>
 
-				<ProgressBar Grid.Row="1" IsIndeterminate="True" VerticalAlignment="Center"
+                <ProgressBar Grid.Row="1" IsIndeterminate="True" VerticalAlignment="Center"
 							 Visibility="{Binding IsScanning, Converter={StaticResource TrueToVisibilityConverter}}"/>
-			</Grid>			
-		</Grid>
+            </Grid>
+        </Grid>
 
-		<Button Grid.Row="2" Content="새 온수매트 검색" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource AccentButtonStyle}"
+        <Button Grid.Row="2" Content="새 온수매트 검색" Margin="20" HorizontalAlignment="Center" VerticalAlignment="Center" Style="{StaticResource AccentButtonStyle}"
                 Command="{Binding ScanCommand}"/>
-	</Grid>
+    </Grid>
 </Page>
