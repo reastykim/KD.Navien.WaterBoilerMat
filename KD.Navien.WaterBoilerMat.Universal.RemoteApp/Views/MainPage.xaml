@@ -10,31 +10,77 @@
 	  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
       xmlns:behaviors="using:KD.Navien.WaterBoilerMat.Universal.RemoteApp.Behaviors"
       xmlns:views="using:KD.Navien.WaterBoilerMat.Universal.RemoteApp.Views"
-      xmlns:controls="using:KD.Navien.WaterBoilerMat.Universal.RemoteApp.Controls"
+      xmlns:tkconverters="using:Microsoft.Toolkit.Uwp.UI.Converters"
 	  prismMvvm:ViewModelLocator.AutoWireViewModel="True"
 	  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <tkconverters:BoolNegationConverter x:Key="BoolNegationConverter" />
+    </Page.Resources>
+
     <Grid x:Name="ContentArea" Margin="{StaticResource MediumLeftRightMargin}">
-        <!--<TextBlock Grid.Row="0" Text="" Style="{StaticResource PageTitleStyle}" />-->
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="LockButtonStateGroup">
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsLock}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="appBarLockButton.Label" Value="Lock"/>
+                        <Setter Target="appBarLockButton.IsChecked" Value="True"/>
+                        <Setter Target="lockIcon.Glyph" Value="&#xE72E;" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsLock, Converter={StaticResource BoolNegationConverter}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="appBarLockButton.Label" Value="UnLock"/>
+                        <Setter Target="appBarLockButton.IsChecked" Value="False"/>
+                        <Setter Target="lockIcon.Glyph" Value="&#xE785;" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup x:Name="PowerButtonStateGroup">
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsPowerOn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="appBarPowerButton.Label" Value="Power On"/>
+                        <Setter Target="appBarPowerButton.IsChecked" Value="True"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsPowerOn, Converter={StaticResource BoolNegationConverter}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="appBarPowerButton.Label" Value="Power Off"/>
+                        <Setter Target="appBarPowerButton.IsChecked" Value="False"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
         <Pivot Grid.Row="1" Title="{StaticResource AppName}">
             <i:Interaction.Behaviors>
-                <behaviors:PivotNavigationBehavior NavigationParameter="{Binding DeviceInformation}"/>
+                <behaviors:PivotNavigationBehavior NavigationParameter="{Binding Device}"/>
             </i:Interaction.Behaviors>
 
             <Pivot.RightHeader>
                 <CommandBar x:Name="topCommandBar" Background="Transparent" Margin="0,0,12,0"
 							DefaultLabelPosition="Right" OverflowButtonVisibility="Collapsed">
-                    <AppBarToggleButton Label="UnLock" Command="{Binding LockCommand}">
-                        <AppBarToggleButton.Icon>
-                            <FontIcon x:Name="LockIcon" Glyph="&#xE785;"/>
-                            <!--<FontIcon x:Name="LockIcon" Glyph="&#xE72E;" Margin="0,-2,0,0"/>-->
 
+                    <AppBarToggleButton x:Name="appBarLockButton" Label="UnLock" Command="{Binding LockCommand}">
+                        <AppBarToggleButton.Icon>
+                            <FontIcon x:Name="lockIcon" Glyph="&#xE785;"/>
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
-                    <AppBarToggleButton Label="Power" Command="{Binding PowerCommand}">
+                    <AppBarToggleButton x:Name="appBarPowerButton" Label="Power On" Command="{Binding PowerCommand}">
                         <AppBarToggleButton.Icon>
-                            <FontIcon x:Name="PowerIcon" Glyph="&#xE7E8;"/>
+                            <FontIcon x:Name="powerIcon" Glyph="&#xE7E8;"/>
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
                 </CommandBar>
