@@ -43,31 +43,14 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
 
         private void Initialize()
 		{
-            _device.ConnectionStatusChanged += (s, e) =>
-            {
-                _logger.Log($"ConnectionStatusChanged. ConnectionStatus=[{_device.ConnectionStatus}]", Category.Debug, Priority.High);
-
-                if (IsBackgroundRunning == false)
-                {
-                    DispatcherHelper.ExecuteOnUIThreadAsync(() =>
-                    {
-                        RaisePropertyChanged(nameof(IsConnected));
-                    });
-                }
-            };
-            _device.NameChanged += (s, e) =>
-            {
-                _logger.Log($"NameChanged. Name=[{_device.Name}]", Category.Debug, Priority.High);
-
-                if (IsBackgroundRunning == false)
-                {
-                    DispatcherHelper.ExecuteOnUIThreadAsync(() =>
-                    {
-                        RaisePropertyChanged(nameof(Name));
-                    });
-                }
-            };
+            _device.ConnectionStatusChanged += OnDeviceConnectionStatusChanged;
+            _device.NameChanged += OnDeviceNameChanged;
 		}
+
+        ~WaterBoilerMatDeviceUwp()
+        {
+            this.Dispose(false);
+        }
 
         protected override async void Dispose(bool disposing)
         {
@@ -76,6 +59,8 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
             {
                 if (disposing)
                 {
+                    _device.ConnectionStatusChanged -= OnDeviceConnectionStatusChanged;
+                    _device.NameChanged -= OnDeviceNameChanged;
                     await DisconnectAsync();
                 }
             }
@@ -191,6 +176,32 @@ namespace KD.Navien.WaterBoilerMat.Universal.Models
         private void Service_GattCharacteristicsUpdated(object sender, EventArgs e)
         {
             RaiseServicesUpdated();
+        }
+
+        private void OnDeviceConnectionStatusChanged(BluetoothLEDevice sender, object args)
+        {
+            _logger.Log($"ConnectionStatusChanged. ConnectionStatus=[{sender.ConnectionStatus}]", Category.Debug, Priority.High);
+
+            if (IsBackgroundRunning == false)
+            {
+                DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                {
+                    RaisePropertyChanged(nameof(IsConnected));
+                });
+            }
+        }
+
+        private void OnDeviceNameChanged(BluetoothLEDevice sender, object args)
+        {
+            _logger.Log($"NameChanged. Name=[{sender.Name}]", Category.Debug, Priority.High);
+
+            if (IsBackgroundRunning == false)
+            {
+                DispatcherHelper.ExecuteOnUIThreadAsync(() =>
+                {
+                    RaisePropertyChanged(nameof(Name));
+                });
+            }
         }
 
         private static bool IsBackgroundRunning
