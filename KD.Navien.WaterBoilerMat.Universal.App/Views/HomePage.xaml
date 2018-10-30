@@ -21,6 +21,7 @@
     <Page.Resources>
         <tkconverters:BoolToVisibilityConverter x:Key="FalseToVisibilityConverter" TrueValue="Collapsed" FalseValue="Visible"/>
         <tkconverters:StringFormatConverter x:Key="StringFormatConverter" />
+        <tkconverters:BoolNegationConverter x:Key="BoolNegationConverter" />
         <uconverters:WaterCapacityToFontIconConverter x:Key="WaterCapacityToFontIconConverter"/>
         <uconverters:VolumeLevelToVolumeFontIconConverter x:Key="VolumeLevelToVolumeFontIconConverter"/>
         <uconverters:BooleanToPossibleTextConverter x:Key="BooleanToPossibleTextConverter"/>
@@ -59,160 +60,195 @@
     </Page.Resources>
 
     <Grid>
-        <Grid x:Name="content">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="LeftPartsPowerButtonStateGroup">
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsLeftPartsPowerOn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="leftPartsPowerButton.IsChecked" Value="True"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsLeftPartsPowerOn, Converter={StaticResource BoolNegationConverter}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="leftPartsPowerButton.IsChecked" Value="False"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            <VisualStateGroup x:Name="RightPartsPowerButtonStateGroup">
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsRightPartsPowerOn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="rightPartsPowerButton.IsChecked" Value="True"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding Device.IsRightPartsPowerOn, Converter={StaticResource BoolNegationConverter}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="rightPartsPowerButton.IsChecked" Value="False"/>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+
+        <Border Grid.Row="0" Margin="0,10" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
+            <Border.Background>
+                <SolidColorBrush Color="{ThemeResource SystemColorInactiveCaptionColor}"/>
+            </Border.Background>
+            <TextBlock Text="POWER OFF" HorizontalAlignment="Center" VerticalAlignment="Center"
+                       Style="{StaticResource BaseTextBlockStyle}"/>
+        </Border>
+
+        <Grid Grid.Row="1" HorizontalAlignment="Center">
             <Grid.RowDefinitions>
-                <RowDefinition Height="50"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition />
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <Border Grid.Row="0" Margin="0,10" Visibility="{Binding Device.IsPowerOn, Converter={StaticResource FalseToVisibilityConverter}}">
-                <Border.Background>
-                    <SolidColorBrush Color="{ThemeResource SystemColorInactiveCaptionColor}"/>
-                </Border.Background>
-                <TextBlock Text="POWER OFF" HorizontalAlignment="Center" VerticalAlignment="Center"
-						   Style="{StaticResource BaseTextBlockStyle}"/>
-            </Border>
+            <Grid Grid.Row="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
 
-            <Grid Grid.Row="1" HorizontalAlignment="Center">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition />
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
+                <ToggleButton x:Name="leftPartsPowerButton" Grid.Column="0" Margin="5,10" HorizontalAlignment="Right" Content="좌측난방"
+                              Command="{Binding LeftPartsPowerCommand}"/>
+                <ToggleButton Grid.Column="1" Margin="5,10" Content="전체온도변경"
+                              IsEnabled="{Binding Device.IsPowerOn}"
+                              IsChecked="{Binding SetChangeAllTemperatures, Mode=TwoWay}"/>
+                <ToggleButton x:Name="rightPartsPowerButton" Grid.Column="2" Margin="5,10" HorizontalAlignment="Left" Content="우측난방"
+                              Command="{Binding RightPartsPowerCommand}"/>
+            </Grid>
 
-                <Grid Grid.Row="0">
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid Grid.Column="0" Margin="0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition />
-                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
 
-                    <ToggleButton Grid.Column="0" Margin="5,10" Content="좌측난방"
-                                  IsChecked="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
-                                  Command="{Binding LeftPartsPowerCommand}"/>
-                    <ToggleButton Grid.Column="1" Margin="5,10" Content="전체온도변경"
-                                  IsEnabled="{Binding Device.IsPowerOn}"
-                                  IsChecked="{Binding SetChangeAllTemperatures, Mode=TwoWay}"/>
-                    <ToggleButton Grid.Column="2" Margin="5,10" Content="우측난방"
-                                  IsChecked="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
-                                  Command="{Binding RightPartsPowerCommand}"/>
+                    <Slider Grid.Column="0" HorizontalAlignment="Left" Orientation="Vertical"
+                            IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
+                            Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
+                            Value="{Binding SetupLeftTemperature, Mode=TwoWay}"/>
+
+                    <StackPanel Grid.Column="1" HorizontalAlignment="Right">
+                        <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 
+                                                      Text="{Binding Device.CurrentLeftTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
+                                                      Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
+                        <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도"
+                                                      Text="{Binding SetupLeftTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
+                                                      Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
+                        <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" 
+                                                      Text="{Binding CanSleepModeLeft, Converter={StaticResource BooleanToPossibleTextConverter}, FallbackValue=불가능}" 
+                                                      Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
+                    </StackPanel>
                 </Grid>
 
-                <Grid Grid.Row="1">
+                <Grid Grid.Column="2" Margin="0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition />
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <Grid Grid.Column="0" Margin="0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
+                    <Slider Grid.Column="1" HorizontalAlignment="Right" Orientation="Vertical" 
+                            IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
+                            Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
+                            Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
+                            Value="{Binding SetupRightTemperature, Mode=TwoWay}"/>
 
-                        <Slider Grid.Column="0" HorizontalAlignment="Left" Orientation="Vertical"
-                                IsEnabled="{Binding Device.IsLeftPartsPowerOn, Mode=OneWay}"
-                                Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
-                                Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
-                                Value="{Binding SetupLeftTemperature, Mode=TwoWay}"/>
+                    <StackPanel Grid.Column="0" HorizontalAlignment="Left">
+                        <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 
+                                                      Text="{Binding Device.CurrentRightTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
+                                                      Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
+                        <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도" 
+                                                      Text="{Binding SetupRightTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
+                                                      Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
+                        <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" 
+                                                      Text="{Binding CanSleepModeRight, Converter={StaticResource BooleanToPossibleTextConverter}, FallbackValue=불가능}" 
+                                                      Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
+                    </StackPanel>
+                </Grid>
 
-                        <StackPanel Grid.Column="1" HorizontalAlignment="Right">
-                            <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 
-                                                          Text="{Binding Device.CurrentLeftTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
-                                                          Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
-                            <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도"
-                                                          Text="{Binding SetupLeftTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
-                                                          Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
-                            <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" 
-                                                          Text="{Binding CanSleepModeLeft, Converter={StaticResource BooleanToPossibleTextConverter}, FallbackValue=불가능}" 
-                                                          Style="{StaticResource RightAlignmentHeaderedBlockStyle}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Grid.Column="2" Margin="0,10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition />
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Slider Grid.Column="1" HorizontalAlignment="Right" Orientation="Vertical" 
-                                IsEnabled="{Binding Device.IsRightPartsPowerOn, Mode=OneWay}"
-                                Minimum="{Binding Device.TemperatureInfo.MinimumTemperature}"
-                                Maximum="{Binding Device.TemperatureInfo.MaximumTemperature}"
-                                Value="{Binding SetupRightTemperature, Mode=TwoWay}"/>
-
-                        <StackPanel Grid.Column="0" HorizontalAlignment="Left">
-                            <tkcontrols:HeaderedTextBlock Margin="0,30" Header="현재온도" 
-                                                          Text="{Binding Device.CurrentRightTemperature, Mode=OneWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
-                                                          Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
-                            <tkcontrols:HeaderedTextBlock Margin="0,30" Header="설정온도" 
-                                                          Text="{Binding SetupRightTemperature, Mode=TwoWay, Converter={StaticResource StringFormatConverter}, ConverterParameter='{}{0}º', FallbackValue=--}" 
-                                                          Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
-                            <tkcontrols:HeaderedTextBlock Margin="0,30" Header="수면온도구간" 
-                                                          Text="{Binding CanSleepModeRight, Converter={StaticResource BooleanToPossibleTextConverter}, FallbackValue=불가능}" 
-                                                          Style="{StaticResource LeftAlignmentHeaderedBlockStyle}"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <Grid Grid.Column="1" Margin="10">
-                        <StackPanel>
-                            <tkcontrols:HeaderedContentControl Header="물용량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
-                                <FontIcon Margin="5" FontSize="32"
-                                          Glyph="{Binding Device.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F2;}"/>
-                            </tkcontrols:HeaderedContentControl>
-                            <!--<tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
+                <Grid Grid.Column="1" Margin="10">
+                    <StackPanel>
+                        <tkcontrols:HeaderedContentControl Header="물용량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
+                            <FontIcon Margin="5" FontSize="32"
+                                      Glyph="{Binding Device.WaterCapacity, Converter={StaticResource WaterCapacityToFontIconConverter}, FallbackValue=&#xF5F2;}"/>
+                        </tkcontrols:HeaderedContentControl>
+                        <!--<tkcontrols:HeaderedContentControl Margin="0,30" Header="예약" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}">
                                 <FontIcon Margin="5" FontSize="32"
                                           Glyph="&#xE823;"/>
                             </tkcontrols:HeaderedContentControl>-->
-                            <tkcontrols:HeaderedContentControl Header="음량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}"
-															   IsEnabled="{Binding Device.IsPowerOn}">
-                                <tkcontrols:HeaderedContentControl.HeaderTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding}" HorizontalAlignment="Center"/>
-                                    </DataTemplate>
-                                </tkcontrols:HeaderedContentControl.HeaderTemplate>
-                                <FontIcon Margin="5" FontSize="32"
-                                          Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}">
-                                    <FlyoutBase.AttachedFlyout>
-                                        <Flyout Placement="Bottom">
-                                            <ListBox x:Name="volumeLevelsListBox" ItemsSource="{Binding VolumeLevels}" 
-                                                      SelectedItem="{Binding SelectedVolumeLevel, Mode=TwoWay}">
-                                                <i:Interaction.Behaviors>
-                                                    <core:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding ElementName=volumeLevelsListBox}">
-                                                        <ubehaviors:HideParentFlyoutAction />
-                                                    </core:EventTriggerBehavior>
-                                                </i:Interaction.Behaviors>
+                        <tkcontrols:HeaderedContentControl Header="음량" Style="{StaticResource CenterAlignmentHeaderedContentControlStyle}"
+                                                           IsEnabled="{Binding Device.IsPowerOn}">
+                            <tkcontrols:HeaderedContentControl.HeaderTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" HorizontalAlignment="Center"/>
+                                </DataTemplate>
+                            </tkcontrols:HeaderedContentControl.HeaderTemplate>
+                            <FontIcon Margin="5" FontSize="32"
+                                      Glyph="{Binding Device.VolumeLevel, Converter={StaticResource VolumeLevelToVolumeFontIconConverter}, FallbackValue=&#xE992;}">
+                                <FlyoutBase.AttachedFlyout>
+                                    <Flyout Placement="Bottom">
+                                        <ListBox x:Name="volumeLevelsListBox" ItemsSource="{Binding VolumeLevels}" 
+                                                 SelectedItem="{Binding SelectedVolumeLevel, Mode=TwoWay}">
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="SelectionChanged" SourceObject="{Binding ElementName=volumeLevelsListBox}">
+                                                    <ubehaviors:HideParentFlyoutAction />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
 
-                                                <ListBox.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <StackPanel Orientation="Horizontal"/>
-                                                    </ItemsPanelTemplate>
-                                                </ListBox.ItemsPanel>
-                                                <ListBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <FontIcon Margin="2" FontSize="20" Glyph="{Binding Converter={StaticResource VolumeLevelToVolumeFontIconConverter}}"/>
-                                                    </DataTemplate>
-                                                </ListBox.ItemTemplate>
-                                            </ListBox>
-                                        </Flyout>
-                                    </FlyoutBase.AttachedFlyout>
+                                            <ListBox.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ListBox.ItemsPanel>
+                                            <ListBox.ItemTemplate>
+                                                <DataTemplate>
+                                                    <FontIcon Margin="2" FontSize="20" Glyph="{Binding Converter={StaticResource VolumeLevelToVolumeFontIconConverter}}"/>
+                                                </DataTemplate>
+                                            </ListBox.ItemTemplate>
+                                        </ListBox>
+                                    </Flyout>
+                                </FlyoutBase.AttachedFlyout>
 
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <ubehaviors:ShowAttachedFlyoutAction />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </FontIcon>
-                            </tkcontrols:HeaderedContentControl>
-                        </StackPanel>
-                    </Grid>
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <ubehaviors:ShowAttachedFlyoutAction />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
+                            </FontIcon>
+                        </tkcontrols:HeaderedContentControl>
+                    </StackPanel>
                 </Grid>
-
-                <Button Grid.Row="2" Width="200" Margin="20" HorizontalAlignment="Center" 
-						Content="저장" Style="{StaticResource AccentButtonStyle}"
-                        Command="{Binding SetTemperatureCommand}"/>
             </Grid>
+
+            <Button Grid.Row="2" Width="200" Margin="20" HorizontalAlignment="Center" 
+                    Content="저장" Style="{StaticResource AccentButtonStyle}"
+                    Command="{Binding SetTemperatureCommand}"/>
         </Grid>
     </Grid>
 </Page>
