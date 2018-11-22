@@ -35,6 +35,7 @@ namespace KD.Navien.WaterBoilerMat.Models
         public abstract bool IsConnected { get; }
 
         [IgnoreDataMember]
+        
         public List<IBluetoothGattService> Services
 		{
 			get => _services;
@@ -182,7 +183,9 @@ namespace KD.Navien.WaterBoilerMat.Models
                     _uniqueID = null;
                     _response = null;
 
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                     DisconnectAsync();
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
                 }
 
                 try { /* You need to clean up external resources didn't managed by the .NET Framework at here. */ }
@@ -203,7 +206,7 @@ namespace KD.Navien.WaterBoilerMat.Models
 
             if (args.PropertyName == nameof(IsConnected) && IsConnected == false)
             {
-                _connectTcs.TrySetException(new ApplicationException("Connection is lost by native object."));
+                _connectTcs.TrySetException(new CommunicationFailException("Connection is lost by native object."));
             }
         }
 
@@ -238,7 +241,7 @@ namespace KD.Navien.WaterBoilerMat.Models
                     else
                     {
                         _logger.Log($"Connect fail. Raw=[{response.Data.DEBUGCode}]", Category.Debug, Priority.High);
-                        throw new ApplicationException($"KDResponse.SetValue() fail.");
+                        throw new CommunicationFailException($"KDResponse.SetValue() fail.");
                     }
                 }
                 catch (Exception e)
@@ -272,7 +275,7 @@ namespace KD.Navien.WaterBoilerMat.Models
                 else
                 {
                     _logger.Log($"Connect fail. Raw=[{response.Data.DEBUGCode}]", Category.Debug, Priority.High);
-                    throw new ApplicationException($"KDResponse.SetValue() fail.");
+                    throw new CommunicationFailException($"KDResponse.SetValue() fail.");
                 }
             }
             catch (Exception ex)
