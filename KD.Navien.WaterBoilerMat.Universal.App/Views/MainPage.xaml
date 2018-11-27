@@ -28,7 +28,6 @@
                         <StateTrigger IsActive="{Binding Device.IsLock}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="appBarLockButton.Label" Value="Lock"/>
                         <Setter Target="appBarLockButton.IsChecked" Value="True"/>
                         <Setter Target="lockIcon.Glyph" Value="&#xE72E;" />
                     </VisualState.Setters>
@@ -38,7 +37,6 @@
                         <StateTrigger IsActive="{Binding Device.IsLock, Converter={StaticResource BoolNegationConverter}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="appBarLockButton.Label" Value="UnLock"/>
                         <Setter Target="appBarLockButton.IsChecked" Value="False"/>
                         <Setter Target="lockIcon.Glyph" Value="&#xE785;" />
                     </VisualState.Setters>
@@ -50,7 +48,6 @@
                         <StateTrigger IsActive="{Binding Device.IsPowerOn}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="appBarPowerButton.Label" Value="Power On"/>
                         <Setter Target="appBarPowerButton.IsChecked" Value="True"/>
                     </VisualState.Setters>
                 </VisualState>
@@ -59,7 +56,6 @@
                         <StateTrigger IsActive="{Binding Device.IsPowerOn, Converter={StaticResource BoolNegationConverter}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="appBarPowerButton.Label" Value="Power Off"/>
                         <Setter Target="appBarPowerButton.IsChecked" Value="False"/>
                     </VisualState.Setters>
                 </VisualState>
@@ -75,12 +71,12 @@
                 <CommandBar x:Name="topCommandBar" Background="Transparent" Margin="0,0,12,0"
 							DefaultLabelPosition="Right" OverflowButtonVisibility="Collapsed">
                     
-                    <AppBarToggleButton x:Name="appBarLockButton" Label="UnLock" Command="{Binding LockCommand}">
+                    <AppBarToggleButton x:Name="appBarLockButton" Command="{Binding LockCommand}">
                         <AppBarToggleButton.Icon>
                             <FontIcon x:Name="lockIcon" Glyph="&#xE785;"/>
                         </AppBarToggleButton.Icon>
                     </AppBarToggleButton>
-                    <AppBarToggleButton x:Name="appBarPowerButton" Label="Power On" Command="{Binding PowerCommand}">
+                    <AppBarToggleButton x:Name="appBarPowerButton" Command="{Binding PowerCommand}">
                         <AppBarToggleButton.Icon>
                             <FontIcon x:Name="powerIcon" Glyph="&#xE7E8;"/>
                         </AppBarToggleButton.Icon>
